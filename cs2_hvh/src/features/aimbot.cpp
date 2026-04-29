@@ -37,18 +37,12 @@ static Vector3 get_bone_pos(uintptr_t pawn, int bone_idx) {
 static Vector3 get_view_angles(uintptr_t player_controller) {
     using namespace ::cs2::memory;
     using namespace ::cs2::offsets;
-    // CPlayer_CSObserverServices inherits, offset varies
-    // We read from playerpawn's view angle
     uintptr_t pawn_handle = read<uint32_t>(player_controller + NetVars::m_hPlayerPawn);
     if (!pawn_handle) return {};
 
-    // Resolve handle
-    uint32_t list_entry = read<uint32_t>(g_offsets.dwEntityList + 8 * ((pawn_handle & 0x7FFF) >> 9) + 0x10);
-    if (!list_entry) return {};
-    uintptr_t pawn = list_entry + 120 * (pawn_handle & 0x1FF);
+    uintptr_t pawn = get_entity_from_handle(pawn_handle);
     if (!pawn) return {};
 
-    // Read eye angle from C_CSPlayerPawnBase
     return read<Vector3>(pawn + NetVars::m_angEyeAngles);
 }
 
@@ -78,14 +72,12 @@ void run(const AimbotConfig& cfg) {
     if (!key_down) return;
 
     // Get local player
-    uintptr_t local_controller = read<uintptr_t>(g_offsets.clientBase + g_offsets.dwLocalPlayerController);
-    if (!local_controller) return;
+    uintptr_t local_controller = read<uintptr_t>(g_offsets.dwLocalPlayerController);
+    if (!IsRemotePtrValid(local_controller)) return;
     uint32_t local_pawn_handle = read<uint32_t>(local_controller + NetVars::m_hPlayerPawn);
     if (!local_pawn_handle) return;
-    uint32_t local_list_entry = read<uint32_t>(g_offsets.dwEntityList + 8 * ((local_pawn_handle & 0x7FFF) >> 9) + 0x10);
-    if (!local_list_entry) return;
-    uintptr_t local_pawn = local_list_entry + 120 * (local_pawn_handle & 0x1FF);
-    if (!local_pawn) return;
+    uintptr_t local_pawn = get_entity_from_handle(local_pawn_handle);
+    if (!IsRemotePtrValid(local_pawn)) return;
 
     uint8_t local_team = read<uint8_t>(local_pawn + NetVars::m_iTeamNum);
     Vector3 local_origin = read<Vector3>(local_pawn + NetVars::m_vecOrigin);
@@ -94,16 +86,14 @@ void run(const AimbotConfig& cfg) {
     Vector3 view_angles = read<Vector3>(local_pawn + NetVars::m_angEyeAngles);
 
     // Read view matrix
-    ViewMatrix view_matrix = read<ViewMatrix>(g_offsets.clientBase + g_offsets.dwViewMatrix);
+    ViewMatrix view_matrix = read<ViewMatrix>(g_offsets.dwViewMatrix);
 
     // Enumerate entities
     std::vector<EntityInfo> targets;
 
     for (int i = 1; i < 64; ++i) {
-        uint32_t list_entry = read<uint32_t>(g_offsets.dwEntityList + 8 * ((i & 0x7FFF) >> 9) + 0x10);
-        if (!list_entry) continue;
-        uintptr_t pawn = list_entry + 120 * (i & 0x1FF);
-        if (!pawn || pawn == local_pawn) continue;
+        uintptr_t pawn = get_entity_from_index(i);
+        if (!IsRemotePtrValid(pawn) || pawn == local_pawn) continue;
 
         int health = read<int32_t>(pawn + NetVars::m_iHealth);
         if (health <= 0 || health > 100) continue;

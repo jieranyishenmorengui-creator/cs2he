@@ -1,5 +1,6 @@
 #pragma once
 #include <cstdint>
+#include "memory.h"
 
 namespace cs2::offsets {
 
@@ -31,5 +32,25 @@ uintptr_t resolve_rip(uintptr_t addr, uint32_t offset, uint32_t instr_size = 7);
 
 // Scan all required offsets from the game module
 bool scan_offsets();
+
+// ── Entity list traversal (CS2 external: 3-level indirection) ─────
+// dwEntityList → [read] → entListBase → +8*chunk+0x10 → [read] → chunkPtr → +0x78*slot → [read] → entity
+inline uintptr_t get_entity_from_index(int index) {
+    uintptr_t entListBase = cs2::memory::read<uintptr_t>(g_offsets.dwEntityList);
+    if (!cs2::memory::IsRemotePtrValid(entListBase)) return 0;
+
+    uintptr_t chunkPtr = cs2::memory::read<uintptr_t>(entListBase + 8 * (index >> 9) + 0x10);
+    if (!cs2::memory::IsRemotePtrValid(chunkPtr)) return 0;
+
+    uintptr_t entity = cs2::memory::read<uintptr_t>(chunkPtr + 0x78 * (index & 0x1FF));
+    if (!cs2::memory::IsRemotePtrValid(entity)) return 0;
+
+    return entity;
+}
+
+inline uintptr_t get_entity_from_handle(uint32_t handle) {
+    if (!handle) return 0;
+    return get_entity_from_index(handle & 0x7FFF);
+}
 
 } // namespace cs2::offsets

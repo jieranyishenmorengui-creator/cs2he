@@ -84,19 +84,17 @@ void run(const ESPConfig& cfg) {
     if (!overlay::is_ready()) return;
 
     // ── Get local player ──────────────────────────────────────────
-    uintptr_t local_controller = safe_read<uintptr_t>(g_offsets.clientBase + g_offsets.dwLocalPlayerController);
+    uintptr_t local_controller = safe_read<uintptr_t>(g_offsets.dwLocalPlayerController);
     if (!IsRemotePtrValid(local_controller)) return;
 
     uint32_t local_pawn_handle = read<uint32_t>(local_controller + NetVars::m_hPlayerPawn);
     if (!local_pawn_handle) return;
 
-    uint32_t local_list_entry = read<uint32_t>(g_offsets.dwEntityList + 8 * ((local_pawn_handle & 0x7FFF) >> 9) + 0x10);
-    if (!IsRemotePtrValid(local_list_entry)) return;
-    uintptr_t local_pawn = local_list_entry + 120 * (local_pawn_handle & 0x1FF);
+    uintptr_t local_pawn = get_entity_from_handle(local_pawn_handle);
     if (!IsRemotePtrValid(local_pawn)) return;
 
     uint8_t local_team = read<uint8_t>(local_pawn + NetVars::m_iTeamNum);
-    ViewMatrix view_matrix = read<ViewMatrix>(g_offsets.clientBase + g_offsets.dwViewMatrix);
+    ViewMatrix view_matrix = read<ViewMatrix>(g_offsets.dwViewMatrix);
 
     int sw = overlay::get_width();
     int sh = overlay::get_height();
@@ -104,14 +102,7 @@ void run(const ESPConfig& cfg) {
     std::vector<ESPEntity> entities;
 
     for (int i = 1; i < 64; ++i) {
-        // Validate entity list entry
-        uintptr_t entry_addr = g_offsets.dwEntityList + 8 * ((i & 0x7FFF) >> 9) + 0x10;
-        if (!IsRemotePtrValid(entry_addr)) continue;
-
-        uint32_t list_entry = read<uint32_t>(entry_addr);
-        if (!IsRemotePtrValid(list_entry)) continue;
-
-        uintptr_t pawn = list_entry + 120 * (i & 0x1FF);
+        uintptr_t pawn = get_entity_from_index(i);
         if (!IsRemotePtrValid(pawn)) continue;
         if (pawn == local_pawn) continue;
 
@@ -155,13 +146,9 @@ void run(const ESPConfig& cfg) {
         {
             uint32_t ctrl_handle = read<uint32_t>(pawn + NetVars::m_hController);
             if (ctrl_handle & 0x7FFF) {
-                uintptr_t ctrl_entry_addr = g_offsets.dwEntityList + 8 * ((ctrl_handle & 0x7FFF) >> 9) + 0x10;
-                uint32_t ctrl_entry = read<uint32_t>(ctrl_entry_addr);
-                if (IsRemotePtrValid(ctrl_entry)) {
-                    uintptr_t controller = ctrl_entry + 120 * (ctrl_handle & 0x1FF);
-                    if (IsRemotePtrValid(controller))
-                        ent.name = read_string(controller + NetVars::m_iszPlayerName, 32);
-                }
+                uintptr_t controller = get_entity_from_handle(ctrl_handle);
+                if (IsRemotePtrValid(controller))
+                    ent.name = read_string(controller + NetVars::m_iszPlayerName, 32);
             }
         }
 
