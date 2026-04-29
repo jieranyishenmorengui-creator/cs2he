@@ -1,6 +1,5 @@
-11:37:06 [ERROR] failed to read cs2_dumper::analysis::buttons::buttons<memflow::plugins::os::cglue_processinstance::cglue_internal::ProcessInstance<'_, cglue::boxed::CBox<'_, cglue::trait_group::c_void>, cglue::arc::CArc<cglue::trait_group::c_void>>>: oslayer: module not found
-11:37:06 [INFO] found 0 buttons
-11:37:06 [INFO] found 96 interfaces across 23 modules
-11:37:06 [ERROR] failed to read cs2_dumper::analysis::offsets::offsets<memflow::plugins::os::cglue_processinstance::cglue_internal::ProcessInstance<'_, cglue::boxed::CBox<'_, cglue::trait_group::c_void>, cglue::arc::CArc<cglue::trait_group::c_void>>>: oslayer: module not found
-11:37:06 [INFO] found 0 offsets across 0 modules
-11:37:06 [INFO] found 143 classes and 19 enums across 5 modules
+11:54:00 [INFO] found 16 buttons
+11:54:01 [INFO] found 131 interfaces across 33 modules
+11:54:02 [INFO] found 32 offsets across 5 modules
+11:54:02 [INFO] found 3224 classes and 480 enums across 18 modules
+11:54:02 [INFO] analysis completed in 1.46s

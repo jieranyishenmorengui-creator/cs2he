@@ -1,5 +1,5 @@
 // Generated using https://github.com/a2x/cs2-dumper
-// 2026-04-29 11:37:06.934308600 UTC
+// 2026-04-29 11:54:02.236059300 UTC
 
 #pragma once
 
@@ -12,6 +12,17 @@ namespace cs2_dumper {
         namespace animationsystem_dll {
             constexpr std::ptrdiff_t AnimationSystemUtils_001 = 0x812190;
             constexpr std::ptrdiff_t AnimationSystem_001 = 0x80A0B0;
+        }
+        // Module: client.dll
+        namespace client_dll {
+            constexpr std::ptrdiff_t ClientToolsInfo_001 = 0x204D150;
+            constexpr std::ptrdiff_t EmptyWorldService001_Client = 0x2010A90;
+            constexpr std::ptrdiff_t GameClientExports001 = 0x2049DF0;
+            constexpr std::ptrdiff_t LegacyGameUI001 = 0x2065580;
+            constexpr std::ptrdiff_t Source2Client002 = 0x2323E10;
+            constexpr std::ptrdiff_t Source2ClientConfig001 = 0x2295D30;
+            constexpr std::ptrdiff_t Source2ClientPrediction001 = 0x20545B0;
+            constexpr std::ptrdiff_t Source2ClientUI001 = 0x2063AE0;
         }
         // Module: engine2.dll
         namespace engine2_dll {
@@ -54,6 +65,17 @@ namespace cs2_dumper {
             constexpr std::ptrdiff_t VAsyncFileSystem2_001 = 0x2159E0;
             constexpr std::ptrdiff_t VFileSystem017 = 0x2157A0;
         }
+        // Module: host.dll
+        namespace host_dll {
+            constexpr std::ptrdiff_t DebugDrawQueueManager001 = 0x139060;
+            constexpr std::ptrdiff_t GameModelInfo001 = 0x1390A0;
+            constexpr std::ptrdiff_t GameSystem2HostHook = 0x1390E0;
+            constexpr std::ptrdiff_t HostUtils001 = 0x148AB0;
+            constexpr std::ptrdiff_t PredictionDiffManager001 = 0x1391F0;
+            constexpr std::ptrdiff_t SaveRestoreDataVersion001 = 0x139320;
+            constexpr std::ptrdiff_t SinglePlayerSharedMemory001 = 0x139350;
+            constexpr std::ptrdiff_t Source2Host001 = 0x1393C0;
+        }
         // Module: imemanager.dll
         namespace imemanager_dll {
             constexpr std::ptrdiff_t IMEManager001 = 0x36B20;
@@ -67,6 +89,11 @@ namespace cs2_dumper {
         namespace localize_dll {
             constexpr std::ptrdiff_t Localize_001 = 0x62180;
         }
+        // Module: matchmaking.dll
+        namespace matchmaking_dll {
+            constexpr std::ptrdiff_t GameTypes001 = 0x1B0F80;
+            constexpr std::ptrdiff_t MATCHFRAMEWORK_001 = 0x1B9060;
+        }
         // Module: materialsystem2.dll
         namespace materialsystem2_dll {
             constexpr std::ptrdiff_t FontManager_001 = 0x15DE60;
@@ -79,12 +106,28 @@ namespace cs2_dumper {
         namespace meshsystem_dll {
             constexpr std::ptrdiff_t MeshSystem001 = 0x150C20;
         }
+        // Module: navsystem.dll
+        namespace navsystem_dll {
+            constexpr std::ptrdiff_t NavSystem001 = 0x122930;
+        }
         // Module: networksystem.dll
         namespace networksystem_dll {
             constexpr std::ptrdiff_t FlattenedSerializersVersion001 = 0x26D700;
             constexpr std::ptrdiff_t NetworkMessagesVersion001 = 0x2959D0;
             constexpr std::ptrdiff_t NetworkSystemVersion001 = 0x286E50;
             constexpr std::ptrdiff_t SerializedEntitiesVersion001 = 0x286F40;
+        }
+        // Module: panorama.dll
+        namespace panorama_dll {
+            constexpr std::ptrdiff_t PanoramaUIEngine001 = 0x506D30;
+        }
+        // Module: panorama_text_pango.dll
+        namespace panorama_text_pango_dll {
+            constexpr std::ptrdiff_t PanoramaTextServices001 = 0x2B8A40;
+        }
+        // Module: panoramauiclient.dll
+        namespace panoramauiclient_dll {
+            constexpr std::ptrdiff_t PanoramaUIClient001 = 0x296420;
         }
         // Module: particles.dll
         namespace particles_dll {
@@ -104,15 +147,33 @@ namespace cs2_dumper {
         namespace resourcesystem_dll {
             constexpr std::ptrdiff_t ResourceSystem013 = 0x831E0;
         }
+        // Module: scenefilecache.dll
+        namespace scenefilecache_dll {
+            constexpr std::ptrdiff_t ResponseRulesCache001 = 0xF58F0;
+            constexpr std::ptrdiff_t SceneFileCache002 = 0xF5A78;
+        }
         // Module: scenesystem.dll
         namespace scenesystem_dll {
-            constexpr std::ptrdiff_t RenderingPipelines_001 = 0x663B80;
-            constexpr std::ptrdiff_t SceneSystem_002 = 0x8DB470;
-            constexpr std::ptrdiff_t SceneUtils_001 = 0x664A90;
+            constexpr std::ptrdiff_t RenderingPipelines_001 = 0x663BA0;
+            constexpr std::ptrdiff_t SceneSystem_002 = 0x8DB490;
+            constexpr std::ptrdiff_t SceneUtils_001 = 0x664AB0;
         }
         // Module: schemasystem.dll
         namespace schemasystem_dll {
             constexpr std::ptrdiff_t SchemaSystem_001 = 0x76800;
+        }
+        // Module: server.dll
+        namespace server_dll {
+            constexpr std::ptrdiff_t EmptyWorldService001_Server = 0x1BEED40;
+            constexpr std::ptrdiff_t EntitySubclassUtilsV001 = 0x1B9A3C0;
+            constexpr std::ptrdiff_t NavGameTest001 = 0x1C9B1C0;
+            constexpr std::ptrdiff_t ServerToolsInfo_001 = 0x1C481B8;
+            constexpr std::ptrdiff_t Source2GameClients001 = 0x1C46C10;
+            constexpr std::ptrdiff_t Source2GameDirector001 = 0x1DE06E0;
+            constexpr std::ptrdiff_t Source2GameEntities001 = 0x1C478C0;
+            constexpr std::ptrdiff_t Source2Server001 = 0x1C47710;
+            constexpr std::ptrdiff_t Source2ServerConfig001 = 0x1EFE378;
+            constexpr std::ptrdiff_t customnavsystem001 = 0x1B7B6A8;
         }
         // Module: soundsystem.dll
         namespace soundsystem_dll {
@@ -155,6 +216,10 @@ namespace cs2_dumper {
             constexpr std::ptrdiff_t VEngineCvar007 = 0x3A93B0;
             constexpr std::ptrdiff_t VProcessUtils002 = 0x39E690;
             constexpr std::ptrdiff_t VStringTokenSystem001 = 0x3D00B0;
+        }
+        // Module: v8system.dll
+        namespace v8system_dll {
+            constexpr std::ptrdiff_t Source2V8System001 = 0x31730;
         }
         // Module: vphysics2.dll
         namespace vphysics2_dll {
