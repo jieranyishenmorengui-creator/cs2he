@@ -1,0 +1,91 @@
+DirectX 11 + ImGui Hook 教程
+本教程将带你一步步实现一个 DirectX 11 Hook,并使用 ImGui 进行绘制。
+1. 项目概述
+本项目的目标是 Hook DX11 的 Present 函数,在其中调用 ImGui 进行 GUI 渲染。
+2. 所需库
+- Windows API
+- DirectX 11 SDK
+- MinHook (用于 Hook)
+- ImGui
+3. 核心代码解析
+3.1 全局变量
+static ID3D11RenderTargetView* view=nullptr;//渲染目标视图
+static ID3D11Device* g_pd3dDevice= nullptr; //DirectX设备
+static IDXGISwapChain* g_pSwapChain = nullptr;//交换链
+static HWND g_hwnd=nullptr;//窗口句柄
+static ID3D11DeviceContext* g_pd3dContext = nullptr; //设备上下文
+void* origin_present=nullptr; //原始Present函数指针
+WNDPROC origin_wndProc;//原始窗口过程指针
+using Present=HRESULT(__stdcall*)(IDXGISwapChain*,UINT,UINT);//存储DX11函数的原始地址
+我们首先定义了几个全局变量来存储 DirectX 设备、上下文、交换链等信息。
+3.2 WndProc Hook
+LRESULT __stdcall WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
+if (ImGui_ImplWin32_WndProcHandler(hwnd, uMsg, wParam, lParam)){
+return true;
+}
+return CallWindowProc(origin_wndProc, hwnd, uMsg, wParam, lParam);
+}
+WndProc 是一个窗口过程函数，我们通过它来拦截窗口消息，确保 ImGui 能正确处理输入事件。
+3.3 Hook Present
+static bool inited=false;
+long __stdcall my_present(IDXGISwapChain* _this,UINT a, UINT b)
+{
+if(!inited){//如果是第一次调用
+//获取设备和上下文
+_this->GetDevice(__uuidof(ID3D11Device),(void**)&g_pd3dDevice);
+g_pd3dDevice->GetImmediateContext(&g_pd3dContext);
+DXGI_SWAP_CHAIN_DESC sd;
+_this->GetDesc(&sd); //获取交换链描述
+g_hwnd=sd.OutputWindow;//获取窗口句柄
+ID3D11Texture2D* buf{};
+_this->GetBuffer(0,__uuidof(ID3D11Texture2D),(void**)&buf);
+g_pd3dDevice->CreateRenderTargetView(buf, nullptr, &view); //获取缓冲区并创建渲染目标视图
+buf->Release();//释放缓冲区
+//Hook窗口过程
+origin_wndProc = (WNDPROC)SetWindowLongPtr(g_hwnd, GWLP_WNDPROC, (LONG_PTR)WndProc);
+//初始化ImGui
+ImGui::CreateContext();
+ImGui_ImplWin32_Init(g_hwnd);
+ImGui_ImplDX11_Init(g_pd3dDevice,g_pd3dContext);
+inited= true;
+}
+//开始新的帧
+ImGui_ImplDX11_NewFrame();
+ImGui_ImplWin32_NewFrame();
+ImGui::NewFrame();
+//绘制ImGui界面
+ImGui::Begin("GUI");
+ImGui::Text("hello world");//显示一条信息
+ImGui::End();
+//渲染ImGui
+ImGui::EndFrame();
+ImGui::Render();
+g_pd3dContext->OMSetRenderTargets(1, &view, nullptr);
+ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+//调用原始Present函数
+return((Present)origin_present)(_this,a,b);
+}
+在每帧渲染时，我们调用 Hook 函数来初始化 ImGui，并在其中绘制 GUI。
+3.4 创建 Hook
+Directx设备并进行Hook
+void** vtable = *(void***)(g_pSwapChain);
+present = vtable[8];
+//初始化MinHook
+//释放设备和交
+return
+我们手动创建一个 DirectX 设备，获取 Present 函数地址并进行 Hook。
+3.5 DllMain 入口
+DllMain入口函数(DLL加载时调用)
+static BOOL __stdcall DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserved) {
+if (ul_reason_for_call == DLL_PROCESS_ATTACH){//DLL被加载时
+CreateThread(NULL,0,create,NULL,0,NULL);//创建新线程执行Hook
+}
+return TRUE;
+}
+当 DLL 被加载时，我们创建一个线程来执行 Hook。
+4. 编译与注入
+步骤:
+1. 使用 Visual Studio 创建 DLL 项目。
+2. 添加 MinHook 和 ImGui 依赖。
+3. 编译为 DLL 文件。
+4. 使用 DLL 注入工具(手动映射模式)将 DLL 注入目标进程。

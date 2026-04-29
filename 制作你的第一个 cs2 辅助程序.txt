@@ -1,0 +1,188 @@
+制作你的第一个 cs2 辅助程序
+前言：文中为了排版缩小了很多图形，您可以按住 ctrl 并将滚轮向上滑动放大缩放，即可看清所有图片
+1. 初始化
+现在你想要进行 cs2 cheat 的开发，你需要拥有以下程序：Visual Studio 2022：此程序用于提供现代化的 ide，编译器和代码编写界面（您也可以使用 txt 代替）HXD：此程序用于将任何文件转成十六进制头文件并镶嵌在项目中（主要用于在 GUI 绘制自定义字体和图片）IDA Pro (x64)：此程序用于静态分析 cs2 代码，需要您自行寻找下载链接
+1.1 vs studio 的配置与安装
+在您下载 vs studio 安装程序后，您将会看到以下界面您只需要勾选 c++ 桌面开发并继续即可完成安装
+1.2 项目的创建
+安装完成后启动 vs studio，单击创建新项目并继续新建一个 C++ 空项目，名字根据您的喜好决定
+1.2 项目初始化
+在开始之前，您需要下载 imgui 图形库进行绘制，我推荐您下载现成 vtable hook 模板，这可以极大的缩短您的编写时间：https://github.com/pain1929/imgui_dx11单击此按钮进行下载并解压备用回到项目进入界面，点击右侧的显示所有文件，这样做的好处是项目结构会和文件管理器一样，方便我们了解项目布局。右键项目名称，点击添加，选择添加现有项将解压好的 imgui_dx11-master 文件夹内的所有文件都拖动到此项目根文件夹然后点击右下加取消回到项目，然后点击右侧刷新文件列表，不出意外的话，您应该会看到您刚刚拖进去的几个文件夹和文件和图标右下角的小红点，您需要右键他们，点击包括在项目中把所有文件夹包括在项目中后，让我们来配置项目属性吧！
+1.3 项目的配置
+点击上方项目 -> 属性打开项目配置配置类型改为动态库（.dll）C++ 语言标准改为 preview（C++ 23）点击 C/C++，将附加包含目录添加以上两个字段点击链接器，将附加库目录添加以上一个字段点击输入 -> 附加依赖项 添加以上两个字段
+2. ESP 编写
+如果一切顺利，你应该会看到所有错误已经消除，此时你可以编译 realese 版本并注入游戏查看 imgui 是否正确注入到游戏If (!xxxxxx) 只能判断此指针或地址是不是 0，并不能判断真实合法性！
+以下是真正的判断合法性函数:
+cpp
+运行
+inline bool IsPointerValid(void* ptr)
+{
+    if (!ptr)
+        return false;
+    MEMORY_BASIC_INFORMATION mbi;
+    if (VirtualQuery(ptr,&mbi, sizeof(mbi))==0)
+        return false;
+    if (mbi.State!= MEM_COMMIT)
+        return false;
+    DWORD protect = mbi.Protect;
+    if (protect& (PAGE_NOACCESS | PAGE_GUARD))
+        return false;
+    if (!(protect& (PAGE_READONLY | PAGE_READWRITE | PAGE_EXECUTE_READ | PAGE_EXECUTE_READWRITE)))
+        return false;
+    return true;
+}
+2.1 获取 cs2 所有字段的偏移
+在 cs2 中，客户端的所有实体变量（netvar）都是通过 schema 系统进行上传的，所以我们可以通过 schema 接口获取所有字段的名字，变量类型和相对他结构体的偏移，这也解释了为什么获取 cs2 的实体名字和偏移总是很轻松可以获取。在本文中，我们将使用此工具进行获取：https://github.com/a2x/cs2-dumper/releases/download/0.1.2/cs2-dumper.exe启动游戏运行 exe，他就会生成一个 output 文件夹
+2.2 函数介绍
+在接下来的步骤中我们将会用到以下几个函数:关于 cs2_dumper::offsets::client_dll，命名空间来自我们上面 dumper 出来的 offsets.hpp 中
+GetBaseEntity（）
+cpp
+运行
+uintptr_t GetBaseEntity(int index,uintptr_t client){
+    auto entListBase=*reinterpret_cast<std::uintptr_t*>(client+cs2_dumper::offsets::client_dll::dwEntityList);
+    if (entListBase==0){
+        return 0;
+    }
+    auto entitylistbase=*reinterpret_cast<std::uintptr_t*>(entListBase+0x8*(index>>9)+16);
+    if (entitylistbase==0){
+        return 0;
+    }
+    return *reinterpret_cast<std::uintptr_t*>(entitylistbase+(0x78*(index & 0x1FF)));
+}
+GetBaseEntity（）这个函数返回一个实体的控制器，对应的是 client 里的 C_BaseEntity 类型，所以 C_BaseEntity 下的字段对这个控制器可用。想象一个超市在一个城市里（城市就是 client），整个超市就是 dwEntityList（存放所有实体），超市里有很多货架，每个货架最多能放 512 件商品（每个分区最多存 512 个实体，所以 index >> 9 等价于 index/512），然后再通过只保留低 9 位（index & 0x1FF）的方式算出商品在货架的哪个位置
+GetBaseEntityFromHandle（）
+GetBaseEntityFromHandle（）这个函数返回一个实体的 Pawn（基址 / 本体），对应的是 client 里的 C_CSPlayerPawn C_CSWeaponBase 类型，所以他继承 C_BaseEntity 和他本身这个类，多个字段对这个实体可用。与 GetBaseEntity（）不同的是他会传入一个实体的 uhandle（句柄），并通过 uhandle & 0x7FFF 的方式取低 15 位获取真实索引，其他的没有任何不同。
+GetEyePos（）
+cpp
+运行
+std::optional<Vector3> GetEyePos(uintptr_t addr) noexcept{
+    auto Origin=reinterpret_cast<Vector3*>(addr+cs2_dumper::schemas::client_dll::C_BasePlayerPawn::m_vOldOrigin);
+    auto ViewOffset= reinterpret_cast<Vector3*>(addr+cs2_dumper::schemas::client_dll::CBaseModelEntity::m_vecViewOffset);
+    Vector3 LocalEye= *Origin+*ViewOffset;
+    if(std::isinf(LocalEye.x)||std::isinf(LocalEye.y)||std::isinf(LocalEye.z))
+        return std::nullopt;
+    if (LocalEye.Length()<0.1f)
+        return std::nullopt;
+    return LocalEye;
+}
+GetEyePos（）函数：此函数通过 abs_Origin 玩家脚底的位置（世界坐标）加上 ViewOffset （从脚底到眼睛的偏移），得到敌人的眼球坐标（也叫摄像机坐标）
+WorldToScreen（）
+cpp
+运行
+bool WorldToScreen(Vector3& pWorldPos,Vector3& pScreenPos,float* pMatrixPtr,float pWinWidth,float pWinHeight)
+{
+    float matrix2[4][4];
+    memcpy(matrix2,pMatrixPtr,16*sizeof(float));
+    const float mX = pWinWidth/2;
+    const float mY = pWinHeight/2;
+    const float w =
+    matrix2[3][0]*pWorldPos.x +
+    matrix2[3][1]*pWorldPos.y +
+    matrix2[3][2]*pWorldPos.z +
+    matrix2[3][3];
+    if (w<0.65f) return false;
+    const float x =
+    matrix2[0][0]*pWorldPos.x+
+    matrix2[0][1]*pWorldPos.y+
+    matrix2[0][2]*pWorldPos.z+
+    matrix2[0][3];
+    const float y =
+    matrix2[1][0]*pWorldPos.x+
+    matrix2[1][1]*pWorldPos.y+
+    matrix2[1][2]*pWorldPos.z+
+    matrix2[1][3];
+    pScreenPos.x=(mX+mX*x/w);
+    pScreenPos.y=(mY-mY*y/w);
+    pScreenPos.z=0;
+    return true;
+}
+WorldToScreen（）函数：这个函数就是把 3D 点投影到屏幕上，步骤很简单：拷贝传进来的 4×4 矩阵用矩阵第 4 行算出 w，如果 w < 0.65，点离相机太近或在背后，返回 false用矩阵第 1、2 行算出 x、y（还没除以 w 的裁剪坐标）做透视除法 x/w、y/w，再 × 半屏宽 / 高并加上屏幕中心，得出最终屏幕坐标 pScreenPos返回 true，表示这个点可见并已转换好。
+2.3 ESP 逻辑编写
+重复 1.2 的步骤添加这两个 dump 出来的文件到你的项目根目录（如果您想要让文件看起来很清爽的话可以创建一个 cs2 dumper 目录，再放进这个目录里）然后创建一个 ESP.cpp 和 hpp
+在 ESP.cpp 引入这些头文件（Vector3 你可以用 ImVec3 代替或者去随便找个 Vec3 的库即可）
+cpp
+运行
+#include "Windows.h"
+#include "offsets.hpp"
+#include "client_dll.hpp"
+#include <cstdint>
+#include "Vector.h"
+#include <optional>
+#include <cmath>
+然后继续创建一个 void 函数，不返回值。
+cpp
+运行
+static auto client= reinterpret_cast<uintptr_t>(GetModuleHandle(L"client.dll"));
+auto Localplayer_pawn=*reinterpret_cast<uintptr_t*>(client+cs2_dumper::offsets::client_dll::dwLocalPlayerPawn);
+if (Localplayer_pawn==0)
+    return;
+auto Localplayer_health =*reinterpret_cast<int*>(Localplayer_pawn+cs2_dumper::schemas::client_dll::C_BaseEntity::m_Health);
+if (Localplayer_health<=0)
+    return;
+auto Localplayer_team=*reinterpret_cast<int*>(Localplayer_pawn+cs2_dumper::schemas::client_dll::C_BaseEntity::m_iTeamNum);
+if (!localplayer_team)
+    return;
+auto Matrix =reinterpret_cast<float*>(client + cs2_dumper::offsets::client_dll::dwViewMatrix);
+if (!Matrix){
+    return;
+}
+获取本地玩家队伍进行有效检查，然后获取矩阵为我们的 WorldToScreen（）做准备
+cpp
+运行
+for (int i=0;i<64; i++){
+}
+接下来我们需要构建一个 for 循环，来循环遍历所有敌人，并给每个敌人画框
+【FAQ】Q：为什么这样子可以给每个敌人都画上框？不会出现我画了第 2 个以后，第 1 个敌人的框就没了吗？A: 不会的，因为我们这些操作都是在一个渲染帧之内进行的（所以如果你作死在这里面写 sleep 会导致游戏 fps = 0 和帧生成延迟来到恐怖的 2000ms ，所以请记住，不要在任何渲染操作内加 sleep 或者其他休眠中断函数，你可以使用异步延迟时间戳来代替）
+For 循环内的逻辑
+cpp
+运行
+uintptr_t player_co= GetBaseEntity(i, client);
+if (!player_co)
+    continue;
+uint32_t hplayer_pawn=*reinterpret_cast<uint32_t*>(player_co+cs2_dumper::schemas::client_dll::C_BasePlayerController::m_hPawn);
+uintptr_t player_pawn= GetBaseEntityFromHandle(hplayer_pawn,client);
+if (player_pawn == Localplayer_pawn || player_pawn==0)
+    continue;
+int player_team=*reinterpret_cast<int*>(player_pawn+cs2_dumper::schemas::client_dll::C_BaseEntity::m_iTeamNum);
+int player_health=*reinterpret_cast<int*>(player_pawn+cs2_dumper::schemas::client_dll::C_BaseEntity::m_iHealth);
+if (player_team== Localplayer_team || player_health<=0)
+    continue;
+流程如下：遍历所有可能的玩家索引通过 GetBaseEntity 拿到该索引对应的控制器对象从控制器里读出 Pawn 句柄根据句柄通过 GetBaseEntityFromHandle 取回 Pawn 内存地址过滤掉自己和无效指针直接读内存，拿队伍和生命值过滤队友和死亡实体
+cpp
+运行
+Vector3 player_Origin=*reinterpret_cast<Vector3*>(player_pawn+cs2_dumper::schemas::client_dll::C_BasePlayerPawn::m_vOldOrigin);
+auto player_eyepos_op = GetEyePos(player_pawn);
+if(!player_eyepos_op.has_value())
+    continue;
+auto player_eyepos=player_eyepos_op.value();
+static const float w= ImGui::GetIO().DisplaySize.x;
+static const float h= ImGui::GetIO().DisplaySize.y;
+Vector3 head_pos_2d;
+Vector3 abs_pos_2d;
+根据玩家 Pawn，通过 C_BasePlayerPawn 下的 m_vOldOrigin 字段，读取并保存该玩家的绝对原点坐标（脚底）调用 GetEyePos 函数获取玩家的眼睛（摄像机）位置，如果没有眼球坐标，就跳过该玩家通过 value 取出眼睛位置获取屏幕宽度和高度，作为参数后续传递给 WorldToScreen 函数
+cpp
+运行
+Vector3 head_pos_2d{};
+Vector3 abs_pos_2d{};
+if (!WorldToScreen(player_Origin,abs_pos_2d,Matrix,w,h))
+    continue;
+if(!WorldToScreen(player_eyepos,head_pos_2d,Matrix,w,h))
+    continue;
+const float height = abs(head_pos_2d.y-abs_pos_2d.y)*1.25f;
+const float width = height/2.f;
+const float x= head_pos_2d.x-(width/2.f);
+const float y= head_pos_2d.y-(width/2.5f);
+if (Menu::box)
+    ImGui::GetBackgroundDrawList()->AddRect(ImVec2(x,y),ImVec2(x+width,y+height),ImColor(255,0,0,255),0.0f,0,2.0f);
+使用 WorldToScreen，分别将玩家的绝对原点和眼球坐标这两个三维坐标转换为 2 维坐标；若任一转换失败，则跳过该玩家；计算人物在屏幕上的高度：用头部屏幕 Y 坐标减去脚部屏幕 Y 坐标，再乘以一个缩放系数；计算矩形框的宽度和左上角坐标：宽度为高度的一半，横坐标为头部 X 坐标减去半个宽度，纵坐标为头部 Y 坐标减去宽度的 2.5 倍（当然这些都是可以你自定义的）；如果在菜单里开启了 “box” 选项，就在 ImGui 绘制方框；
+然后在 ESP.h 中声明你的 esp 函数，他可以是任何名字但要和你的 esp.cpp 的定义一致：
+cpp
+运行
+void draw_esp();
+回到 dllmain，在渲染帧调用您的 esp 函数
+cpp
+运行
+ImGui::NewFrame();
+draw_esp();
+ImGui::EndFrame();
+好极了！现在重新注入，您应该可以看到美丽的红色横线绘制在每个敌人附近了
