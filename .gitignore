@@ -1,6 +1,6 @@
 # Build output
-build/
-bin/
+cs2_hvh/build/
+cs2_hvh/bin/
 *.exe
 *.pdb
 *.ilk
@@ -21,7 +21,7 @@ cmake_install.cmake
 Makefile
 
 # Debug log
-cs2_hvh_debug.txt
+cs2_hvh/cs2_hvh_debug.txt
 
 # Config
-config.json
+cs2_hvh/config.json

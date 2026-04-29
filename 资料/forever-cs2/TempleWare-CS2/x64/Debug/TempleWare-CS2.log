@@ -1,0 +1,2479 @@
+﻿  blur.cpp
+  imgui.cpp
+  imgui_demo.cpp
+  imgui_draw.cpp
+  imgui_impl_dx11.cpp
+  imgui_impl_dx9.cpp
+  imgui_impl_win32.cpp
+  imgui_tables.cpp
+  imgui_widgets.cpp
+  kiero.cpp
+  gui.cpp
+  cutlbuffer.cpp
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(12,9): warning C4005: DXGI_STATUS_OCCLUDED: изменение макроопределения
+  (компиляция исходного файла "external/imgui/imgui_impl_dx11.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58190,9):
+      см. предыдущее определение "DXGI_STATUS_OCCLUDED"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(13,9): warning C4005: DXGI_STATUS_CLIPPED: изменение макроопределения
+  (компиляция исходного файла "external/imgui/imgui_impl_dx11.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58199,9):
+      см. предыдущее определение "DXGI_STATUS_CLIPPED"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(14,9): warning C4005: DXGI_STATUS_NO_REDIRECTION: изменение макроопределения
+  (компиляция исходного файла "external/imgui/imgui_impl_dx11.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58208,9):
+      см. предыдущее определение "DXGI_STATUS_NO_REDIRECTION"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(15,9): warning C4005: DXGI_STATUS_NO_DESKTOP_ACCESS: изменение макроопределения
+  (компиляция исходного файла "external/imgui/imgui_impl_dx11.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58217,9):
+      см. предыдущее определение "DXGI_STATUS_NO_DESKTOP_ACCESS"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(16,9): warning C4005: DXGI_STATUS_GRAPHICS_VIDPN_SOURCE_IN_USE: изменение макроопределения
+  (компиляция исходного файла "external/imgui/imgui_impl_dx11.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58226,9):
+      см. предыдущее определение "DXGI_STATUS_GRAPHICS_VIDPN_SOURCE_IN_USE"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(17,9): warning C4005: DXGI_STATUS_MODE_CHANGED: изменение макроопределения
+  (компиляция исходного файла "external/imgui/imgui_impl_dx11.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58235,9):
+      см. предыдущее определение "DXGI_STATUS_MODE_CHANGED"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(18,9): warning C4005: DXGI_STATUS_MODE_CHANGE_IN_PROGRESS: изменение макроопределения
+  (компиляция исходного файла "external/imgui/imgui_impl_dx11.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58244,9):
+      см. предыдущее определение "DXGI_STATUS_MODE_CHANGE_IN_PROGRESS"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(21,9): warning C4005: DXGI_ERROR_INVALID_CALL: изменение макроопределения
+  (компиляция исходного файла "external/imgui/imgui_impl_dx11.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58259,9):
+      см. предыдущее определение "DXGI_ERROR_INVALID_CALL"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(22,9): warning C4005: DXGI_ERROR_NOT_FOUND: изменение макроопределения
+  (компиляция исходного файла "external/imgui/imgui_impl_dx11.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58268,9):
+      см. предыдущее определение "DXGI_ERROR_NOT_FOUND"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(23,9): warning C4005: DXGI_ERROR_MORE_DATA: изменение макроопределения
+  (компиляция исходного файла "external/imgui/imgui_impl_dx11.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58277,9):
+      см. предыдущее определение "DXGI_ERROR_MORE_DATA"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(24,9): warning C4005: DXGI_ERROR_UNSUPPORTED: изменение макроопределения
+  (компиляция исходного файла "external/imgui/imgui_impl_dx11.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58286,9):
+      см. предыдущее определение "DXGI_ERROR_UNSUPPORTED"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(25,9): warning C4005: DXGI_ERROR_DEVICE_REMOVED: изменение макроопределения
+  (компиляция исходного файла "external/imgui/imgui_impl_dx11.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58295,9):
+      см. предыдущее определение "DXGI_ERROR_DEVICE_REMOVED"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(26,9): warning C4005: DXGI_ERROR_DEVICE_HUNG: изменение макроопределения
+  (компиляция исходного файла "external/imgui/imgui_impl_dx11.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58304,9):
+      см. предыдущее определение "DXGI_ERROR_DEVICE_HUNG"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(27,9): warning C4005: DXGI_ERROR_DEVICE_RESET: изменение макроопределения
+  (компиляция исходного файла "external/imgui/imgui_impl_dx11.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58314,9):
+      см. предыдущее определение "DXGI_ERROR_DEVICE_RESET"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(28,9): warning C4005: DXGI_ERROR_WAS_STILL_DRAWING: изменение макроопределения
+  (компиляция исходного файла "external/imgui/imgui_impl_dx11.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58323,9):
+      см. предыдущее определение "DXGI_ERROR_WAS_STILL_DRAWING"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(29,9): warning C4005: DXGI_ERROR_FRAME_STATISTICS_DISJOINT: изменение макроопределения
+  (компиляция исходного файла "external/imgui/imgui_impl_dx11.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58333,9):
+      см. предыдущее определение "DXGI_ERROR_FRAME_STATISTICS_DISJOINT"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(30,9): warning C4005: DXGI_ERROR_GRAPHICS_VIDPN_SOURCE_IN_USE: изменение макроопределения
+  (компиляция исходного файла "external/imgui/imgui_impl_dx11.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58342,9):
+      см. предыдущее определение "DXGI_ERROR_GRAPHICS_VIDPN_SOURCE_IN_USE"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(31,9): warning C4005: DXGI_ERROR_DRIVER_INTERNAL_ERROR: изменение макроопределения
+  (компиляция исходного файла "external/imgui/imgui_impl_dx11.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58352,9):
+      см. предыдущее определение "DXGI_ERROR_DRIVER_INTERNAL_ERROR"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(32,9): warning C4005: DXGI_ERROR_NONEXCLUSIVE: изменение макроопределения
+  (компиляция исходного файла "external/imgui/imgui_impl_dx11.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58361,9):
+      см. предыдущее определение "DXGI_ERROR_NONEXCLUSIVE"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(33,9): warning C4005: DXGI_ERROR_NOT_CURRENTLY_AVAILABLE: изменение макроопределения
+  (компиляция исходного файла "external/imgui/imgui_impl_dx11.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58370,9):
+      см. предыдущее определение "DXGI_ERROR_NOT_CURRENTLY_AVAILABLE"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(34,9): warning C4005: DXGI_ERROR_REMOTE_CLIENT_DISCONNECTED: изменение макроопределения
+  (компиляция исходного файла "external/imgui/imgui_impl_dx11.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58380,9):
+      см. предыдущее определение "DXGI_ERROR_REMOTE_CLIENT_DISCONNECTED"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(35,9): warning C4005: DXGI_ERROR_REMOTE_OUTOFMEMORY: изменение макроопределения
+  (компиляция исходного файла "external/imgui/imgui_impl_dx11.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58389,9):
+      см. предыдущее определение "DXGI_ERROR_REMOTE_OUTOFMEMORY"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\d3d11.h(917,9): warning C4005: D3D11_ERROR_TOO_MANY_UNIQUE_STATE_OBJECTS: изменение макроопределения
+  (компиляция исходного файла "external/imgui/imgui_impl_dx11.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58695,9):
+      см. предыдущее определение "D3D11_ERROR_TOO_MANY_UNIQUE_STATE_OBJECTS"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\d3d11.h(918,9): warning C4005: D3D11_ERROR_FILE_NOT_FOUND: изменение макроопределения
+  (компиляция исходного файла "external/imgui/imgui_impl_dx11.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58704,9):
+      см. предыдущее определение "D3D11_ERROR_FILE_NOT_FOUND"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\d3d11.h(919,9): warning C4005: D3D11_ERROR_TOO_MANY_UNIQUE_VIEW_OBJECTS: изменение макроопределения
+  (компиляция исходного файла "external/imgui/imgui_impl_dx11.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58714,9):
+      см. предыдущее определение "D3D11_ERROR_TOO_MANY_UNIQUE_VIEW_OBJECTS"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\d3d11.h(920,9): warning C4005: D3D11_ERROR_DEFERRED_CONTEXT_MAP_WITHOUT_INITIAL_DISCARD: изменение макроопределения
+  (компиляция исходного файла "external/imgui/imgui_impl_dx11.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58723,9):
+      см. предыдущее определение "D3D11_ERROR_DEFERRED_CONTEXT_MAP_WITHOUT_INITIAL_DISCARD"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\d3d10.h(608,9): warning C4005: D3D10_ERROR_TOO_MANY_UNIQUE_STATE_OBJECTS: изменение макроопределения
+  (компиляция исходного файла "external/imgui/imgui_impl_dx11.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58671,9):
+      см. предыдущее определение "D3D10_ERROR_TOO_MANY_UNIQUE_STATE_OBJECTS"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\d3d10.h(609,9): warning C4005: D3D10_ERROR_FILE_NOT_FOUND: изменение макроопределения
+  (компиляция исходного файла "external/imgui/imgui_impl_dx11.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58680,9):
+      см. предыдущее определение "D3D10_ERROR_FILE_NOT_FOUND"
+  
+  utlhash.cpp
+  keyvalues.cpp
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(12,9): warning C4005: DXGI_STATUS_OCCLUDED: изменение макроопределения
+  (компиляция исходного файла "external/kiero/kiero.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58190,9):
+      см. предыдущее определение "DXGI_STATUS_OCCLUDED"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(13,9): warning C4005: DXGI_STATUS_CLIPPED: изменение макроопределения
+  (компиляция исходного файла "external/kiero/kiero.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58199,9):
+      см. предыдущее определение "DXGI_STATUS_CLIPPED"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(14,9): warning C4005: DXGI_STATUS_NO_REDIRECTION: изменение макроопределения
+  (компиляция исходного файла "external/kiero/kiero.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58208,9):
+      см. предыдущее определение "DXGI_STATUS_NO_REDIRECTION"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(15,9): warning C4005: DXGI_STATUS_NO_DESKTOP_ACCESS: изменение макроопределения
+  (компиляция исходного файла "external/kiero/kiero.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58217,9):
+      см. предыдущее определение "DXGI_STATUS_NO_DESKTOP_ACCESS"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(16,9): warning C4005: DXGI_STATUS_GRAPHICS_VIDPN_SOURCE_IN_USE: изменение макроопределения
+  (компиляция исходного файла "external/kiero/kiero.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58226,9):
+      см. предыдущее определение "DXGI_STATUS_GRAPHICS_VIDPN_SOURCE_IN_USE"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(17,9): warning C4005: DXGI_STATUS_MODE_CHANGED: изменение макроопределения
+  (компиляция исходного файла "external/kiero/kiero.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58235,9):
+      см. предыдущее определение "DXGI_STATUS_MODE_CHANGED"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(18,9): warning C4005: DXGI_STATUS_MODE_CHANGE_IN_PROGRESS: изменение макроопределения
+  (компиляция исходного файла "external/kiero/kiero.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58244,9):
+      см. предыдущее определение "DXGI_STATUS_MODE_CHANGE_IN_PROGRESS"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(21,9): warning C4005: DXGI_ERROR_INVALID_CALL: изменение макроопределения
+  (компиляция исходного файла "external/kiero/kiero.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58259,9):
+      см. предыдущее определение "DXGI_ERROR_INVALID_CALL"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(22,9): warning C4005: DXGI_ERROR_NOT_FOUND: изменение макроопределения
+  (компиляция исходного файла "external/kiero/kiero.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58268,9):
+      см. предыдущее определение "DXGI_ERROR_NOT_FOUND"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(23,9): warning C4005: DXGI_ERROR_MORE_DATA: изменение макроопределения
+  (компиляция исходного файла "external/kiero/kiero.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58277,9):
+      см. предыдущее определение "DXGI_ERROR_MORE_DATA"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(24,9): warning C4005: DXGI_ERROR_UNSUPPORTED: изменение макроопределения
+  (компиляция исходного файла "external/kiero/kiero.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58286,9):
+      см. предыдущее определение "DXGI_ERROR_UNSUPPORTED"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(25,9): warning C4005: DXGI_ERROR_DEVICE_REMOVED: изменение макроопределения
+  (компиляция исходного файла "external/kiero/kiero.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58295,9):
+      см. предыдущее определение "DXGI_ERROR_DEVICE_REMOVED"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(26,9): warning C4005: DXGI_ERROR_DEVICE_HUNG: изменение макроопределения
+  (компиляция исходного файла "external/kiero/kiero.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58304,9):
+      см. предыдущее определение "DXGI_ERROR_DEVICE_HUNG"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(27,9): warning C4005: DXGI_ERROR_DEVICE_RESET: изменение макроопределения
+  (компиляция исходного файла "external/kiero/kiero.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58314,9):
+      см. предыдущее определение "DXGI_ERROR_DEVICE_RESET"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(28,9): warning C4005: DXGI_ERROR_WAS_STILL_DRAWING: изменение макроопределения
+  (компиляция исходного файла "external/kiero/kiero.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58323,9):
+      см. предыдущее определение "DXGI_ERROR_WAS_STILL_DRAWING"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(29,9): warning C4005: DXGI_ERROR_FRAME_STATISTICS_DISJOINT: изменение макроопределения
+  (компиляция исходного файла "external/kiero/kiero.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58333,9):
+      см. предыдущее определение "DXGI_ERROR_FRAME_STATISTICS_DISJOINT"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(30,9): warning C4005: DXGI_ERROR_GRAPHICS_VIDPN_SOURCE_IN_USE: изменение макроопределения
+  (компиляция исходного файла "external/kiero/kiero.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58342,9):
+      см. предыдущее определение "DXGI_ERROR_GRAPHICS_VIDPN_SOURCE_IN_USE"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(31,9): warning C4005: DXGI_ERROR_DRIVER_INTERNAL_ERROR: изменение макроопределения
+  (компиляция исходного файла "external/kiero/kiero.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58352,9):
+      см. предыдущее определение "DXGI_ERROR_DRIVER_INTERNAL_ERROR"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(32,9): warning C4005: DXGI_ERROR_NONEXCLUSIVE: изменение макроопределения
+  (компиляция исходного файла "external/kiero/kiero.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58361,9):
+      см. предыдущее определение "DXGI_ERROR_NONEXCLUSIVE"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(33,9): warning C4005: DXGI_ERROR_NOT_CURRENTLY_AVAILABLE: изменение макроопределения
+  (компиляция исходного файла "external/kiero/kiero.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58370,9):
+      см. предыдущее определение "DXGI_ERROR_NOT_CURRENTLY_AVAILABLE"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(34,9): warning C4005: DXGI_ERROR_REMOTE_CLIENT_DISCONNECTED: изменение макроопределения
+  (компиляция исходного файла "external/kiero/kiero.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58380,9):
+      см. предыдущее определение "DXGI_ERROR_REMOTE_CLIENT_DISCONNECTED"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(35,9): warning C4005: DXGI_ERROR_REMOTE_OUTOFMEMORY: изменение макроопределения
+  (компиляция исходного файла "external/kiero/kiero.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58389,9):
+      см. предыдущее определение "DXGI_ERROR_REMOTE_OUTOFMEMORY"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\d3d11.h(917,9): warning C4005: D3D11_ERROR_TOO_MANY_UNIQUE_STATE_OBJECTS: изменение макроопределения
+  (компиляция исходного файла "external/kiero/kiero.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58695,9):
+      см. предыдущее определение "D3D11_ERROR_TOO_MANY_UNIQUE_STATE_OBJECTS"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\d3d11.h(918,9): warning C4005: D3D11_ERROR_FILE_NOT_FOUND: изменение макроопределения
+  (компиляция исходного файла "external/kiero/kiero.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58704,9):
+      см. предыдущее определение "D3D11_ERROR_FILE_NOT_FOUND"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\d3d11.h(919,9): warning C4005: D3D11_ERROR_TOO_MANY_UNIQUE_VIEW_OBJECTS: изменение макроопределения
+  (компиляция исходного файла "external/kiero/kiero.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58714,9):
+      см. предыдущее определение "D3D11_ERROR_TOO_MANY_UNIQUE_VIEW_OBJECTS"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\d3d11.h(920,9): warning C4005: D3D11_ERROR_DEFERRED_CONTEXT_MAP_WITHOUT_INITIAL_DISCARD: изменение макроопределения
+  (компиляция исходного файла "external/kiero/kiero.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58723,9):
+      см. предыдущее определение "D3D11_ERROR_DEFERRED_CONTEXT_MAP_WITHOUT_INITIAL_DISCARD"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\d3d10.h(608,9): warning C4005: D3D10_ERROR_TOO_MANY_UNIQUE_STATE_OBJECTS: изменение макроопределения
+  (компиляция исходного файла "external/kiero/kiero.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58671,9):
+      см. предыдущее определение "D3D10_ERROR_TOO_MANY_UNIQUE_STATE_OBJECTS"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\d3d10.h(609,9): warning C4005: D3D10_ERROR_FILE_NOT_FOUND: изменение макроопределения
+  (компиляция исходного файла "external/kiero/kiero.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58680,9):
+      см. предыдущее определение "D3D10_ERROR_FILE_NOT_FOUND"
+  
+  ISchemaClass.cpp
+  CCSPlayerController.cpp
+  C_CSPlayerPawn.cpp
+  C_CSWeaponBase.cpp
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(12,9): warning C4005: DXGI_STATUS_OCCLUDED: изменение макроопределения
+  (компиляция исходного файла "source/cs2/datatypes/cutlbuffer/cutlbuffer.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58190,9):
+      см. предыдущее определение "DXGI_STATUS_OCCLUDED"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(13,9): warning C4005: DXGI_STATUS_CLIPPED: изменение макроопределения
+  (компиляция исходного файла "source/cs2/datatypes/cutlbuffer/cutlbuffer.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58199,9):
+      см. предыдущее определение "DXGI_STATUS_CLIPPED"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(14,9): warning C4005: DXGI_STATUS_NO_REDIRECTION: изменение макроопределения
+  (компиляция исходного файла "source/cs2/datatypes/cutlbuffer/cutlbuffer.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58208,9):
+      см. предыдущее определение "DXGI_STATUS_NO_REDIRECTION"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(15,9): warning C4005: DXGI_STATUS_NO_DESKTOP_ACCESS: изменение макроопределения
+  (компиляция исходного файла "source/cs2/datatypes/cutlbuffer/cutlbuffer.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58217,9):
+      см. предыдущее определение "DXGI_STATUS_NO_DESKTOP_ACCESS"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(16,9): warning C4005: DXGI_STATUS_GRAPHICS_VIDPN_SOURCE_IN_USE: изменение макроопределения
+  (компиляция исходного файла "source/cs2/datatypes/cutlbuffer/cutlbuffer.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58226,9):
+      см. предыдущее определение "DXGI_STATUS_GRAPHICS_VIDPN_SOURCE_IN_USE"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(17,9): warning C4005: DXGI_STATUS_MODE_CHANGED: изменение макроопределения
+  (компиляция исходного файла "source/cs2/datatypes/cutlbuffer/cutlbuffer.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58235,9):
+      см. предыдущее определение "DXGI_STATUS_MODE_CHANGED"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(18,9): warning C4005: DXGI_STATUS_MODE_CHANGE_IN_PROGRESS: изменение макроопределения
+  (компиляция исходного файла "source/cs2/datatypes/cutlbuffer/cutlbuffer.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58244,9):
+      см. предыдущее определение "DXGI_STATUS_MODE_CHANGE_IN_PROGRESS"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(21,9): warning C4005: DXGI_ERROR_INVALID_CALL: изменение макроопределения
+  (компиляция исходного файла "source/cs2/datatypes/cutlbuffer/cutlbuffer.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58259,9):
+      см. предыдущее определение "DXGI_ERROR_INVALID_CALL"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(22,9): warning C4005: DXGI_ERROR_NOT_FOUND: изменение макроопределения
+  (компиляция исходного файла "source/cs2/datatypes/cutlbuffer/cutlbuffer.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58268,9):
+      см. предыдущее определение "DXGI_ERROR_NOT_FOUND"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(23,9): warning C4005: DXGI_ERROR_MORE_DATA: изменение макроопределения
+  (компиляция исходного файла "source/cs2/datatypes/cutlbuffer/cutlbuffer.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58277,9):
+      см. предыдущее определение "DXGI_ERROR_MORE_DATA"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(24,9): warning C4005: DXGI_ERROR_UNSUPPORTED: изменение макроопределения
+  (компиляция исходного файла "source/cs2/datatypes/cutlbuffer/cutlbuffer.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58286,9):
+      см. предыдущее определение "DXGI_ERROR_UNSUPPORTED"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(25,9): warning C4005: DXGI_ERROR_DEVICE_REMOVED: изменение макроопределения
+  (компиляция исходного файла "source/cs2/datatypes/cutlbuffer/cutlbuffer.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58295,9):
+      см. предыдущее определение "DXGI_ERROR_DEVICE_REMOVED"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(26,9): warning C4005: DXGI_ERROR_DEVICE_HUNG: изменение макроопределения
+  (компиляция исходного файла "source/cs2/datatypes/cutlbuffer/cutlbuffer.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58304,9):
+      см. предыдущее определение "DXGI_ERROR_DEVICE_HUNG"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(27,9): warning C4005: DXGI_ERROR_DEVICE_RESET: изменение макроопределения
+  (компиляция исходного файла "source/cs2/datatypes/cutlbuffer/cutlbuffer.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58314,9):
+      см. предыдущее определение "DXGI_ERROR_DEVICE_RESET"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(28,9): warning C4005: DXGI_ERROR_WAS_STILL_DRAWING: изменение макроопределения
+  (компиляция исходного файла "source/cs2/datatypes/cutlbuffer/cutlbuffer.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58323,9):
+      см. предыдущее определение "DXGI_ERROR_WAS_STILL_DRAWING"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(29,9): warning C4005: DXGI_ERROR_FRAME_STATISTICS_DISJOINT: изменение макроопределения
+  (компиляция исходного файла "source/cs2/datatypes/cutlbuffer/cutlbuffer.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58333,9):
+      см. предыдущее определение "DXGI_ERROR_FRAME_STATISTICS_DISJOINT"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(30,9): warning C4005: DXGI_ERROR_GRAPHICS_VIDPN_SOURCE_IN_USE: изменение макроопределения
+  (компиляция исходного файла "source/cs2/datatypes/cutlbuffer/cutlbuffer.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58342,9):
+      см. предыдущее определение "DXGI_ERROR_GRAPHICS_VIDPN_SOURCE_IN_USE"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(31,9): warning C4005: DXGI_ERROR_DRIVER_INTERNAL_ERROR: изменение макроопределения
+  (компиляция исходного файла "source/cs2/datatypes/cutlbuffer/cutlbuffer.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58352,9):
+      см. предыдущее определение "DXGI_ERROR_DRIVER_INTERNAL_ERROR"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(32,9): warning C4005: DXGI_ERROR_NONEXCLUSIVE: изменение макроопределения
+  (компиляция исходного файла "source/cs2/datatypes/cutlbuffer/cutlbuffer.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58361,9):
+      см. предыдущее определение "DXGI_ERROR_NONEXCLUSIVE"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(33,9): warning C4005: DXGI_ERROR_NOT_CURRENTLY_AVAILABLE: изменение макроопределения
+  (компиляция исходного файла "source/cs2/datatypes/cutlbuffer/cutlbuffer.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58370,9):
+      см. предыдущее определение "DXGI_ERROR_NOT_CURRENTLY_AVAILABLE"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(34,9): warning C4005: DXGI_ERROR_REMOTE_CLIENT_DISCONNECTED: изменение макроопределения
+  (компиляция исходного файла "source/cs2/datatypes/cutlbuffer/cutlbuffer.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58380,9):
+      см. предыдущее определение "DXGI_ERROR_REMOTE_CLIENT_DISCONNECTED"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(35,9): warning C4005: DXGI_ERROR_REMOTE_OUTOFMEMORY: изменение макроопределения
+  (компиляция исходного файла "source/cs2/datatypes/cutlbuffer/cutlbuffer.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58389,9):
+      см. предыдущее определение "DXGI_ERROR_REMOTE_OUTOFMEMORY"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\d3d11.h(917,9): warning C4005: D3D11_ERROR_TOO_MANY_UNIQUE_STATE_OBJECTS: изменение макроопределения
+  (компиляция исходного файла "source/cs2/datatypes/cutlbuffer/cutlbuffer.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58695,9):
+      см. предыдущее определение "D3D11_ERROR_TOO_MANY_UNIQUE_STATE_OBJECTS"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\d3d11.h(918,9): warning C4005: D3D11_ERROR_FILE_NOT_FOUND: изменение макроопределения
+  (компиляция исходного файла "source/cs2/datatypes/cutlbuffer/cutlbuffer.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58704,9):
+      см. предыдущее определение "D3D11_ERROR_FILE_NOT_FOUND"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\d3d11.h(919,9): warning C4005: D3D11_ERROR_TOO_MANY_UNIQUE_VIEW_OBJECTS: изменение макроопределения
+  (компиляция исходного файла "source/cs2/datatypes/cutlbuffer/cutlbuffer.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58714,9):
+      см. предыдущее определение "D3D11_ERROR_TOO_MANY_UNIQUE_VIEW_OBJECTS"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\d3d11.h(920,9): warning C4005: D3D11_ERROR_DEFERRED_CONTEXT_MAP_WITHOUT_INITIAL_DISCARD: изменение макроопределения
+  (компиляция исходного файла "source/cs2/datatypes/cutlbuffer/cutlbuffer.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58723,9):
+      см. предыдущее определение "D3D11_ERROR_DEFERRED_CONTEXT_MAP_WITHOUT_INITIAL_DISCARD"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\d3d10.h(608,9): warning C4005: D3D10_ERROR_TOO_MANY_UNIQUE_STATE_OBJECTS: изменение макроопределения
+  (компиляция исходного файла "source/cs2/datatypes/cutlbuffer/cutlbuffer.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58671,9):
+      см. предыдущее определение "D3D10_ERROR_TOO_MANY_UNIQUE_STATE_OBJECTS"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\d3d10.h(609,9): warning C4005: D3D10_ERROR_FILE_NOT_FOUND: изменение макроопределения
+  (компиляция исходного файла "source/cs2/datatypes/cutlbuffer/cutlbuffer.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58680,9):
+      см. предыдущее определение "D3D10_ERROR_FILE_NOT_FOUND"
+  
+  aim.cpp
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(12,9): warning C4005: DXGI_STATUS_OCCLUDED: изменение макроопределения
+  (компиляция исходного файла "source/cs2/datatypes/keyvalues/keyvalues.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58190,9):
+      см. предыдущее определение "DXGI_STATUS_OCCLUDED"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(13,9): warning C4005: DXGI_STATUS_CLIPPED: изменение макроопределения
+  (компиляция исходного файла "source/cs2/datatypes/keyvalues/keyvalues.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58199,9):
+      см. предыдущее определение "DXGI_STATUS_CLIPPED"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(14,9): warning C4005: DXGI_STATUS_NO_REDIRECTION: изменение макроопределения
+  (компиляция исходного файла "source/cs2/datatypes/keyvalues/keyvalues.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58208,9):
+      см. предыдущее определение "DXGI_STATUS_NO_REDIRECTION"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(15,9): warning C4005: DXGI_STATUS_NO_DESKTOP_ACCESS: изменение макроопределения
+  (компиляция исходного файла "source/cs2/datatypes/keyvalues/keyvalues.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58217,9):
+      см. предыдущее определение "DXGI_STATUS_NO_DESKTOP_ACCESS"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(16,9): warning C4005: DXGI_STATUS_GRAPHICS_VIDPN_SOURCE_IN_USE: изменение макроопределения
+  (компиляция исходного файла "source/cs2/datatypes/keyvalues/keyvalues.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58226,9):
+      см. предыдущее определение "DXGI_STATUS_GRAPHICS_VIDPN_SOURCE_IN_USE"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(17,9): warning C4005: DXGI_STATUS_MODE_CHANGED: изменение макроопределения
+  (компиляция исходного файла "source/cs2/datatypes/keyvalues/keyvalues.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58235,9):
+      см. предыдущее определение "DXGI_STATUS_MODE_CHANGED"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(18,9): warning C4005: DXGI_STATUS_MODE_CHANGE_IN_PROGRESS: изменение макроопределения
+  (компиляция исходного файла "source/cs2/datatypes/keyvalues/keyvalues.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58244,9):
+      см. предыдущее определение "DXGI_STATUS_MODE_CHANGE_IN_PROGRESS"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(21,9): warning C4005: DXGI_ERROR_INVALID_CALL: изменение макроопределения
+  (компиляция исходного файла "source/cs2/datatypes/keyvalues/keyvalues.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58259,9):
+      см. предыдущее определение "DXGI_ERROR_INVALID_CALL"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(22,9): warning C4005: DXGI_ERROR_NOT_FOUND: изменение макроопределения
+  (компиляция исходного файла "source/cs2/datatypes/keyvalues/keyvalues.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58268,9):
+      см. предыдущее определение "DXGI_ERROR_NOT_FOUND"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(23,9): warning C4005: DXGI_ERROR_MORE_DATA: изменение макроопределения
+  (компиляция исходного файла "source/cs2/datatypes/keyvalues/keyvalues.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58277,9):
+      см. предыдущее определение "DXGI_ERROR_MORE_DATA"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(24,9): warning C4005: DXGI_ERROR_UNSUPPORTED: изменение макроопределения
+  (компиляция исходного файла "source/cs2/datatypes/keyvalues/keyvalues.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58286,9):
+      см. предыдущее определение "DXGI_ERROR_UNSUPPORTED"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(25,9): warning C4005: DXGI_ERROR_DEVICE_REMOVED: изменение макроопределения
+  (компиляция исходного файла "source/cs2/datatypes/keyvalues/keyvalues.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58295,9):
+      см. предыдущее определение "DXGI_ERROR_DEVICE_REMOVED"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(26,9): warning C4005: DXGI_ERROR_DEVICE_HUNG: изменение макроопределения
+  (компиляция исходного файла "source/cs2/datatypes/keyvalues/keyvalues.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58304,9):
+      см. предыдущее определение "DXGI_ERROR_DEVICE_HUNG"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(27,9): warning C4005: DXGI_ERROR_DEVICE_RESET: изменение макроопределения
+  (компиляция исходного файла "source/cs2/datatypes/keyvalues/keyvalues.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58314,9):
+      см. предыдущее определение "DXGI_ERROR_DEVICE_RESET"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(28,9): warning C4005: DXGI_ERROR_WAS_STILL_DRAWING: изменение макроопределения
+  (компиляция исходного файла "source/cs2/datatypes/keyvalues/keyvalues.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58323,9):
+      см. предыдущее определение "DXGI_ERROR_WAS_STILL_DRAWING"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(29,9): warning C4005: DXGI_ERROR_FRAME_STATISTICS_DISJOINT: изменение макроопределения
+  (компиляция исходного файла "source/cs2/datatypes/keyvalues/keyvalues.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58333,9):
+      см. предыдущее определение "DXGI_ERROR_FRAME_STATISTICS_DISJOINT"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(30,9): warning C4005: DXGI_ERROR_GRAPHICS_VIDPN_SOURCE_IN_USE: изменение макроопределения
+  (компиляция исходного файла "source/cs2/datatypes/keyvalues/keyvalues.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58342,9):
+      см. предыдущее определение "DXGI_ERROR_GRAPHICS_VIDPN_SOURCE_IN_USE"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(31,9): warning C4005: DXGI_ERROR_DRIVER_INTERNAL_ERROR: изменение макроопределения
+  (компиляция исходного файла "source/cs2/datatypes/keyvalues/keyvalues.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58352,9):
+      см. предыдущее определение "DXGI_ERROR_DRIVER_INTERNAL_ERROR"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(32,9): warning C4005: DXGI_ERROR_NONEXCLUSIVE: изменение макроопределения
+  (компиляция исходного файла "source/cs2/datatypes/keyvalues/keyvalues.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58361,9):
+      см. предыдущее определение "DXGI_ERROR_NONEXCLUSIVE"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(33,9): warning C4005: DXGI_ERROR_NOT_CURRENTLY_AVAILABLE: изменение макроопределения
+  (компиляция исходного файла "source/cs2/datatypes/keyvalues/keyvalues.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58370,9):
+      см. предыдущее определение "DXGI_ERROR_NOT_CURRENTLY_AVAILABLE"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(34,9): warning C4005: DXGI_ERROR_REMOTE_CLIENT_DISCONNECTED: изменение макроопределения
+  (компиляция исходного файла "source/cs2/datatypes/keyvalues/keyvalues.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58380,9):
+      см. предыдущее определение "DXGI_ERROR_REMOTE_CLIENT_DISCONNECTED"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(35,9): warning C4005: DXGI_ERROR_REMOTE_OUTOFMEMORY: изменение макроопределения
+  (компиляция исходного файла "source/cs2/datatypes/keyvalues/keyvalues.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58389,9):
+      см. предыдущее определение "DXGI_ERROR_REMOTE_OUTOFMEMORY"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\d3d11.h(917,9): warning C4005: D3D11_ERROR_TOO_MANY_UNIQUE_STATE_OBJECTS: изменение макроопределения
+  (компиляция исходного файла "source/cs2/datatypes/keyvalues/keyvalues.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58695,9):
+      см. предыдущее определение "D3D11_ERROR_TOO_MANY_UNIQUE_STATE_OBJECTS"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\d3d11.h(918,9): warning C4005: D3D11_ERROR_FILE_NOT_FOUND: изменение макроопределения
+  (компиляция исходного файла "source/cs2/datatypes/keyvalues/keyvalues.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58704,9):
+      см. предыдущее определение "D3D11_ERROR_FILE_NOT_FOUND"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\d3d11.h(919,9): warning C4005: D3D11_ERROR_TOO_MANY_UNIQUE_VIEW_OBJECTS: изменение макроопределения
+  (компиляция исходного файла "source/cs2/datatypes/keyvalues/keyvalues.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58714,9):
+      см. предыдущее определение "D3D11_ERROR_TOO_MANY_UNIQUE_VIEW_OBJECTS"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\d3d11.h(920,9): warning C4005: D3D11_ERROR_DEFERRED_CONTEXT_MAP_WITHOUT_INITIAL_DISCARD: изменение макроопределения
+  (компиляция исходного файла "source/cs2/datatypes/keyvalues/keyvalues.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58723,9):
+      см. предыдущее определение "D3D11_ERROR_DEFERRED_CONTEXT_MAP_WITHOUT_INITIAL_DISCARD"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\d3d10.h(608,9): warning C4005: D3D10_ERROR_TOO_MANY_UNIQUE_STATE_OBJECTS: изменение макроопределения
+  (компиляция исходного файла "source/cs2/datatypes/keyvalues/keyvalues.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58671,9):
+      см. предыдущее определение "D3D10_ERROR_TOO_MANY_UNIQUE_STATE_OBJECTS"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\d3d10.h(609,9): warning C4005: D3D10_ERROR_FILE_NOT_FOUND: изменение макроопределения
+  (компиляция исходного файла "source/cs2/datatypes/keyvalues/keyvalues.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58680,9):
+      см. предыдущее определение "D3D10_ERROR_FILE_NOT_FOUND"
+  
+C:\Users\YBA_Enjoyer012\3D Objects\forever-cs2\TempleWare-CS2\source\cs2\datatypes\keyvalues\keyvalues.cpp(16,46): warning C4267: аргумент: преобразование из "size_t" в "int"; возможна потеря данных
+  chams.cpp
+  antiflash.cpp
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(12,9): warning C4005: DXGI_STATUS_OCCLUDED: изменение макроопределения
+  (компиляция исходного файла "source/cs2/entity/CCSPlayerController/CCSPlayerController.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58190,9):
+      см. предыдущее определение "DXGI_STATUS_OCCLUDED"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(13,9): warning C4005: DXGI_STATUS_CLIPPED: изменение макроопределения
+  (компиляция исходного файла "source/cs2/entity/CCSPlayerController/CCSPlayerController.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58199,9):
+      см. предыдущее определение "DXGI_STATUS_CLIPPED"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(14,9): warning C4005: DXGI_STATUS_NO_REDIRECTION: изменение макроопределения
+  (компиляция исходного файла "source/cs2/entity/CCSPlayerController/CCSPlayerController.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58208,9):
+      см. предыдущее определение "DXGI_STATUS_NO_REDIRECTION"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(15,9): warning C4005: DXGI_STATUS_NO_DESKTOP_ACCESS: изменение макроопределения
+  (компиляция исходного файла "source/cs2/entity/CCSPlayerController/CCSPlayerController.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58217,9):
+      см. предыдущее определение "DXGI_STATUS_NO_DESKTOP_ACCESS"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(16,9): warning C4005: DXGI_STATUS_GRAPHICS_VIDPN_SOURCE_IN_USE: изменение макроопределения
+  (компиляция исходного файла "source/cs2/entity/CCSPlayerController/CCSPlayerController.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58226,9):
+      см. предыдущее определение "DXGI_STATUS_GRAPHICS_VIDPN_SOURCE_IN_USE"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(17,9): warning C4005: DXGI_STATUS_MODE_CHANGED: изменение макроопределения
+  (компиляция исходного файла "source/cs2/entity/CCSPlayerController/CCSPlayerController.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58235,9):
+      см. предыдущее определение "DXGI_STATUS_MODE_CHANGED"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(18,9): warning C4005: DXGI_STATUS_MODE_CHANGE_IN_PROGRESS: изменение макроопределения
+  (компиляция исходного файла "source/cs2/entity/CCSPlayerController/CCSPlayerController.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58244,9):
+      см. предыдущее определение "DXGI_STATUS_MODE_CHANGE_IN_PROGRESS"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(21,9): warning C4005: DXGI_ERROR_INVALID_CALL: изменение макроопределения
+  (компиляция исходного файла "source/cs2/entity/CCSPlayerController/CCSPlayerController.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58259,9):
+      см. предыдущее определение "DXGI_ERROR_INVALID_CALL"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(22,9): warning C4005: DXGI_ERROR_NOT_FOUND: изменение макроопределения
+  (компиляция исходного файла "source/cs2/entity/CCSPlayerController/CCSPlayerController.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58268,9):
+      см. предыдущее определение "DXGI_ERROR_NOT_FOUND"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(23,9): warning C4005: DXGI_ERROR_MORE_DATA: изменение макроопределения
+  (компиляция исходного файла "source/cs2/entity/CCSPlayerController/CCSPlayerController.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58277,9):
+      см. предыдущее определение "DXGI_ERROR_MORE_DATA"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(24,9): warning C4005: DXGI_ERROR_UNSUPPORTED: изменение макроопределения
+  (компиляция исходного файла "source/cs2/entity/CCSPlayerController/CCSPlayerController.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58286,9):
+      см. предыдущее определение "DXGI_ERROR_UNSUPPORTED"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(25,9): warning C4005: DXGI_ERROR_DEVICE_REMOVED: изменение макроопределения
+  (компиляция исходного файла "source/cs2/entity/CCSPlayerController/CCSPlayerController.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58295,9):
+      см. предыдущее определение "DXGI_ERROR_DEVICE_REMOVED"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(26,9): warning C4005: DXGI_ERROR_DEVICE_HUNG: изменение макроопределения
+  (компиляция исходного файла "source/cs2/entity/CCSPlayerController/CCSPlayerController.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58304,9):
+      см. предыдущее определение "DXGI_ERROR_DEVICE_HUNG"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(27,9): warning C4005: DXGI_ERROR_DEVICE_RESET: изменение макроопределения
+  (компиляция исходного файла "source/cs2/entity/CCSPlayerController/CCSPlayerController.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58314,9):
+      см. предыдущее определение "DXGI_ERROR_DEVICE_RESET"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(28,9): warning C4005: DXGI_ERROR_WAS_STILL_DRAWING: изменение макроопределения
+  (компиляция исходного файла "source/cs2/entity/CCSPlayerController/CCSPlayerController.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58323,9):
+      см. предыдущее определение "DXGI_ERROR_WAS_STILL_DRAWING"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(29,9): warning C4005: DXGI_ERROR_FRAME_STATISTICS_DISJOINT: изменение макроопределения
+  (компиляция исходного файла "source/cs2/entity/CCSPlayerController/CCSPlayerController.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58333,9):
+      см. предыдущее определение "DXGI_ERROR_FRAME_STATISTICS_DISJOINT"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(30,9): warning C4005: DXGI_ERROR_GRAPHICS_VIDPN_SOURCE_IN_USE: изменение макроопределения
+  (компиляция исходного файла "source/cs2/entity/CCSPlayerController/CCSPlayerController.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58342,9):
+      см. предыдущее определение "DXGI_ERROR_GRAPHICS_VIDPN_SOURCE_IN_USE"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(31,9): warning C4005: DXGI_ERROR_DRIVER_INTERNAL_ERROR: изменение макроопределения
+  (компиляция исходного файла "source/cs2/entity/CCSPlayerController/CCSPlayerController.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58352,9):
+      см. предыдущее определение "DXGI_ERROR_DRIVER_INTERNAL_ERROR"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(32,9): warning C4005: DXGI_ERROR_NONEXCLUSIVE: изменение макроопределения
+  (компиляция исходного файла "source/cs2/entity/CCSPlayerController/CCSPlayerController.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58361,9):
+      см. предыдущее определение "DXGI_ERROR_NONEXCLUSIVE"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(33,9): warning C4005: DXGI_ERROR_NOT_CURRENTLY_AVAILABLE: изменение макроопределения
+  (компиляция исходного файла "source/cs2/entity/CCSPlayerController/CCSPlayerController.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58370,9):
+      см. предыдущее определение "DXGI_ERROR_NOT_CURRENTLY_AVAILABLE"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(34,9): warning C4005: DXGI_ERROR_REMOTE_CLIENT_DISCONNECTED: изменение макроопределения
+  (компиляция исходного файла "source/cs2/entity/CCSPlayerController/CCSPlayerController.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58380,9):
+      см. предыдущее определение "DXGI_ERROR_REMOTE_CLIENT_DISCONNECTED"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(35,9): warning C4005: DXGI_ERROR_REMOTE_OUTOFMEMORY: изменение макроопределения
+  (компиляция исходного файла "source/cs2/entity/CCSPlayerController/CCSPlayerController.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58389,9):
+      см. предыдущее определение "DXGI_ERROR_REMOTE_OUTOFMEMORY"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\d3d11.h(917,9): warning C4005: D3D11_ERROR_TOO_MANY_UNIQUE_STATE_OBJECTS: изменение макроопределения
+  (компиляция исходного файла "source/cs2/entity/CCSPlayerController/CCSPlayerController.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58695,9):
+      см. предыдущее определение "D3D11_ERROR_TOO_MANY_UNIQUE_STATE_OBJECTS"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\d3d11.h(918,9): warning C4005: D3D11_ERROR_FILE_NOT_FOUND: изменение макроопределения
+  (компиляция исходного файла "source/cs2/entity/CCSPlayerController/CCSPlayerController.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58704,9):
+      см. предыдущее определение "D3D11_ERROR_FILE_NOT_FOUND"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\d3d11.h(919,9): warning C4005: D3D11_ERROR_TOO_MANY_UNIQUE_VIEW_OBJECTS: изменение макроопределения
+  (компиляция исходного файла "source/cs2/entity/CCSPlayerController/CCSPlayerController.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58714,9):
+      см. предыдущее определение "D3D11_ERROR_TOO_MANY_UNIQUE_VIEW_OBJECTS"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\d3d11.h(920,9): warning C4005: D3D11_ERROR_DEFERRED_CONTEXT_MAP_WITHOUT_INITIAL_DISCARD: изменение макроопределения
+  (компиляция исходного файла "source/cs2/entity/CCSPlayerController/CCSPlayerController.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58723,9):
+      см. предыдущее определение "D3D11_ERROR_DEFERRED_CONTEXT_MAP_WITHOUT_INITIAL_DISCARD"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\d3d10.h(608,9): warning C4005: D3D10_ERROR_TOO_MANY_UNIQUE_STATE_OBJECTS: изменение макроопределения
+  (компиляция исходного файла "source/cs2/entity/CCSPlayerController/CCSPlayerController.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58671,9):
+      см. предыдущее определение "D3D10_ERROR_TOO_MANY_UNIQUE_STATE_OBJECTS"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\d3d10.h(609,9): warning C4005: D3D10_ERROR_FILE_NOT_FOUND: изменение макроопределения
+  (компиляция исходного файла "source/cs2/entity/CCSPlayerController/CCSPlayerController.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58680,9):
+      см. предыдущее определение "D3D10_ERROR_FILE_NOT_FOUND"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(12,9): warning C4005: DXGI_STATUS_OCCLUDED: изменение макроопределения
+  (компиляция исходного файла "source/cs2/entity/C_CSPlayerPawn/C_CSPlayerPawn.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58190,9):
+      см. предыдущее определение "DXGI_STATUS_OCCLUDED"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(13,9): warning C4005: DXGI_STATUS_CLIPPED: изменение макроопределения
+  (компиляция исходного файла "source/cs2/entity/C_CSPlayerPawn/C_CSPlayerPawn.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58199,9):
+      см. предыдущее определение "DXGI_STATUS_CLIPPED"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(14,9): warning C4005: DXGI_STATUS_NO_REDIRECTION: изменение макроопределения
+  (компиляция исходного файла "source/cs2/entity/C_CSPlayerPawn/C_CSPlayerPawn.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58208,9):
+      см. предыдущее определение "DXGI_STATUS_NO_REDIRECTION"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(15,9): warning C4005: DXGI_STATUS_NO_DESKTOP_ACCESS: изменение макроопределения
+  (компиляция исходного файла "source/cs2/entity/C_CSPlayerPawn/C_CSPlayerPawn.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58217,9):
+      см. предыдущее определение "DXGI_STATUS_NO_DESKTOP_ACCESS"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(16,9): warning C4005: DXGI_STATUS_GRAPHICS_VIDPN_SOURCE_IN_USE: изменение макроопределения
+  (компиляция исходного файла "source/cs2/entity/C_CSPlayerPawn/C_CSPlayerPawn.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58226,9):
+      см. предыдущее определение "DXGI_STATUS_GRAPHICS_VIDPN_SOURCE_IN_USE"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(17,9): warning C4005: DXGI_STATUS_MODE_CHANGED: изменение макроопределения
+  (компиляция исходного файла "source/cs2/entity/C_CSPlayerPawn/C_CSPlayerPawn.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58235,9):
+      см. предыдущее определение "DXGI_STATUS_MODE_CHANGED"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(18,9): warning C4005: DXGI_STATUS_MODE_CHANGE_IN_PROGRESS: изменение макроопределения
+  (компиляция исходного файла "source/cs2/entity/C_CSPlayerPawn/C_CSPlayerPawn.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58244,9):
+      см. предыдущее определение "DXGI_STATUS_MODE_CHANGE_IN_PROGRESS"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(21,9): warning C4005: DXGI_ERROR_INVALID_CALL: изменение макроопределения
+  (компиляция исходного файла "source/cs2/entity/C_CSPlayerPawn/C_CSPlayerPawn.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58259,9):
+      см. предыдущее определение "DXGI_ERROR_INVALID_CALL"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(22,9): warning C4005: DXGI_ERROR_NOT_FOUND: изменение макроопределения
+  (компиляция исходного файла "source/cs2/entity/C_CSPlayerPawn/C_CSPlayerPawn.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58268,9):
+      см. предыдущее определение "DXGI_ERROR_NOT_FOUND"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(23,9): warning C4005: DXGI_ERROR_MORE_DATA: изменение макроопределения
+  (компиляция исходного файла "source/cs2/entity/C_CSPlayerPawn/C_CSPlayerPawn.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58277,9):
+      см. предыдущее определение "DXGI_ERROR_MORE_DATA"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(24,9): warning C4005: DXGI_ERROR_UNSUPPORTED: изменение макроопределения
+  (компиляция исходного файла "source/cs2/entity/C_CSPlayerPawn/C_CSPlayerPawn.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58286,9):
+      см. предыдущее определение "DXGI_ERROR_UNSUPPORTED"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(25,9): warning C4005: DXGI_ERROR_DEVICE_REMOVED: изменение макроопределения
+  (компиляция исходного файла "source/cs2/entity/C_CSPlayerPawn/C_CSPlayerPawn.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58295,9):
+      см. предыдущее определение "DXGI_ERROR_DEVICE_REMOVED"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(26,9): warning C4005: DXGI_ERROR_DEVICE_HUNG: изменение макроопределения
+  (компиляция исходного файла "source/cs2/entity/C_CSPlayerPawn/C_CSPlayerPawn.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58304,9):
+      см. предыдущее определение "DXGI_ERROR_DEVICE_HUNG"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(27,9): warning C4005: DXGI_ERROR_DEVICE_RESET: изменение макроопределения
+  (компиляция исходного файла "source/cs2/entity/C_CSPlayerPawn/C_CSPlayerPawn.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58314,9):
+      см. предыдущее определение "DXGI_ERROR_DEVICE_RESET"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(28,9): warning C4005: DXGI_ERROR_WAS_STILL_DRAWING: изменение макроопределения
+  (компиляция исходного файла "source/cs2/entity/C_CSPlayerPawn/C_CSPlayerPawn.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58323,9):
+      см. предыдущее определение "DXGI_ERROR_WAS_STILL_DRAWING"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(29,9): warning C4005: DXGI_ERROR_FRAME_STATISTICS_DISJOINT: изменение макроопределения
+  (компиляция исходного файла "source/cs2/entity/C_CSPlayerPawn/C_CSPlayerPawn.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58333,9):
+      см. предыдущее определение "DXGI_ERROR_FRAME_STATISTICS_DISJOINT"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(30,9): warning C4005: DXGI_ERROR_GRAPHICS_VIDPN_SOURCE_IN_USE: изменение макроопределения
+  (компиляция исходного файла "source/cs2/entity/C_CSPlayerPawn/C_CSPlayerPawn.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58342,9):
+      см. предыдущее определение "DXGI_ERROR_GRAPHICS_VIDPN_SOURCE_IN_USE"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(31,9): warning C4005: DXGI_ERROR_DRIVER_INTERNAL_ERROR: изменение макроопределения
+  (компиляция исходного файла "source/cs2/entity/C_CSPlayerPawn/C_CSPlayerPawn.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58352,9):
+      см. предыдущее определение "DXGI_ERROR_DRIVER_INTERNAL_ERROR"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(32,9): warning C4005: DXGI_ERROR_NONEXCLUSIVE: изменение макроопределения
+  (компиляция исходного файла "source/cs2/entity/C_CSPlayerPawn/C_CSPlayerPawn.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58361,9):
+      см. предыдущее определение "DXGI_ERROR_NONEXCLUSIVE"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(33,9): warning C4005: DXGI_ERROR_NOT_CURRENTLY_AVAILABLE: изменение макроопределения
+  (компиляция исходного файла "source/cs2/entity/C_CSPlayerPawn/C_CSPlayerPawn.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58370,9):
+      см. предыдущее определение "DXGI_ERROR_NOT_CURRENTLY_AVAILABLE"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(34,9): warning C4005: DXGI_ERROR_REMOTE_CLIENT_DISCONNECTED: изменение макроопределения
+  (компиляция исходного файла "source/cs2/entity/C_CSPlayerPawn/C_CSPlayerPawn.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58380,9):
+      см. предыдущее определение "DXGI_ERROR_REMOTE_CLIENT_DISCONNECTED"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(35,9): warning C4005: DXGI_ERROR_REMOTE_OUTOFMEMORY: изменение макроопределения
+  (компиляция исходного файла "source/cs2/entity/C_CSPlayerPawn/C_CSPlayerPawn.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58389,9):
+      см. предыдущее определение "DXGI_ERROR_REMOTE_OUTOFMEMORY"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\d3d11.h(917,9): warning C4005: D3D11_ERROR_TOO_MANY_UNIQUE_STATE_OBJECTS: изменение макроопределения
+  (компиляция исходного файла "source/cs2/entity/C_CSPlayerPawn/C_CSPlayerPawn.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58695,9):
+      см. предыдущее определение "D3D11_ERROR_TOO_MANY_UNIQUE_STATE_OBJECTS"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\d3d11.h(918,9): warning C4005: D3D11_ERROR_FILE_NOT_FOUND: изменение макроопределения
+  (компиляция исходного файла "source/cs2/entity/C_CSPlayerPawn/C_CSPlayerPawn.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58704,9):
+      см. предыдущее определение "D3D11_ERROR_FILE_NOT_FOUND"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\d3d11.h(919,9): warning C4005: D3D11_ERROR_TOO_MANY_UNIQUE_VIEW_OBJECTS: изменение макроопределения
+  (компиляция исходного файла "source/cs2/entity/C_CSPlayerPawn/C_CSPlayerPawn.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58714,9):
+      см. предыдущее определение "D3D11_ERROR_TOO_MANY_UNIQUE_VIEW_OBJECTS"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\d3d11.h(920,9): warning C4005: D3D11_ERROR_DEFERRED_CONTEXT_MAP_WITHOUT_INITIAL_DISCARD: изменение макроопределения
+  (компиляция исходного файла "source/cs2/entity/C_CSPlayerPawn/C_CSPlayerPawn.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58723,9):
+      см. предыдущее определение "D3D11_ERROR_DEFERRED_CONTEXT_MAP_WITHOUT_INITIAL_DISCARD"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\d3d10.h(608,9): warning C4005: D3D10_ERROR_TOO_MANY_UNIQUE_STATE_OBJECTS: изменение макроопределения
+  (компиляция исходного файла "source/cs2/entity/C_CSPlayerPawn/C_CSPlayerPawn.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58671,9):
+      см. предыдущее определение "D3D10_ERROR_TOO_MANY_UNIQUE_STATE_OBJECTS"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\d3d10.h(609,9): warning C4005: D3D10_ERROR_FILE_NOT_FOUND: изменение макроопределения
+  (компиляция исходного файла "source/cs2/entity/C_CSPlayerPawn/C_CSPlayerPawn.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58680,9):
+      см. предыдущее определение "D3D10_ERROR_FILE_NOT_FOUND"
+  
+  fov.cpp
+  scenelight.cpp
+  SmokeRemove.cpp
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(12,9): warning C4005: DXGI_STATUS_OCCLUDED: изменение макроопределения
+  (компиляция исходного файла "source/templeware/features/aim/aim.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58190,9):
+      см. предыдущее определение "DXGI_STATUS_OCCLUDED"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(13,9): warning C4005: DXGI_STATUS_CLIPPED: изменение макроопределения
+  (компиляция исходного файла "source/templeware/features/aim/aim.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58199,9):
+      см. предыдущее определение "DXGI_STATUS_CLIPPED"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(14,9): warning C4005: DXGI_STATUS_NO_REDIRECTION: изменение макроопределения
+  (компиляция исходного файла "source/templeware/features/aim/aim.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58208,9):
+      см. предыдущее определение "DXGI_STATUS_NO_REDIRECTION"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(15,9): warning C4005: DXGI_STATUS_NO_DESKTOP_ACCESS: изменение макроопределения
+  (компиляция исходного файла "source/templeware/features/aim/aim.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58217,9):
+      см. предыдущее определение "DXGI_STATUS_NO_DESKTOP_ACCESS"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(16,9): warning C4005: DXGI_STATUS_GRAPHICS_VIDPN_SOURCE_IN_USE: изменение макроопределения
+  (компиляция исходного файла "source/templeware/features/aim/aim.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58226,9):
+      см. предыдущее определение "DXGI_STATUS_GRAPHICS_VIDPN_SOURCE_IN_USE"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(17,9): warning C4005: DXGI_STATUS_MODE_CHANGED: изменение макроопределения
+  (компиляция исходного файла "source/templeware/features/aim/aim.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58235,9):
+      см. предыдущее определение "DXGI_STATUS_MODE_CHANGED"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(18,9): warning C4005: DXGI_STATUS_MODE_CHANGE_IN_PROGRESS: изменение макроопределения
+  (компиляция исходного файла "source/templeware/features/aim/aim.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58244,9):
+      см. предыдущее определение "DXGI_STATUS_MODE_CHANGE_IN_PROGRESS"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(21,9): warning C4005: DXGI_ERROR_INVALID_CALL: изменение макроопределения
+  (компиляция исходного файла "source/templeware/features/aim/aim.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58259,9):
+      см. предыдущее определение "DXGI_ERROR_INVALID_CALL"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(22,9): warning C4005: DXGI_ERROR_NOT_FOUND: изменение макроопределения
+  (компиляция исходного файла "source/templeware/features/aim/aim.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58268,9):
+      см. предыдущее определение "DXGI_ERROR_NOT_FOUND"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(23,9): warning C4005: DXGI_ERROR_MORE_DATA: изменение макроопределения
+  (компиляция исходного файла "source/templeware/features/aim/aim.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58277,9):
+      см. предыдущее определение "DXGI_ERROR_MORE_DATA"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(24,9): warning C4005: DXGI_ERROR_UNSUPPORTED: изменение макроопределения
+  (компиляция исходного файла "source/templeware/features/aim/aim.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58286,9):
+      см. предыдущее определение "DXGI_ERROR_UNSUPPORTED"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(25,9): warning C4005: DXGI_ERROR_DEVICE_REMOVED: изменение макроопределения
+  (компиляция исходного файла "source/templeware/features/aim/aim.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58295,9):
+      см. предыдущее определение "DXGI_ERROR_DEVICE_REMOVED"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(26,9): warning C4005: DXGI_ERROR_DEVICE_HUNG: изменение макроопределения
+  (компиляция исходного файла "source/templeware/features/aim/aim.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58304,9):
+      см. предыдущее определение "DXGI_ERROR_DEVICE_HUNG"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(27,9): warning C4005: DXGI_ERROR_DEVICE_RESET: изменение макроопределения
+  (компиляция исходного файла "source/templeware/features/aim/aim.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58314,9):
+      см. предыдущее определение "DXGI_ERROR_DEVICE_RESET"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(28,9): warning C4005: DXGI_ERROR_WAS_STILL_DRAWING: изменение макроопределения
+  (компиляция исходного файла "source/templeware/features/aim/aim.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58323,9):
+      см. предыдущее определение "DXGI_ERROR_WAS_STILL_DRAWING"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(29,9): warning C4005: DXGI_ERROR_FRAME_STATISTICS_DISJOINT: изменение макроопределения
+  (компиляция исходного файла "source/templeware/features/aim/aim.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58333,9):
+      см. предыдущее определение "DXGI_ERROR_FRAME_STATISTICS_DISJOINT"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(30,9): warning C4005: DXGI_ERROR_GRAPHICS_VIDPN_SOURCE_IN_USE: изменение макроопределения
+  (компиляция исходного файла "source/templeware/features/aim/aim.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58342,9):
+      см. предыдущее определение "DXGI_ERROR_GRAPHICS_VIDPN_SOURCE_IN_USE"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(31,9): warning C4005: DXGI_ERROR_DRIVER_INTERNAL_ERROR: изменение макроопределения
+  (компиляция исходного файла "source/templeware/features/aim/aim.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58352,9):
+      см. предыдущее определение "DXGI_ERROR_DRIVER_INTERNAL_ERROR"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(32,9): warning C4005: DXGI_ERROR_NONEXCLUSIVE: изменение макроопределения
+  (компиляция исходного файла "source/templeware/features/aim/aim.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58361,9):
+      см. предыдущее определение "DXGI_ERROR_NONEXCLUSIVE"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(33,9): warning C4005: DXGI_ERROR_NOT_CURRENTLY_AVAILABLE: изменение макроопределения
+  (компиляция исходного файла "source/templeware/features/aim/aim.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58370,9):
+      см. предыдущее определение "DXGI_ERROR_NOT_CURRENTLY_AVAILABLE"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(34,9): warning C4005: DXGI_ERROR_REMOTE_CLIENT_DISCONNECTED: изменение макроопределения
+  (компиляция исходного файла "source/templeware/features/aim/aim.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58380,9):
+      см. предыдущее определение "DXGI_ERROR_REMOTE_CLIENT_DISCONNECTED"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(35,9): warning C4005: DXGI_ERROR_REMOTE_OUTOFMEMORY: изменение макроопределения
+  (компиляция исходного файла "source/templeware/features/aim/aim.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58389,9):
+      см. предыдущее определение "DXGI_ERROR_REMOTE_OUTOFMEMORY"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\d3d11.h(917,9): warning C4005: D3D11_ERROR_TOO_MANY_UNIQUE_STATE_OBJECTS: изменение макроопределения
+  (компиляция исходного файла "source/templeware/features/aim/aim.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58695,9):
+      см. предыдущее определение "D3D11_ERROR_TOO_MANY_UNIQUE_STATE_OBJECTS"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\d3d11.h(918,9): warning C4005: D3D11_ERROR_FILE_NOT_FOUND: изменение макроопределения
+  (компиляция исходного файла "source/templeware/features/aim/aim.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58704,9):
+      см. предыдущее определение "D3D11_ERROR_FILE_NOT_FOUND"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\d3d11.h(919,9): warning C4005: D3D11_ERROR_TOO_MANY_UNIQUE_VIEW_OBJECTS: изменение макроопределения
+  (компиляция исходного файла "source/templeware/features/aim/aim.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58714,9):
+      см. предыдущее определение "D3D11_ERROR_TOO_MANY_UNIQUE_VIEW_OBJECTS"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\d3d11.h(920,9): warning C4005: D3D11_ERROR_DEFERRED_CONTEXT_MAP_WITHOUT_INITIAL_DISCARD: изменение макроопределения
+  (компиляция исходного файла "source/templeware/features/aim/aim.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58723,9):
+      см. предыдущее определение "D3D11_ERROR_DEFERRED_CONTEXT_MAP_WITHOUT_INITIAL_DISCARD"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\d3d10.h(608,9): warning C4005: D3D10_ERROR_TOO_MANY_UNIQUE_STATE_OBJECTS: изменение макроопределения
+  (компиляция исходного файла "source/templeware/features/aim/aim.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58671,9):
+      см. предыдущее определение "D3D10_ERROR_TOO_MANY_UNIQUE_STATE_OBJECTS"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\d3d10.h(609,9): warning C4005: D3D10_ERROR_FILE_NOT_FOUND: изменение макроопределения
+  (компиляция исходного файла "source/templeware/features/aim/aim.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58680,9):
+      см. предыдущее определение "D3D10_ERROR_FILE_NOT_FOUND"
+  
+  viewmodel.cpp
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(12,9): warning C4005: DXGI_STATUS_OCCLUDED: изменение макроопределения
+  (компиляция исходного файла "source/templeware/features/chams/chams.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58190,9):
+      см. предыдущее определение "DXGI_STATUS_OCCLUDED"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(13,9): warning C4005: DXGI_STATUS_CLIPPED: изменение макроопределения
+  (компиляция исходного файла "source/templeware/features/chams/chams.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58199,9):
+      см. предыдущее определение "DXGI_STATUS_CLIPPED"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(14,9): warning C4005: DXGI_STATUS_NO_REDIRECTION: изменение макроопределения
+  (компиляция исходного файла "source/templeware/features/chams/chams.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58208,9):
+      см. предыдущее определение "DXGI_STATUS_NO_REDIRECTION"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(15,9): warning C4005: DXGI_STATUS_NO_DESKTOP_ACCESS: изменение макроопределения
+  (компиляция исходного файла "source/templeware/features/chams/chams.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58217,9):
+      см. предыдущее определение "DXGI_STATUS_NO_DESKTOP_ACCESS"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(16,9): warning C4005: DXGI_STATUS_GRAPHICS_VIDPN_SOURCE_IN_USE: изменение макроопределения
+  (компиляция исходного файла "source/templeware/features/chams/chams.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58226,9):
+      см. предыдущее определение "DXGI_STATUS_GRAPHICS_VIDPN_SOURCE_IN_USE"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(17,9): warning C4005: DXGI_STATUS_MODE_CHANGED: изменение макроопределения
+  (компиляция исходного файла "source/templeware/features/chams/chams.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58235,9):
+      см. предыдущее определение "DXGI_STATUS_MODE_CHANGED"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(18,9): warning C4005: DXGI_STATUS_MODE_CHANGE_IN_PROGRESS: изменение макроопределения
+  (компиляция исходного файла "source/templeware/features/chams/chams.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58244,9):
+      см. предыдущее определение "DXGI_STATUS_MODE_CHANGE_IN_PROGRESS"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(21,9): warning C4005: DXGI_ERROR_INVALID_CALL: изменение макроопределения
+  (компиляция исходного файла "source/templeware/features/chams/chams.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58259,9):
+      см. предыдущее определение "DXGI_ERROR_INVALID_CALL"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(22,9): warning C4005: DXGI_ERROR_NOT_FOUND: изменение макроопределения
+  (компиляция исходного файла "source/templeware/features/chams/chams.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58268,9):
+      см. предыдущее определение "DXGI_ERROR_NOT_FOUND"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(23,9): warning C4005: DXGI_ERROR_MORE_DATA: изменение макроопределения
+  (компиляция исходного файла "source/templeware/features/chams/chams.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58277,9):
+      см. предыдущее определение "DXGI_ERROR_MORE_DATA"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(24,9): warning C4005: DXGI_ERROR_UNSUPPORTED: изменение макроопределения
+  (компиляция исходного файла "source/templeware/features/chams/chams.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58286,9):
+      см. предыдущее определение "DXGI_ERROR_UNSUPPORTED"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(25,9): warning C4005: DXGI_ERROR_DEVICE_REMOVED: изменение макроопределения
+  (компиляция исходного файла "source/templeware/features/chams/chams.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58295,9):
+      см. предыдущее определение "DXGI_ERROR_DEVICE_REMOVED"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(26,9): warning C4005: DXGI_ERROR_DEVICE_HUNG: изменение макроопределения
+  (компиляция исходного файла "source/templeware/features/chams/chams.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58304,9):
+      см. предыдущее определение "DXGI_ERROR_DEVICE_HUNG"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(27,9): warning C4005: DXGI_ERROR_DEVICE_RESET: изменение макроопределения
+  (компиляция исходного файла "source/templeware/features/chams/chams.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58314,9):
+      см. предыдущее определение "DXGI_ERROR_DEVICE_RESET"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(28,9): warning C4005: DXGI_ERROR_WAS_STILL_DRAWING: изменение макроопределения
+  (компиляция исходного файла "source/templeware/features/chams/chams.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58323,9):
+      см. предыдущее определение "DXGI_ERROR_WAS_STILL_DRAWING"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(29,9): warning C4005: DXGI_ERROR_FRAME_STATISTICS_DISJOINT: изменение макроопределения
+  (компиляция исходного файла "source/templeware/features/chams/chams.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58333,9):
+      см. предыдущее определение "DXGI_ERROR_FRAME_STATISTICS_DISJOINT"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(30,9): warning C4005: DXGI_ERROR_GRAPHICS_VIDPN_SOURCE_IN_USE: изменение макроопределения
+  (компиляция исходного файла "source/templeware/features/chams/chams.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58342,9):
+      см. предыдущее определение "DXGI_ERROR_GRAPHICS_VIDPN_SOURCE_IN_USE"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(31,9): warning C4005: DXGI_ERROR_DRIVER_INTERNAL_ERROR: изменение макроопределения
+  (компиляция исходного файла "source/templeware/features/chams/chams.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58352,9):
+      см. предыдущее определение "DXGI_ERROR_DRIVER_INTERNAL_ERROR"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(32,9): warning C4005: DXGI_ERROR_NONEXCLUSIVE: изменение макроопределения
+  (компиляция исходного файла "source/templeware/features/chams/chams.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58361,9):
+      см. предыдущее определение "DXGI_ERROR_NONEXCLUSIVE"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(33,9): warning C4005: DXGI_ERROR_NOT_CURRENTLY_AVAILABLE: изменение макроопределения
+  (компиляция исходного файла "source/templeware/features/chams/chams.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58370,9):
+      см. предыдущее определение "DXGI_ERROR_NOT_CURRENTLY_AVAILABLE"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(34,9): warning C4005: DXGI_ERROR_REMOTE_CLIENT_DISCONNECTED: изменение макроопределения
+  (компиляция исходного файла "source/templeware/features/chams/chams.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58380,9):
+      см. предыдущее определение "DXGI_ERROR_REMOTE_CLIENT_DISCONNECTED"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(35,9): warning C4005: DXGI_ERROR_REMOTE_OUTOFMEMORY: изменение макроопределения
+  (компиляция исходного файла "source/templeware/features/chams/chams.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58389,9):
+      см. предыдущее определение "DXGI_ERROR_REMOTE_OUTOFMEMORY"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\d3d11.h(917,9): warning C4005: D3D11_ERROR_TOO_MANY_UNIQUE_STATE_OBJECTS: изменение макроопределения
+  (компиляция исходного файла "source/templeware/features/chams/chams.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58695,9):
+      см. предыдущее определение "D3D11_ERROR_TOO_MANY_UNIQUE_STATE_OBJECTS"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\d3d11.h(918,9): warning C4005: D3D11_ERROR_FILE_NOT_FOUND: изменение макроопределения
+  (компиляция исходного файла "source/templeware/features/chams/chams.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58704,9):
+      см. предыдущее определение "D3D11_ERROR_FILE_NOT_FOUND"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\d3d11.h(919,9): warning C4005: D3D11_ERROR_TOO_MANY_UNIQUE_VIEW_OBJECTS: изменение макроопределения
+  (компиляция исходного файла "source/templeware/features/chams/chams.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58714,9):
+      см. предыдущее определение "D3D11_ERROR_TOO_MANY_UNIQUE_VIEW_OBJECTS"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\d3d11.h(920,9): warning C4005: D3D11_ERROR_DEFERRED_CONTEXT_MAP_WITHOUT_INITIAL_DISCARD: изменение макроопределения
+  (компиляция исходного файла "source/templeware/features/chams/chams.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58723,9):
+      см. предыдущее определение "D3D11_ERROR_DEFERRED_CONTEXT_MAP_WITHOUT_INITIAL_DISCARD"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\d3d10.h(608,9): warning C4005: D3D10_ERROR_TOO_MANY_UNIQUE_STATE_OBJECTS: изменение макроопределения
+  (компиляция исходного файла "source/templeware/features/chams/chams.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58671,9):
+      см. предыдущее определение "D3D10_ERROR_TOO_MANY_UNIQUE_STATE_OBJECTS"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\d3d10.h(609,9): warning C4005: D3D10_ERROR_FILE_NOT_FOUND: изменение макроопределения
+  (компиляция исходного файла "source/templeware/features/chams/chams.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58680,9):
+      см. предыдущее определение "D3D10_ERROR_FILE_NOT_FOUND"
+  
+  CGameEntitySystem.cpp
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(12,9): warning C4005: DXGI_STATUS_OCCLUDED: изменение макроопределения
+  (компиляция исходного файла "source/templeware/features/visuals/scenelight/scenelight.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58190,9):
+      см. предыдущее определение "DXGI_STATUS_OCCLUDED"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(13,9): warning C4005: DXGI_STATUS_CLIPPED: изменение макроопределения
+  (компиляция исходного файла "source/templeware/features/visuals/scenelight/scenelight.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58199,9):
+      см. предыдущее определение "DXGI_STATUS_CLIPPED"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(14,9): warning C4005: DXGI_STATUS_NO_REDIRECTION: изменение макроопределения
+  (компиляция исходного файла "source/templeware/features/visuals/scenelight/scenelight.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58208,9):
+      см. предыдущее определение "DXGI_STATUS_NO_REDIRECTION"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(15,9): warning C4005: DXGI_STATUS_NO_DESKTOP_ACCESS: изменение макроопределения
+  (компиляция исходного файла "source/templeware/features/visuals/scenelight/scenelight.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58217,9):
+      см. предыдущее определение "DXGI_STATUS_NO_DESKTOP_ACCESS"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(16,9): warning C4005: DXGI_STATUS_GRAPHICS_VIDPN_SOURCE_IN_USE: изменение макроопределения
+  (компиляция исходного файла "source/templeware/features/visuals/scenelight/scenelight.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58226,9):
+      см. предыдущее определение "DXGI_STATUS_GRAPHICS_VIDPN_SOURCE_IN_USE"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(17,9): warning C4005: DXGI_STATUS_MODE_CHANGED: изменение макроопределения
+  (компиляция исходного файла "source/templeware/features/visuals/scenelight/scenelight.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58235,9):
+      см. предыдущее определение "DXGI_STATUS_MODE_CHANGED"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(18,9): warning C4005: DXGI_STATUS_MODE_CHANGE_IN_PROGRESS: изменение макроопределения
+  (компиляция исходного файла "source/templeware/features/visuals/scenelight/scenelight.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58244,9):
+      см. предыдущее определение "DXGI_STATUS_MODE_CHANGE_IN_PROGRESS"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(21,9): warning C4005: DXGI_ERROR_INVALID_CALL: изменение макроопределения
+  (компиляция исходного файла "source/templeware/features/visuals/scenelight/scenelight.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58259,9):
+      см. предыдущее определение "DXGI_ERROR_INVALID_CALL"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(22,9): warning C4005: DXGI_ERROR_NOT_FOUND: изменение макроопределения
+  (компиляция исходного файла "source/templeware/features/visuals/scenelight/scenelight.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58268,9):
+      см. предыдущее определение "DXGI_ERROR_NOT_FOUND"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(23,9): warning C4005: DXGI_ERROR_MORE_DATA: изменение макроопределения
+  (компиляция исходного файла "source/templeware/features/visuals/scenelight/scenelight.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58277,9):
+      см. предыдущее определение "DXGI_ERROR_MORE_DATA"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(24,9): warning C4005: DXGI_ERROR_UNSUPPORTED: изменение макроопределения
+  (компиляция исходного файла "source/templeware/features/visuals/scenelight/scenelight.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58286,9):
+      см. предыдущее определение "DXGI_ERROR_UNSUPPORTED"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(25,9): warning C4005: DXGI_ERROR_DEVICE_REMOVED: изменение макроопределения
+  (компиляция исходного файла "source/templeware/features/visuals/scenelight/scenelight.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58295,9):
+      см. предыдущее определение "DXGI_ERROR_DEVICE_REMOVED"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(26,9): warning C4005: DXGI_ERROR_DEVICE_HUNG: изменение макроопределения
+  (компиляция исходного файла "source/templeware/features/visuals/scenelight/scenelight.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58304,9):
+      см. предыдущее определение "DXGI_ERROR_DEVICE_HUNG"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(27,9): warning C4005: DXGI_ERROR_DEVICE_RESET: изменение макроопределения
+  (компиляция исходного файла "source/templeware/features/visuals/scenelight/scenelight.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58314,9):
+      см. предыдущее определение "DXGI_ERROR_DEVICE_RESET"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(28,9): warning C4005: DXGI_ERROR_WAS_STILL_DRAWING: изменение макроопределения
+  (компиляция исходного файла "source/templeware/features/visuals/scenelight/scenelight.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58323,9):
+      см. предыдущее определение "DXGI_ERROR_WAS_STILL_DRAWING"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(29,9): warning C4005: DXGI_ERROR_FRAME_STATISTICS_DISJOINT: изменение макроопределения
+  (компиляция исходного файла "source/templeware/features/visuals/scenelight/scenelight.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58333,9):
+      см. предыдущее определение "DXGI_ERROR_FRAME_STATISTICS_DISJOINT"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(30,9): warning C4005: DXGI_ERROR_GRAPHICS_VIDPN_SOURCE_IN_USE: изменение макроопределения
+  (компиляция исходного файла "source/templeware/features/visuals/scenelight/scenelight.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58342,9):
+      см. предыдущее определение "DXGI_ERROR_GRAPHICS_VIDPN_SOURCE_IN_USE"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(31,9): warning C4005: DXGI_ERROR_DRIVER_INTERNAL_ERROR: изменение макроопределения
+  (компиляция исходного файла "source/templeware/features/visuals/scenelight/scenelight.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58352,9):
+      см. предыдущее определение "DXGI_ERROR_DRIVER_INTERNAL_ERROR"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(32,9): warning C4005: DXGI_ERROR_NONEXCLUSIVE: изменение макроопределения
+  (компиляция исходного файла "source/templeware/features/visuals/scenelight/scenelight.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58361,9):
+      см. предыдущее определение "DXGI_ERROR_NONEXCLUSIVE"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(33,9): warning C4005: DXGI_ERROR_NOT_CURRENTLY_AVAILABLE: изменение макроопределения
+  (компиляция исходного файла "source/templeware/features/visuals/scenelight/scenelight.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58370,9):
+      см. предыдущее определение "DXGI_ERROR_NOT_CURRENTLY_AVAILABLE"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(34,9): warning C4005: DXGI_ERROR_REMOTE_CLIENT_DISCONNECTED: изменение макроопределения
+  (компиляция исходного файла "source/templeware/features/visuals/scenelight/scenelight.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58380,9):
+      см. предыдущее определение "DXGI_ERROR_REMOTE_CLIENT_DISCONNECTED"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(35,9): warning C4005: DXGI_ERROR_REMOTE_OUTOFMEMORY: изменение макроопределения
+  (компиляция исходного файла "source/templeware/features/visuals/scenelight/scenelight.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58389,9):
+      см. предыдущее определение "DXGI_ERROR_REMOTE_OUTOFMEMORY"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\d3d11.h(917,9): warning C4005: D3D11_ERROR_TOO_MANY_UNIQUE_STATE_OBJECTS: изменение макроопределения
+  (компиляция исходного файла "source/templeware/features/visuals/scenelight/scenelight.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58695,9):
+      см. предыдущее определение "D3D11_ERROR_TOO_MANY_UNIQUE_STATE_OBJECTS"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\d3d11.h(918,9): warning C4005: D3D11_ERROR_FILE_NOT_FOUND: изменение макроопределения
+  (компиляция исходного файла "source/templeware/features/visuals/scenelight/scenelight.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58704,9):
+      см. предыдущее определение "D3D11_ERROR_FILE_NOT_FOUND"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\d3d11.h(919,9): warning C4005: D3D11_ERROR_TOO_MANY_UNIQUE_VIEW_OBJECTS: изменение макроопределения
+  (компиляция исходного файла "source/templeware/features/visuals/scenelight/scenelight.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58714,9):
+      см. предыдущее определение "D3D11_ERROR_TOO_MANY_UNIQUE_VIEW_OBJECTS"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\d3d11.h(920,9): warning C4005: D3D11_ERROR_DEFERRED_CONTEXT_MAP_WITHOUT_INITIAL_DISCARD: изменение макроопределения
+  (компиляция исходного файла "source/templeware/features/visuals/scenelight/scenelight.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58723,9):
+      см. предыдущее определение "D3D11_ERROR_DEFERRED_CONTEXT_MAP_WITHOUT_INITIAL_DISCARD"
+  
+  interfaces.cpp
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\d3d10.h(608,9): warning C4005: D3D10_ERROR_TOO_MANY_UNIQUE_STATE_OBJECTS: изменение макроопределения
+  (компиляция исходного файла "source/templeware/features/visuals/scenelight/scenelight.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58671,9):
+      см. предыдущее определение "D3D10_ERROR_TOO_MANY_UNIQUE_STATE_OBJECTS"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\d3d10.h(609,9): warning C4005: D3D10_ERROR_FILE_NOT_FOUND: изменение макроопределения
+  (компиляция исходного файла "source/templeware/features/visuals/scenelight/scenelight.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58680,9):
+      см. предыдущее определение "D3D10_ERROR_FILE_NOT_FOUND"
+  
+  debug.cpp
+  config.cpp
+C:\Users\YBA_Enjoyer012\3D Objects\forever-cs2\TempleWare-CS2\source\templeware\config\config.cpp(60,39): warning C4305: аргумент: усечение из "double" в "float"
+C:\Users\YBA_Enjoyer012\3D Objects\forever-cs2\TempleWare-CS2\source\templeware\config\config.cpp(60,34): warning C4305: аргумент: усечение из "double" в "float"
+C:\Users\YBA_Enjoyer012\3D Objects\forever-cs2\TempleWare-CS2\source\templeware\config\config.cpp(60,29): warning C4305: аргумент: усечение из "double" в "float"
+  world.cpp
+  hooks.cpp
+  inputsystem.cpp
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(12,9): warning C4005: DXGI_STATUS_OCCLUDED: изменение макроопределения
+  (компиляция исходного файла "source/templeware/interfaces/interfaces.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58190,9):
+      см. предыдущее определение "DXGI_STATUS_OCCLUDED"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(13,9): warning C4005: DXGI_STATUS_CLIPPED: изменение макроопределения
+  (компиляция исходного файла "source/templeware/interfaces/interfaces.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58199,9):
+      см. предыдущее определение "DXGI_STATUS_CLIPPED"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(14,9): warning C4005: DXGI_STATUS_NO_REDIRECTION: изменение макроопределения
+  (компиляция исходного файла "source/templeware/interfaces/interfaces.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58208,9):
+      см. предыдущее определение "DXGI_STATUS_NO_REDIRECTION"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(15,9): warning C4005: DXGI_STATUS_NO_DESKTOP_ACCESS: изменение макроопределения
+  (компиляция исходного файла "source/templeware/interfaces/interfaces.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58217,9):
+      см. предыдущее определение "DXGI_STATUS_NO_DESKTOP_ACCESS"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(16,9): warning C4005: DXGI_STATUS_GRAPHICS_VIDPN_SOURCE_IN_USE: изменение макроопределения
+  (компиляция исходного файла "source/templeware/interfaces/interfaces.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58226,9):
+      см. предыдущее определение "DXGI_STATUS_GRAPHICS_VIDPN_SOURCE_IN_USE"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(17,9): warning C4005: DXGI_STATUS_MODE_CHANGED: изменение макроопределения
+  (компиляция исходного файла "source/templeware/interfaces/interfaces.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58235,9):
+      см. предыдущее определение "DXGI_STATUS_MODE_CHANGED"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(18,9): warning C4005: DXGI_STATUS_MODE_CHANGE_IN_PROGRESS: изменение макроопределения
+  (компиляция исходного файла "source/templeware/interfaces/interfaces.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58244,9):
+      см. предыдущее определение "DXGI_STATUS_MODE_CHANGE_IN_PROGRESS"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(21,9): warning C4005: DXGI_ERROR_INVALID_CALL: изменение макроопределения
+  (компиляция исходного файла "source/templeware/interfaces/interfaces.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58259,9):
+      см. предыдущее определение "DXGI_ERROR_INVALID_CALL"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(22,9): warning C4005: DXGI_ERROR_NOT_FOUND: изменение макроопределения
+  (компиляция исходного файла "source/templeware/interfaces/interfaces.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58268,9):
+      см. предыдущее определение "DXGI_ERROR_NOT_FOUND"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(23,9): warning C4005: DXGI_ERROR_MORE_DATA: изменение макроопределения
+  (компиляция исходного файла "source/templeware/interfaces/interfaces.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58277,9):
+      см. предыдущее определение "DXGI_ERROR_MORE_DATA"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(24,9): warning C4005: DXGI_ERROR_UNSUPPORTED: изменение макроопределения
+  (компиляция исходного файла "source/templeware/interfaces/interfaces.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58286,9):
+      см. предыдущее определение "DXGI_ERROR_UNSUPPORTED"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(25,9): warning C4005: DXGI_ERROR_DEVICE_REMOVED: изменение макроопределения
+  (компиляция исходного файла "source/templeware/interfaces/interfaces.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58295,9):
+      см. предыдущее определение "DXGI_ERROR_DEVICE_REMOVED"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(26,9): warning C4005: DXGI_ERROR_DEVICE_HUNG: изменение макроопределения
+  (компиляция исходного файла "source/templeware/interfaces/interfaces.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58304,9):
+      см. предыдущее определение "DXGI_ERROR_DEVICE_HUNG"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(27,9): warning C4005: DXGI_ERROR_DEVICE_RESET: изменение макроопределения
+  (компиляция исходного файла "source/templeware/interfaces/interfaces.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58314,9):
+      см. предыдущее определение "DXGI_ERROR_DEVICE_RESET"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(28,9): warning C4005: DXGI_ERROR_WAS_STILL_DRAWING: изменение макроопределения
+  (компиляция исходного файла "source/templeware/interfaces/interfaces.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58323,9):
+      см. предыдущее определение "DXGI_ERROR_WAS_STILL_DRAWING"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(29,9): warning C4005: DXGI_ERROR_FRAME_STATISTICS_DISJOINT: изменение макроопределения
+  (компиляция исходного файла "source/templeware/interfaces/interfaces.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58333,9):
+      см. предыдущее определение "DXGI_ERROR_FRAME_STATISTICS_DISJOINT"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(30,9): warning C4005: DXGI_ERROR_GRAPHICS_VIDPN_SOURCE_IN_USE: изменение макроопределения
+  (компиляция исходного файла "source/templeware/interfaces/interfaces.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58342,9):
+      см. предыдущее определение "DXGI_ERROR_GRAPHICS_VIDPN_SOURCE_IN_USE"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(31,9): warning C4005: DXGI_ERROR_DRIVER_INTERNAL_ERROR: изменение макроопределения
+  (компиляция исходного файла "source/templeware/interfaces/interfaces.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58352,9):
+      см. предыдущее определение "DXGI_ERROR_DRIVER_INTERNAL_ERROR"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(32,9): warning C4005: DXGI_ERROR_NONEXCLUSIVE: изменение макроопределения
+  (компиляция исходного файла "source/templeware/interfaces/interfaces.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58361,9):
+      см. предыдущее определение "DXGI_ERROR_NONEXCLUSIVE"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(33,9): warning C4005: DXGI_ERROR_NOT_CURRENTLY_AVAILABLE: изменение макроопределения
+  (компиляция исходного файла "source/templeware/interfaces/interfaces.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58370,9):
+      см. предыдущее определение "DXGI_ERROR_NOT_CURRENTLY_AVAILABLE"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(34,9): warning C4005: DXGI_ERROR_REMOTE_CLIENT_DISCONNECTED: изменение макроопределения
+  (компиляция исходного файла "source/templeware/interfaces/interfaces.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58380,9):
+      см. предыдущее определение "DXGI_ERROR_REMOTE_CLIENT_DISCONNECTED"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(35,9): warning C4005: DXGI_ERROR_REMOTE_OUTOFMEMORY: изменение макроопределения
+  (компиляция исходного файла "source/templeware/interfaces/interfaces.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58389,9):
+      см. предыдущее определение "DXGI_ERROR_REMOTE_OUTOFMEMORY"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\d3d11.h(917,9): warning C4005: D3D11_ERROR_TOO_MANY_UNIQUE_STATE_OBJECTS: изменение макроопределения
+  (компиляция исходного файла "source/templeware/interfaces/interfaces.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58695,9):
+      см. предыдущее определение "D3D11_ERROR_TOO_MANY_UNIQUE_STATE_OBJECTS"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\d3d11.h(918,9): warning C4005: D3D11_ERROR_FILE_NOT_FOUND: изменение макроопределения
+  (компиляция исходного файла "source/templeware/interfaces/interfaces.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58704,9):
+      см. предыдущее определение "D3D11_ERROR_FILE_NOT_FOUND"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\d3d11.h(919,9): warning C4005: D3D11_ERROR_TOO_MANY_UNIQUE_VIEW_OBJECTS: изменение макроопределения
+  (компиляция исходного файла "source/templeware/interfaces/interfaces.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58714,9):
+      см. предыдущее определение "D3D11_ERROR_TOO_MANY_UNIQUE_VIEW_OBJECTS"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\d3d11.h(920,9): warning C4005: D3D11_ERROR_DEFERRED_CONTEXT_MAP_WITHOUT_INITIAL_DISCARD: изменение макроопределения
+  (компиляция исходного файла "source/templeware/interfaces/interfaces.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58723,9):
+      см. предыдущее определение "D3D11_ERROR_DEFERRED_CONTEXT_MAP_WITHOUT_INITIAL_DISCARD"
+  
+  keybinds.cpp
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\d3d10.h(608,9): warning C4005: D3D10_ERROR_TOO_MANY_UNIQUE_STATE_OBJECTS: изменение макроопределения
+  (компиляция исходного файла "source/templeware/interfaces/interfaces.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58671,9):
+      см. предыдущее определение "D3D10_ERROR_TOO_MANY_UNIQUE_STATE_OBJECTS"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\d3d10.h(609,9): warning C4005: D3D10_ERROR_FILE_NOT_FOUND: изменение макроопределения
+  (компиляция исходного файла "source/templeware/interfaces/interfaces.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58680,9):
+      см. предыдущее определение "D3D10_ERROR_FILE_NOT_FOUND"
+  
+  hud.cpp
+  log.cpp
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(12,9): warning C4005: DXGI_STATUS_OCCLUDED: изменение макроопределения
+  (компиляция исходного файла "source/templeware/interfaces/Source2/inputsystem.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58190,9):
+      см. предыдущее определение "DXGI_STATUS_OCCLUDED"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(13,9): warning C4005: DXGI_STATUS_CLIPPED: изменение макроопределения
+  (компиляция исходного файла "source/templeware/interfaces/Source2/inputsystem.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58199,9):
+      см. предыдущее определение "DXGI_STATUS_CLIPPED"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(14,9): warning C4005: DXGI_STATUS_NO_REDIRECTION: изменение макроопределения
+  (компиляция исходного файла "source/templeware/interfaces/Source2/inputsystem.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58208,9):
+      см. предыдущее определение "DXGI_STATUS_NO_REDIRECTION"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(15,9): warning C4005: DXGI_STATUS_NO_DESKTOP_ACCESS: изменение макроопределения
+  (компиляция исходного файла "source/templeware/interfaces/Source2/inputsystem.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58217,9):
+      см. предыдущее определение "DXGI_STATUS_NO_DESKTOP_ACCESS"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(16,9): warning C4005: DXGI_STATUS_GRAPHICS_VIDPN_SOURCE_IN_USE: изменение макроопределения
+  (компиляция исходного файла "source/templeware/interfaces/Source2/inputsystem.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58226,9):
+      см. предыдущее определение "DXGI_STATUS_GRAPHICS_VIDPN_SOURCE_IN_USE"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(17,9): warning C4005: DXGI_STATUS_MODE_CHANGED: изменение макроопределения
+  (компиляция исходного файла "source/templeware/interfaces/Source2/inputsystem.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58235,9):
+      см. предыдущее определение "DXGI_STATUS_MODE_CHANGED"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(18,9): warning C4005: DXGI_STATUS_MODE_CHANGE_IN_PROGRESS: изменение макроопределения
+  (компиляция исходного файла "source/templeware/interfaces/Source2/inputsystem.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58244,9):
+      см. предыдущее определение "DXGI_STATUS_MODE_CHANGE_IN_PROGRESS"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(21,9): warning C4005: DXGI_ERROR_INVALID_CALL: изменение макроопределения
+  (компиляция исходного файла "source/templeware/interfaces/Source2/inputsystem.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58259,9):
+      см. предыдущее определение "DXGI_ERROR_INVALID_CALL"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(22,9): warning C4005: DXGI_ERROR_NOT_FOUND: изменение макроопределения
+  (компиляция исходного файла "source/templeware/interfaces/Source2/inputsystem.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58268,9):
+      см. предыдущее определение "DXGI_ERROR_NOT_FOUND"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(23,9): warning C4005: DXGI_ERROR_MORE_DATA: изменение макроопределения
+  (компиляция исходного файла "source/templeware/interfaces/Source2/inputsystem.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58277,9):
+      см. предыдущее определение "DXGI_ERROR_MORE_DATA"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(24,9): warning C4005: DXGI_ERROR_UNSUPPORTED: изменение макроопределения
+  (компиляция исходного файла "source/templeware/interfaces/Source2/inputsystem.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58286,9):
+      см. предыдущее определение "DXGI_ERROR_UNSUPPORTED"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(25,9): warning C4005: DXGI_ERROR_DEVICE_REMOVED: изменение макроопределения
+  (компиляция исходного файла "source/templeware/interfaces/Source2/inputsystem.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58295,9):
+      см. предыдущее определение "DXGI_ERROR_DEVICE_REMOVED"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(26,9): warning C4005: DXGI_ERROR_DEVICE_HUNG: изменение макроопределения
+  (компиляция исходного файла "source/templeware/interfaces/Source2/inputsystem.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58304,9):
+      см. предыдущее определение "DXGI_ERROR_DEVICE_HUNG"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(27,9): warning C4005: DXGI_ERROR_DEVICE_RESET: изменение макроопределения
+  (компиляция исходного файла "source/templeware/interfaces/Source2/inputsystem.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58314,9):
+      см. предыдущее определение "DXGI_ERROR_DEVICE_RESET"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(28,9): warning C4005: DXGI_ERROR_WAS_STILL_DRAWING: изменение макроопределения
+  (компиляция исходного файла "source/templeware/interfaces/Source2/inputsystem.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58323,9):
+      см. предыдущее определение "DXGI_ERROR_WAS_STILL_DRAWING"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(29,9): warning C4005: DXGI_ERROR_FRAME_STATISTICS_DISJOINT: изменение макроопределения
+  (компиляция исходного файла "source/templeware/interfaces/Source2/inputsystem.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58333,9):
+      см. предыдущее определение "DXGI_ERROR_FRAME_STATISTICS_DISJOINT"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(30,9): warning C4005: DXGI_ERROR_GRAPHICS_VIDPN_SOURCE_IN_USE: изменение макроопределения
+  (компиляция исходного файла "source/templeware/interfaces/Source2/inputsystem.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58342,9):
+      см. предыдущее определение "DXGI_ERROR_GRAPHICS_VIDPN_SOURCE_IN_USE"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(31,9): warning C4005: DXGI_ERROR_DRIVER_INTERNAL_ERROR: изменение макроопределения
+  (компиляция исходного файла "source/templeware/interfaces/Source2/inputsystem.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58352,9):
+      см. предыдущее определение "DXGI_ERROR_DRIVER_INTERNAL_ERROR"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(32,9): warning C4005: DXGI_ERROR_NONEXCLUSIVE: изменение макроопределения
+  (компиляция исходного файла "source/templeware/interfaces/Source2/inputsystem.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58361,9):
+      см. предыдущее определение "DXGI_ERROR_NONEXCLUSIVE"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(33,9): warning C4005: DXGI_ERROR_NOT_CURRENTLY_AVAILABLE: изменение макроопределения
+  (компиляция исходного файла "source/templeware/interfaces/Source2/inputsystem.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58370,9):
+      см. предыдущее определение "DXGI_ERROR_NOT_CURRENTLY_AVAILABLE"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(34,9): warning C4005: DXGI_ERROR_REMOTE_CLIENT_DISCONNECTED: изменение макроопределения
+  (компиляция исходного файла "source/templeware/interfaces/Source2/inputsystem.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58380,9):
+      см. предыдущее определение "DXGI_ERROR_REMOTE_CLIENT_DISCONNECTED"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(35,9): warning C4005: DXGI_ERROR_REMOTE_OUTOFMEMORY: изменение макроопределения
+  (компиляция исходного файла "source/templeware/interfaces/Source2/inputsystem.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58389,9):
+      см. предыдущее определение "DXGI_ERROR_REMOTE_OUTOFMEMORY"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\d3d11.h(917,9): warning C4005: D3D11_ERROR_TOO_MANY_UNIQUE_STATE_OBJECTS: изменение макроопределения
+  (компиляция исходного файла "source/templeware/interfaces/Source2/inputsystem.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58695,9):
+      см. предыдущее определение "D3D11_ERROR_TOO_MANY_UNIQUE_STATE_OBJECTS"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\d3d11.h(918,9): warning C4005: D3D11_ERROR_FILE_NOT_FOUND: изменение макроопределения
+  (компиляция исходного файла "source/templeware/interfaces/Source2/inputsystem.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58704,9):
+      см. предыдущее определение "D3D11_ERROR_FILE_NOT_FOUND"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\d3d11.h(919,9): warning C4005: D3D11_ERROR_TOO_MANY_UNIQUE_VIEW_OBJECTS: изменение макроопределения
+  (компиляция исходного файла "source/templeware/interfaces/Source2/inputsystem.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58714,9):
+      см. предыдущее определение "D3D11_ERROR_TOO_MANY_UNIQUE_VIEW_OBJECTS"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\d3d11.h(920,9): warning C4005: D3D11_ERROR_DEFERRED_CONTEXT_MAP_WITHOUT_INITIAL_DISCARD: изменение макроопределения
+  (компиляция исходного файла "source/templeware/interfaces/Source2/inputsystem.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58723,9):
+      см. предыдущее определение "D3D11_ERROR_DEFERRED_CONTEXT_MAP_WITHOUT_INITIAL_DISCARD"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\d3d10.h(608,9): warning C4005: D3D10_ERROR_TOO_MANY_UNIQUE_STATE_OBJECTS: изменение макроопределения
+  (компиляция исходного файла "source/templeware/interfaces/Source2/inputsystem.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58671,9):
+      см. предыдущее определение "D3D10_ERROR_TOO_MANY_UNIQUE_STATE_OBJECTS"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\d3d10.h(609,9): warning C4005: D3D10_ERROR_FILE_NOT_FOUND: изменение макроопределения
+  (компиляция исходного файла "source/templeware/interfaces/Source2/inputsystem.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58680,9):
+      см. предыдущее определение "D3D10_ERROR_FILE_NOT_FOUND"
+  
+  math.cpp
+  vector.cpp
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(12,9): warning C4005: DXGI_STATUS_OCCLUDED: изменение макроопределения
+  (компиляция исходного файла "source/templeware/hooks/hooks.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58190,9):
+      см. предыдущее определение "DXGI_STATUS_OCCLUDED"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(13,9): warning C4005: DXGI_STATUS_CLIPPED: изменение макроопределения
+  (компиляция исходного файла "source/templeware/hooks/hooks.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58199,9):
+      см. предыдущее определение "DXGI_STATUS_CLIPPED"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(14,9): warning C4005: DXGI_STATUS_NO_REDIRECTION: изменение макроопределения
+  (компиляция исходного файла "source/templeware/hooks/hooks.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58208,9):
+      см. предыдущее определение "DXGI_STATUS_NO_REDIRECTION"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(15,9): warning C4005: DXGI_STATUS_NO_DESKTOP_ACCESS: изменение макроопределения
+  (компиляция исходного файла "source/templeware/hooks/hooks.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58217,9):
+      см. предыдущее определение "DXGI_STATUS_NO_DESKTOP_ACCESS"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(16,9): warning C4005: DXGI_STATUS_GRAPHICS_VIDPN_SOURCE_IN_USE: изменение макроопределения
+  (компиляция исходного файла "source/templeware/hooks/hooks.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58226,9):
+      см. предыдущее определение "DXGI_STATUS_GRAPHICS_VIDPN_SOURCE_IN_USE"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(17,9): warning C4005: DXGI_STATUS_MODE_CHANGED: изменение макроопределения
+  (компиляция исходного файла "source/templeware/hooks/hooks.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58235,9):
+      см. предыдущее определение "DXGI_STATUS_MODE_CHANGED"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(18,9): warning C4005: DXGI_STATUS_MODE_CHANGE_IN_PROGRESS: изменение макроопределения
+  (компиляция исходного файла "source/templeware/hooks/hooks.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58244,9):
+      см. предыдущее определение "DXGI_STATUS_MODE_CHANGE_IN_PROGRESS"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(21,9): warning C4005: DXGI_ERROR_INVALID_CALL: изменение макроопределения
+  (компиляция исходного файла "source/templeware/hooks/hooks.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58259,9):
+      см. предыдущее определение "DXGI_ERROR_INVALID_CALL"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(22,9): warning C4005: DXGI_ERROR_NOT_FOUND: изменение макроопределения
+  (компиляция исходного файла "source/templeware/hooks/hooks.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58268,9):
+      см. предыдущее определение "DXGI_ERROR_NOT_FOUND"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(23,9): warning C4005: DXGI_ERROR_MORE_DATA: изменение макроопределения
+  (компиляция исходного файла "source/templeware/hooks/hooks.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58277,9):
+      см. предыдущее определение "DXGI_ERROR_MORE_DATA"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(24,9): warning C4005: DXGI_ERROR_UNSUPPORTED: изменение макроопределения
+  (компиляция исходного файла "source/templeware/hooks/hooks.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58286,9):
+      см. предыдущее определение "DXGI_ERROR_UNSUPPORTED"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(25,9): warning C4005: DXGI_ERROR_DEVICE_REMOVED: изменение макроопределения
+  (компиляция исходного файла "source/templeware/hooks/hooks.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58295,9):
+      см. предыдущее определение "DXGI_ERROR_DEVICE_REMOVED"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(26,9): warning C4005: DXGI_ERROR_DEVICE_HUNG: изменение макроопределения
+  (компиляция исходного файла "source/templeware/hooks/hooks.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58304,9):
+      см. предыдущее определение "DXGI_ERROR_DEVICE_HUNG"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(27,9): warning C4005: DXGI_ERROR_DEVICE_RESET: изменение макроопределения
+  (компиляция исходного файла "source/templeware/hooks/hooks.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58314,9):
+      см. предыдущее определение "DXGI_ERROR_DEVICE_RESET"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(28,9): warning C4005: DXGI_ERROR_WAS_STILL_DRAWING: изменение макроопределения
+  (компиляция исходного файла "source/templeware/hooks/hooks.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58323,9):
+      см. предыдущее определение "DXGI_ERROR_WAS_STILL_DRAWING"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(29,9): warning C4005: DXGI_ERROR_FRAME_STATISTICS_DISJOINT: изменение макроопределения
+  (компиляция исходного файла "source/templeware/hooks/hooks.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58333,9):
+      см. предыдущее определение "DXGI_ERROR_FRAME_STATISTICS_DISJOINT"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(30,9): warning C4005: DXGI_ERROR_GRAPHICS_VIDPN_SOURCE_IN_USE: изменение макроопределения
+  (компиляция исходного файла "source/templeware/hooks/hooks.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58342,9):
+      см. предыдущее определение "DXGI_ERROR_GRAPHICS_VIDPN_SOURCE_IN_USE"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(31,9): warning C4005: DXGI_ERROR_DRIVER_INTERNAL_ERROR: изменение макроопределения
+  (компиляция исходного файла "source/templeware/hooks/hooks.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58352,9):
+      см. предыдущее определение "DXGI_ERROR_DRIVER_INTERNAL_ERROR"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(32,9): warning C4005: DXGI_ERROR_NONEXCLUSIVE: изменение макроопределения
+  (компиляция исходного файла "source/templeware/hooks/hooks.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58361,9):
+      см. предыдущее определение "DXGI_ERROR_NONEXCLUSIVE"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(33,9): warning C4005: DXGI_ERROR_NOT_CURRENTLY_AVAILABLE: изменение макроопределения
+  (компиляция исходного файла "source/templeware/hooks/hooks.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58370,9):
+      см. предыдущее определение "DXGI_ERROR_NOT_CURRENTLY_AVAILABLE"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(34,9): warning C4005: DXGI_ERROR_REMOTE_CLIENT_DISCONNECTED: изменение макроопределения
+  (компиляция исходного файла "source/templeware/hooks/hooks.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58380,9):
+      см. предыдущее определение "DXGI_ERROR_REMOTE_CLIENT_DISCONNECTED"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(35,9): warning C4005: DXGI_ERROR_REMOTE_OUTOFMEMORY: изменение макроопределения
+  (компиляция исходного файла "source/templeware/hooks/hooks.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58389,9):
+      см. предыдущее определение "DXGI_ERROR_REMOTE_OUTOFMEMORY"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\d3d11.h(917,9): warning C4005: D3D11_ERROR_TOO_MANY_UNIQUE_STATE_OBJECTS: изменение макроопределения
+  (компиляция исходного файла "source/templeware/hooks/hooks.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58695,9):
+      см. предыдущее определение "D3D11_ERROR_TOO_MANY_UNIQUE_STATE_OBJECTS"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\d3d11.h(918,9): warning C4005: D3D11_ERROR_FILE_NOT_FOUND: изменение макроопределения
+  (компиляция исходного файла "source/templeware/hooks/hooks.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58704,9):
+      см. предыдущее определение "D3D11_ERROR_FILE_NOT_FOUND"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\d3d11.h(919,9): warning C4005: D3D11_ERROR_TOO_MANY_UNIQUE_VIEW_OBJECTS: изменение макроопределения
+  (компиляция исходного файла "source/templeware/hooks/hooks.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58714,9):
+      см. предыдущее определение "D3D11_ERROR_TOO_MANY_UNIQUE_VIEW_OBJECTS"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\d3d11.h(920,9): warning C4005: D3D11_ERROR_DEFERRED_CONTEXT_MAP_WITHOUT_INITIAL_DISCARD: изменение макроопределения
+  (компиляция исходного файла "source/templeware/hooks/hooks.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58723,9):
+      см. предыдущее определение "D3D11_ERROR_DEFERRED_CONTEXT_MAP_WITHOUT_INITIAL_DISCARD"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\d3d10.h(608,9): warning C4005: D3D10_ERROR_TOO_MANY_UNIQUE_STATE_OBJECTS: изменение макроопределения
+  (компиляция исходного файла "source/templeware/hooks/hooks.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58671,9):
+      см. предыдущее определение "D3D10_ERROR_TOO_MANY_UNIQUE_STATE_OBJECTS"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\d3d10.h(609,9): warning C4005: D3D10_ERROR_FILE_NOT_FOUND: изменение макроопределения
+  (компиляция исходного файла "source/templeware/hooks/hooks.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58680,9):
+      см. предыдущее определение "D3D10_ERROR_FILE_NOT_FOUND"
+  
+  viewmatrix.cpp
+  gaa.cpp
+  patternscan.cpp
+  module.cpp
+  templeware.cpp
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(12,9): warning C4005: DXGI_STATUS_OCCLUDED: изменение макроопределения
+  (компиляция исходного файла "source/templeware/utils/logging/log.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58190,9):
+      см. предыдущее определение "DXGI_STATUS_OCCLUDED"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(13,9): warning C4005: DXGI_STATUS_CLIPPED: изменение макроопределения
+  (компиляция исходного файла "source/templeware/utils/logging/log.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58199,9):
+      см. предыдущее определение "DXGI_STATUS_CLIPPED"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(14,9): warning C4005: DXGI_STATUS_NO_REDIRECTION: изменение макроопределения
+  (компиляция исходного файла "source/templeware/utils/logging/log.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58208,9):
+      см. предыдущее определение "DXGI_STATUS_NO_REDIRECTION"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(15,9): warning C4005: DXGI_STATUS_NO_DESKTOP_ACCESS: изменение макроопределения
+  (компиляция исходного файла "source/templeware/utils/logging/log.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58217,9):
+      см. предыдущее определение "DXGI_STATUS_NO_DESKTOP_ACCESS"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(16,9): warning C4005: DXGI_STATUS_GRAPHICS_VIDPN_SOURCE_IN_USE: изменение макроопределения
+  (компиляция исходного файла "source/templeware/utils/logging/log.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58226,9):
+      см. предыдущее определение "DXGI_STATUS_GRAPHICS_VIDPN_SOURCE_IN_USE"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(17,9): warning C4005: DXGI_STATUS_MODE_CHANGED: изменение макроопределения
+  (компиляция исходного файла "source/templeware/utils/logging/log.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58235,9):
+      см. предыдущее определение "DXGI_STATUS_MODE_CHANGED"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(18,9): warning C4005: DXGI_STATUS_MODE_CHANGE_IN_PROGRESS: изменение макроопределения
+  (компиляция исходного файла "source/templeware/utils/logging/log.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58244,9):
+      см. предыдущее определение "DXGI_STATUS_MODE_CHANGE_IN_PROGRESS"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(21,9): warning C4005: DXGI_ERROR_INVALID_CALL: изменение макроопределения
+  (компиляция исходного файла "source/templeware/utils/logging/log.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58259,9):
+      см. предыдущее определение "DXGI_ERROR_INVALID_CALL"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(22,9): warning C4005: DXGI_ERROR_NOT_FOUND: изменение макроопределения
+  (компиляция исходного файла "source/templeware/utils/logging/log.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58268,9):
+      см. предыдущее определение "DXGI_ERROR_NOT_FOUND"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(23,9): warning C4005: DXGI_ERROR_MORE_DATA: изменение макроопределения
+  (компиляция исходного файла "source/templeware/utils/logging/log.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58277,9):
+      см. предыдущее определение "DXGI_ERROR_MORE_DATA"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(24,9): warning C4005: DXGI_ERROR_UNSUPPORTED: изменение макроопределения
+  (компиляция исходного файла "source/templeware/utils/logging/log.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58286,9):
+      см. предыдущее определение "DXGI_ERROR_UNSUPPORTED"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(25,9): warning C4005: DXGI_ERROR_DEVICE_REMOVED: изменение макроопределения
+  (компиляция исходного файла "source/templeware/utils/logging/log.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58295,9):
+      см. предыдущее определение "DXGI_ERROR_DEVICE_REMOVED"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(26,9): warning C4005: DXGI_ERROR_DEVICE_HUNG: изменение макроопределения
+  (компиляция исходного файла "source/templeware/utils/logging/log.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58304,9):
+      см. предыдущее определение "DXGI_ERROR_DEVICE_HUNG"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(27,9): warning C4005: DXGI_ERROR_DEVICE_RESET: изменение макроопределения
+  (компиляция исходного файла "source/templeware/utils/logging/log.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58314,9):
+      см. предыдущее определение "DXGI_ERROR_DEVICE_RESET"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(28,9): warning C4005: DXGI_ERROR_WAS_STILL_DRAWING: изменение макроопределения
+  (компиляция исходного файла "source/templeware/utils/logging/log.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58323,9):
+      см. предыдущее определение "DXGI_ERROR_WAS_STILL_DRAWING"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(29,9): warning C4005: DXGI_ERROR_FRAME_STATISTICS_DISJOINT: изменение макроопределения
+  (компиляция исходного файла "source/templeware/utils/logging/log.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58333,9):
+      см. предыдущее определение "DXGI_ERROR_FRAME_STATISTICS_DISJOINT"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(30,9): warning C4005: DXGI_ERROR_GRAPHICS_VIDPN_SOURCE_IN_USE: изменение макроопределения
+  (компиляция исходного файла "source/templeware/utils/logging/log.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58342,9):
+      см. предыдущее определение "DXGI_ERROR_GRAPHICS_VIDPN_SOURCE_IN_USE"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(31,9): warning C4005: DXGI_ERROR_DRIVER_INTERNAL_ERROR: изменение макроопределения
+  (компиляция исходного файла "source/templeware/utils/logging/log.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58352,9):
+      см. предыдущее определение "DXGI_ERROR_DRIVER_INTERNAL_ERROR"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(32,9): warning C4005: DXGI_ERROR_NONEXCLUSIVE: изменение макроопределения
+  (компиляция исходного файла "source/templeware/utils/logging/log.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58361,9):
+      см. предыдущее определение "DXGI_ERROR_NONEXCLUSIVE"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(33,9): warning C4005: DXGI_ERROR_NOT_CURRENTLY_AVAILABLE: изменение макроопределения
+  (компиляция исходного файла "source/templeware/utils/logging/log.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58370,9):
+      см. предыдущее определение "DXGI_ERROR_NOT_CURRENTLY_AVAILABLE"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(34,9): warning C4005: DXGI_ERROR_REMOTE_CLIENT_DISCONNECTED: изменение макроопределения
+  (компиляция исходного файла "source/templeware/utils/logging/log.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58380,9):
+      см. предыдущее определение "DXGI_ERROR_REMOTE_CLIENT_DISCONNECTED"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(35,9): warning C4005: DXGI_ERROR_REMOTE_OUTOFMEMORY: изменение макроопределения
+  (компиляция исходного файла "source/templeware/utils/logging/log.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58389,9):
+      см. предыдущее определение "DXGI_ERROR_REMOTE_OUTOFMEMORY"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\d3d11.h(917,9): warning C4005: D3D11_ERROR_TOO_MANY_UNIQUE_STATE_OBJECTS: изменение макроопределения
+  (компиляция исходного файла "source/templeware/utils/logging/log.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58695,9):
+      см. предыдущее определение "D3D11_ERROR_TOO_MANY_UNIQUE_STATE_OBJECTS"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\d3d11.h(918,9): warning C4005: D3D11_ERROR_FILE_NOT_FOUND: изменение макроопределения
+  (компиляция исходного файла "source/templeware/utils/logging/log.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58704,9):
+      см. предыдущее определение "D3D11_ERROR_FILE_NOT_FOUND"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\d3d11.h(919,9): warning C4005: D3D11_ERROR_TOO_MANY_UNIQUE_VIEW_OBJECTS: изменение макроопределения
+  (компиляция исходного файла "source/templeware/utils/logging/log.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58714,9):
+      см. предыдущее определение "D3D11_ERROR_TOO_MANY_UNIQUE_VIEW_OBJECTS"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\d3d11.h(920,9): warning C4005: D3D11_ERROR_DEFERRED_CONTEXT_MAP_WITHOUT_INITIAL_DISCARD: изменение макроопределения
+  (компиляция исходного файла "source/templeware/utils/logging/log.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58723,9):
+      см. предыдущее определение "D3D11_ERROR_DEFERRED_CONTEXT_MAP_WITHOUT_INITIAL_DISCARD"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\d3d10.h(608,9): warning C4005: D3D10_ERROR_TOO_MANY_UNIQUE_STATE_OBJECTS: изменение макроопределения
+  (компиляция исходного файла "source/templeware/utils/logging/log.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58671,9):
+      см. предыдущее определение "D3D10_ERROR_TOO_MANY_UNIQUE_STATE_OBJECTS"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\d3d10.h(609,9): warning C4005: D3D10_ERROR_FILE_NOT_FOUND: изменение макроопределения
+  (компиляция исходного файла "source/templeware/utils/logging/log.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58680,9):
+      см. предыдущее определение "D3D10_ERROR_FILE_NOT_FOUND"
+  
+  main.cpp
+  menu.cpp
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(12,9): warning C4005: DXGI_STATUS_OCCLUDED: изменение макроопределения
+  (компиляция исходного файла "source/main.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58190,9):
+      см. предыдущее определение "DXGI_STATUS_OCCLUDED"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(13,9): warning C4005: DXGI_STATUS_CLIPPED: изменение макроопределения
+  (компиляция исходного файла "source/main.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58199,9):
+      см. предыдущее определение "DXGI_STATUS_CLIPPED"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(14,9): warning C4005: DXGI_STATUS_NO_REDIRECTION: изменение макроопределения
+  (компиляция исходного файла "source/main.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58208,9):
+      см. предыдущее определение "DXGI_STATUS_NO_REDIRECTION"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(15,9): warning C4005: DXGI_STATUS_NO_DESKTOP_ACCESS: изменение макроопределения
+  (компиляция исходного файла "source/main.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58217,9):
+      см. предыдущее определение "DXGI_STATUS_NO_DESKTOP_ACCESS"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(16,9): warning C4005: DXGI_STATUS_GRAPHICS_VIDPN_SOURCE_IN_USE: изменение макроопределения
+  (компиляция исходного файла "source/main.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58226,9):
+      см. предыдущее определение "DXGI_STATUS_GRAPHICS_VIDPN_SOURCE_IN_USE"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(17,9): warning C4005: DXGI_STATUS_MODE_CHANGED: изменение макроопределения
+  (компиляция исходного файла "source/main.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58235,9):
+      см. предыдущее определение "DXGI_STATUS_MODE_CHANGED"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(18,9): warning C4005: DXGI_STATUS_MODE_CHANGE_IN_PROGRESS: изменение макроопределения
+  (компиляция исходного файла "source/main.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58244,9):
+      см. предыдущее определение "DXGI_STATUS_MODE_CHANGE_IN_PROGRESS"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(21,9): warning C4005: DXGI_ERROR_INVALID_CALL: изменение макроопределения
+  (компиляция исходного файла "source/main.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58259,9):
+      см. предыдущее определение "DXGI_ERROR_INVALID_CALL"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(22,9): warning C4005: DXGI_ERROR_NOT_FOUND: изменение макроопределения
+  (компиляция исходного файла "source/main.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58268,9):
+      см. предыдущее определение "DXGI_ERROR_NOT_FOUND"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(23,9): warning C4005: DXGI_ERROR_MORE_DATA: изменение макроопределения
+  (компиляция исходного файла "source/main.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58277,9):
+      см. предыдущее определение "DXGI_ERROR_MORE_DATA"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(24,9): warning C4005: DXGI_ERROR_UNSUPPORTED: изменение макроопределения
+  (компиляция исходного файла "source/main.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58286,9):
+      см. предыдущее определение "DXGI_ERROR_UNSUPPORTED"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(25,9): warning C4005: DXGI_ERROR_DEVICE_REMOVED: изменение макроопределения
+  (компиляция исходного файла "source/main.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58295,9):
+      см. предыдущее определение "DXGI_ERROR_DEVICE_REMOVED"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(26,9): warning C4005: DXGI_ERROR_DEVICE_HUNG: изменение макроопределения
+  (компиляция исходного файла "source/main.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58304,9):
+      см. предыдущее определение "DXGI_ERROR_DEVICE_HUNG"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(27,9): warning C4005: DXGI_ERROR_DEVICE_RESET: изменение макроопределения
+  (компиляция исходного файла "source/main.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58314,9):
+      см. предыдущее определение "DXGI_ERROR_DEVICE_RESET"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(28,9): warning C4005: DXGI_ERROR_WAS_STILL_DRAWING: изменение макроопределения
+  (компиляция исходного файла "source/main.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58323,9):
+      см. предыдущее определение "DXGI_ERROR_WAS_STILL_DRAWING"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(29,9): warning C4005: DXGI_ERROR_FRAME_STATISTICS_DISJOINT: изменение макроопределения
+  (компиляция исходного файла "source/main.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58333,9):
+      см. предыдущее определение "DXGI_ERROR_FRAME_STATISTICS_DISJOINT"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(30,9): warning C4005: DXGI_ERROR_GRAPHICS_VIDPN_SOURCE_IN_USE: изменение макроопределения
+  (компиляция исходного файла "source/main.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58342,9):
+      см. предыдущее определение "DXGI_ERROR_GRAPHICS_VIDPN_SOURCE_IN_USE"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(31,9): warning C4005: DXGI_ERROR_DRIVER_INTERNAL_ERROR: изменение макроопределения
+  (компиляция исходного файла "source/main.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58352,9):
+      см. предыдущее определение "DXGI_ERROR_DRIVER_INTERNAL_ERROR"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(32,9): warning C4005: DXGI_ERROR_NONEXCLUSIVE: изменение макроопределения
+  (компиляция исходного файла "source/main.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58361,9):
+      см. предыдущее определение "DXGI_ERROR_NONEXCLUSIVE"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(33,9): warning C4005: DXGI_ERROR_NOT_CURRENTLY_AVAILABLE: изменение макроопределения
+  (компиляция исходного файла "source/main.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58370,9):
+      см. предыдущее определение "DXGI_ERROR_NOT_CURRENTLY_AVAILABLE"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(34,9): warning C4005: DXGI_ERROR_REMOTE_CLIENT_DISCONNECTED: изменение макроопределения
+  (компиляция исходного файла "source/main.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58380,9):
+      см. предыдущее определение "DXGI_ERROR_REMOTE_CLIENT_DISCONNECTED"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(35,9): warning C4005: DXGI_ERROR_REMOTE_OUTOFMEMORY: изменение макроопределения
+  (компиляция исходного файла "source/main.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58389,9):
+      см. предыдущее определение "DXGI_ERROR_REMOTE_OUTOFMEMORY"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\d3d11.h(917,9): warning C4005: D3D11_ERROR_TOO_MANY_UNIQUE_STATE_OBJECTS: изменение макроопределения
+  (компиляция исходного файла "source/main.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58695,9):
+      см. предыдущее определение "D3D11_ERROR_TOO_MANY_UNIQUE_STATE_OBJECTS"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\d3d11.h(918,9): warning C4005: D3D11_ERROR_FILE_NOT_FOUND: изменение макроопределения
+  (компиляция исходного файла "source/main.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58704,9):
+      см. предыдущее определение "D3D11_ERROR_FILE_NOT_FOUND"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\d3d11.h(919,9): warning C4005: D3D11_ERROR_TOO_MANY_UNIQUE_VIEW_OBJECTS: изменение макроопределения
+  (компиляция исходного файла "source/main.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58714,9):
+      см. предыдущее определение "D3D11_ERROR_TOO_MANY_UNIQUE_VIEW_OBJECTS"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\d3d11.h(920,9): warning C4005: D3D11_ERROR_DEFERRED_CONTEXT_MAP_WITHOUT_INITIAL_DISCARD: изменение макроопределения
+  (компиляция исходного файла "source/main.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58723,9):
+      см. предыдущее определение "D3D11_ERROR_DEFERRED_CONTEXT_MAP_WITHOUT_INITIAL_DISCARD"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\d3d10.h(608,9): warning C4005: D3D10_ERROR_TOO_MANY_UNIQUE_STATE_OBJECTS: изменение макроопределения
+  (компиляция исходного файла "source/main.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58671,9):
+      см. предыдущее определение "D3D10_ERROR_TOO_MANY_UNIQUE_STATE_OBJECTS"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\d3d10.h(609,9): warning C4005: D3D10_ERROR_FILE_NOT_FOUND: изменение макроопределения
+  (компиляция исходного файла "source/main.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58680,9):
+      см. предыдущее определение "D3D10_ERROR_FILE_NOT_FOUND"
+  
+  visuals.cpp
+  schema.cpp
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(12,9): warning C4005: DXGI_STATUS_OCCLUDED: изменение макроопределения
+  (компиляция исходного файла "source/templeware/menu/menu.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58190,9):
+      см. предыдущее определение "DXGI_STATUS_OCCLUDED"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(13,9): warning C4005: DXGI_STATUS_CLIPPED: изменение макроопределения
+  (компиляция исходного файла "source/templeware/menu/menu.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58199,9):
+      см. предыдущее определение "DXGI_STATUS_CLIPPED"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(14,9): warning C4005: DXGI_STATUS_NO_REDIRECTION: изменение макроопределения
+  (компиляция исходного файла "source/templeware/menu/menu.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58208,9):
+      см. предыдущее определение "DXGI_STATUS_NO_REDIRECTION"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(15,9): warning C4005: DXGI_STATUS_NO_DESKTOP_ACCESS: изменение макроопределения
+  (компиляция исходного файла "source/templeware/menu/menu.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58217,9):
+      см. предыдущее определение "DXGI_STATUS_NO_DESKTOP_ACCESS"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(16,9): warning C4005: DXGI_STATUS_GRAPHICS_VIDPN_SOURCE_IN_USE: изменение макроопределения
+  (компиляция исходного файла "source/templeware/menu/menu.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58226,9):
+      см. предыдущее определение "DXGI_STATUS_GRAPHICS_VIDPN_SOURCE_IN_USE"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(17,9): warning C4005: DXGI_STATUS_MODE_CHANGED: изменение макроопределения
+  (компиляция исходного файла "source/templeware/menu/menu.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58235,9):
+      см. предыдущее определение "DXGI_STATUS_MODE_CHANGED"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(18,9): warning C4005: DXGI_STATUS_MODE_CHANGE_IN_PROGRESS: изменение макроопределения
+  (компиляция исходного файла "source/templeware/menu/menu.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58244,9):
+      см. предыдущее определение "DXGI_STATUS_MODE_CHANGE_IN_PROGRESS"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(21,9): warning C4005: DXGI_ERROR_INVALID_CALL: изменение макроопределения
+  (компиляция исходного файла "source/templeware/menu/menu.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58259,9):
+      см. предыдущее определение "DXGI_ERROR_INVALID_CALL"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(22,9): warning C4005: DXGI_ERROR_NOT_FOUND: изменение макроопределения
+  (компиляция исходного файла "source/templeware/menu/menu.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58268,9):
+      см. предыдущее определение "DXGI_ERROR_NOT_FOUND"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(23,9): warning C4005: DXGI_ERROR_MORE_DATA: изменение макроопределения
+  (компиляция исходного файла "source/templeware/menu/menu.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58277,9):
+      см. предыдущее определение "DXGI_ERROR_MORE_DATA"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(24,9): warning C4005: DXGI_ERROR_UNSUPPORTED: изменение макроопределения
+  (компиляция исходного файла "source/templeware/menu/menu.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58286,9):
+      см. предыдущее определение "DXGI_ERROR_UNSUPPORTED"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(25,9): warning C4005: DXGI_ERROR_DEVICE_REMOVED: изменение макроопределения
+  (компиляция исходного файла "source/templeware/menu/menu.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58295,9):
+      см. предыдущее определение "DXGI_ERROR_DEVICE_REMOVED"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(26,9): warning C4005: DXGI_ERROR_DEVICE_HUNG: изменение макроопределения
+  (компиляция исходного файла "source/templeware/menu/menu.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58304,9):
+      см. предыдущее определение "DXGI_ERROR_DEVICE_HUNG"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(27,9): warning C4005: DXGI_ERROR_DEVICE_RESET: изменение макроопределения
+  (компиляция исходного файла "source/templeware/menu/menu.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58314,9):
+      см. предыдущее определение "DXGI_ERROR_DEVICE_RESET"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(28,9): warning C4005: DXGI_ERROR_WAS_STILL_DRAWING: изменение макроопределения
+  (компиляция исходного файла "source/templeware/menu/menu.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58323,9):
+      см. предыдущее определение "DXGI_ERROR_WAS_STILL_DRAWING"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(29,9): warning C4005: DXGI_ERROR_FRAME_STATISTICS_DISJOINT: изменение макроопределения
+  (компиляция исходного файла "source/templeware/menu/menu.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58333,9):
+      см. предыдущее определение "DXGI_ERROR_FRAME_STATISTICS_DISJOINT"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(30,9): warning C4005: DXGI_ERROR_GRAPHICS_VIDPN_SOURCE_IN_USE: изменение макроопределения
+  (компиляция исходного файла "source/templeware/menu/menu.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58342,9):
+      см. предыдущее определение "DXGI_ERROR_GRAPHICS_VIDPN_SOURCE_IN_USE"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(31,9): warning C4005: DXGI_ERROR_DRIVER_INTERNAL_ERROR: изменение макроопределения
+  (компиляция исходного файла "source/templeware/menu/menu.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58352,9):
+      см. предыдущее определение "DXGI_ERROR_DRIVER_INTERNAL_ERROR"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(32,9): warning C4005: DXGI_ERROR_NONEXCLUSIVE: изменение макроопределения
+  (компиляция исходного файла "source/templeware/menu/menu.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58361,9):
+      см. предыдущее определение "DXGI_ERROR_NONEXCLUSIVE"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(33,9): warning C4005: DXGI_ERROR_NOT_CURRENTLY_AVAILABLE: изменение макроопределения
+  (компиляция исходного файла "source/templeware/menu/menu.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58370,9):
+      см. предыдущее определение "DXGI_ERROR_NOT_CURRENTLY_AVAILABLE"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(34,9): warning C4005: DXGI_ERROR_REMOTE_CLIENT_DISCONNECTED: изменение макроопределения
+  (компиляция исходного файла "source/templeware/menu/menu.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58380,9):
+      см. предыдущее определение "DXGI_ERROR_REMOTE_CLIENT_DISCONNECTED"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(35,9): warning C4005: DXGI_ERROR_REMOTE_OUTOFMEMORY: изменение макроопределения
+  (компиляция исходного файла "source/templeware/menu/menu.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58389,9):
+      см. предыдущее определение "DXGI_ERROR_REMOTE_OUTOFMEMORY"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(12,9): warning C4005: DXGI_STATUS_OCCLUDED: изменение макроопределения
+  (компиляция исходного файла "source/templeware/templeware.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58190,9):
+      см. предыдущее определение "DXGI_STATUS_OCCLUDED"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(13,9): warning C4005: DXGI_STATUS_CLIPPED: изменение макроопределения
+  (компиляция исходного файла "source/templeware/templeware.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58199,9):
+      см. предыдущее определение "DXGI_STATUS_CLIPPED"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(14,9): warning C4005: DXGI_STATUS_NO_REDIRECTION: изменение макроопределения
+  (компиляция исходного файла "source/templeware/templeware.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58208,9):
+      см. предыдущее определение "DXGI_STATUS_NO_REDIRECTION"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(15,9): warning C4005: DXGI_STATUS_NO_DESKTOP_ACCESS: изменение макроопределения
+  (компиляция исходного файла "source/templeware/templeware.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58217,9):
+      см. предыдущее определение "DXGI_STATUS_NO_DESKTOP_ACCESS"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(16,9): warning C4005: DXGI_STATUS_GRAPHICS_VIDPN_SOURCE_IN_USE: изменение макроопределения
+  (компиляция исходного файла "source/templeware/templeware.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58226,9):
+      см. предыдущее определение "DXGI_STATUS_GRAPHICS_VIDPN_SOURCE_IN_USE"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(17,9): warning C4005: DXGI_STATUS_MODE_CHANGED: изменение макроопределения
+  (компиляция исходного файла "source/templeware/templeware.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58235,9):
+      см. предыдущее определение "DXGI_STATUS_MODE_CHANGED"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(18,9): warning C4005: DXGI_STATUS_MODE_CHANGE_IN_PROGRESS: изменение макроопределения
+  (компиляция исходного файла "source/templeware/templeware.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58244,9):
+      см. предыдущее определение "DXGI_STATUS_MODE_CHANGE_IN_PROGRESS"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(21,9): warning C4005: DXGI_ERROR_INVALID_CALL: изменение макроопределения
+  (компиляция исходного файла "source/templeware/templeware.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58259,9):
+      см. предыдущее определение "DXGI_ERROR_INVALID_CALL"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(22,9): warning C4005: DXGI_ERROR_NOT_FOUND: изменение макроопределения
+  (компиляция исходного файла "source/templeware/templeware.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58268,9):
+      см. предыдущее определение "DXGI_ERROR_NOT_FOUND"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(23,9): warning C4005: DXGI_ERROR_MORE_DATA: изменение макроопределения
+  (компиляция исходного файла "source/templeware/templeware.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58277,9):
+      см. предыдущее определение "DXGI_ERROR_MORE_DATA"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(24,9): warning C4005: DXGI_ERROR_UNSUPPORTED: изменение макроопределения
+  (компиляция исходного файла "source/templeware/templeware.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58286,9):
+      см. предыдущее определение "DXGI_ERROR_UNSUPPORTED"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(25,9): warning C4005: DXGI_ERROR_DEVICE_REMOVED: изменение макроопределения
+  (компиляция исходного файла "source/templeware/templeware.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58295,9):
+      см. предыдущее определение "DXGI_ERROR_DEVICE_REMOVED"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(26,9): warning C4005: DXGI_ERROR_DEVICE_HUNG: изменение макроопределения
+  (компиляция исходного файла "source/templeware/templeware.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58304,9):
+      см. предыдущее определение "DXGI_ERROR_DEVICE_HUNG"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(27,9): warning C4005: DXGI_ERROR_DEVICE_RESET: изменение макроопределения
+  (компиляция исходного файла "source/templeware/templeware.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58314,9):
+      см. предыдущее определение "DXGI_ERROR_DEVICE_RESET"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(28,9): warning C4005: DXGI_ERROR_WAS_STILL_DRAWING: изменение макроопределения
+  (компиляция исходного файла "source/templeware/templeware.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58323,9):
+      см. предыдущее определение "DXGI_ERROR_WAS_STILL_DRAWING"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(29,9): warning C4005: DXGI_ERROR_FRAME_STATISTICS_DISJOINT: изменение макроопределения
+  (компиляция исходного файла "source/templeware/templeware.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58333,9):
+      см. предыдущее определение "DXGI_ERROR_FRAME_STATISTICS_DISJOINT"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(30,9): warning C4005: DXGI_ERROR_GRAPHICS_VIDPN_SOURCE_IN_USE: изменение макроопределения
+  (компиляция исходного файла "source/templeware/templeware.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58342,9):
+      см. предыдущее определение "DXGI_ERROR_GRAPHICS_VIDPN_SOURCE_IN_USE"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(31,9): warning C4005: DXGI_ERROR_DRIVER_INTERNAL_ERROR: изменение макроопределения
+  (компиляция исходного файла "source/templeware/templeware.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58352,9):
+      см. предыдущее определение "DXGI_ERROR_DRIVER_INTERNAL_ERROR"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(32,9): warning C4005: DXGI_ERROR_NONEXCLUSIVE: изменение макроопределения
+  (компиляция исходного файла "source/templeware/templeware.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58361,9):
+      см. предыдущее определение "DXGI_ERROR_NONEXCLUSIVE"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(33,9): warning C4005: DXGI_ERROR_NOT_CURRENTLY_AVAILABLE: изменение макроопределения
+  (компиляция исходного файла "source/templeware/templeware.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58370,9):
+      см. предыдущее определение "DXGI_ERROR_NOT_CURRENTLY_AVAILABLE"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\d3d11.h(917,9): warning C4005: D3D11_ERROR_TOO_MANY_UNIQUE_STATE_OBJECTS: изменение макроопределения
+  (компиляция исходного файла "source/templeware/menu/menu.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58695,9):
+      см. предыдущее определение "D3D11_ERROR_TOO_MANY_UNIQUE_STATE_OBJECTS"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(34,9): warning C4005: DXGI_ERROR_REMOTE_CLIENT_DISCONNECTED: изменение макроопределения
+  (компиляция исходного файла "source/templeware/templeware.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58380,9):
+      см. предыдущее определение "DXGI_ERROR_REMOTE_CLIENT_DISCONNECTED"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(35,9): warning C4005: DXGI_ERROR_REMOTE_OUTOFMEMORY: изменение макроопределения
+  (компиляция исходного файла "source/templeware/templeware.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58389,9):
+      см. предыдущее определение "DXGI_ERROR_REMOTE_OUTOFMEMORY"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\d3d11.h(918,9): warning C4005: D3D11_ERROR_FILE_NOT_FOUND: изменение макроопределения
+  (компиляция исходного файла "source/templeware/menu/menu.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58704,9):
+      см. предыдущее определение "D3D11_ERROR_FILE_NOT_FOUND"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\d3d11.h(919,9): warning C4005: D3D11_ERROR_TOO_MANY_UNIQUE_VIEW_OBJECTS: изменение макроопределения
+  (компиляция исходного файла "source/templeware/menu/menu.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58714,9):
+      см. предыдущее определение "D3D11_ERROR_TOO_MANY_UNIQUE_VIEW_OBJECTS"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\d3d11.h(920,9): warning C4005: D3D11_ERROR_DEFERRED_CONTEXT_MAP_WITHOUT_INITIAL_DISCARD: изменение макроопределения
+  (компиляция исходного файла "source/templeware/menu/menu.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58723,9):
+      см. предыдущее определение "D3D11_ERROR_DEFERRED_CONTEXT_MAP_WITHOUT_INITIAL_DISCARD"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\d3d11.h(917,9): warning C4005: D3D11_ERROR_TOO_MANY_UNIQUE_STATE_OBJECTS: изменение макроопределения
+  (компиляция исходного файла "source/templeware/templeware.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58695,9):
+      см. предыдущее определение "D3D11_ERROR_TOO_MANY_UNIQUE_STATE_OBJECTS"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\d3d11.h(918,9): warning C4005: D3D11_ERROR_FILE_NOT_FOUND: изменение макроопределения
+  (компиляция исходного файла "source/templeware/templeware.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58704,9):
+      см. предыдущее определение "D3D11_ERROR_FILE_NOT_FOUND"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\d3d11.h(919,9): warning C4005: D3D11_ERROR_TOO_MANY_UNIQUE_VIEW_OBJECTS: изменение макроопределения
+  (компиляция исходного файла "source/templeware/templeware.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58714,9):
+      см. предыдущее определение "D3D11_ERROR_TOO_MANY_UNIQUE_VIEW_OBJECTS"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\d3d11.h(920,9): warning C4005: D3D11_ERROR_DEFERRED_CONTEXT_MAP_WITHOUT_INITIAL_DISCARD: изменение макроопределения
+  (компиляция исходного файла "source/templeware/templeware.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58723,9):
+      см. предыдущее определение "D3D11_ERROR_DEFERRED_CONTEXT_MAP_WITHOUT_INITIAL_DISCARD"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\d3d10.h(608,9): warning C4005: D3D10_ERROR_TOO_MANY_UNIQUE_STATE_OBJECTS: изменение макроопределения
+  (компиляция исходного файла "source/templeware/menu/menu.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58671,9):
+      см. предыдущее определение "D3D10_ERROR_TOO_MANY_UNIQUE_STATE_OBJECTS"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\d3d10.h(609,9): warning C4005: D3D10_ERROR_FILE_NOT_FOUND: изменение макроопределения
+  (компиляция исходного файла "source/templeware/menu/menu.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58680,9):
+      см. предыдущее определение "D3D10_ERROR_FILE_NOT_FOUND"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\d3d10.h(608,9): warning C4005: D3D10_ERROR_TOO_MANY_UNIQUE_STATE_OBJECTS: изменение макроопределения
+  (компиляция исходного файла "source/templeware/templeware.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58671,9):
+      см. предыдущее определение "D3D10_ERROR_TOO_MANY_UNIQUE_STATE_OBJECTS"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\d3d10.h(609,9): warning C4005: D3D10_ERROR_FILE_NOT_FOUND: изменение макроопределения
+  (компиляция исходного файла "source/templeware/templeware.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58680,9):
+      см. предыдущее определение "D3D10_ERROR_FILE_NOT_FOUND"
+  
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\utility(274,16): warning C4244: инициализация: преобразование "_Ty" в "_Ty1", возможна потеря данных
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\utility(274,16): warning C4244:         with
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\utility(274,16): warning C4244:         [
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\utility(274,16): warning C4244:             _Ty=unsigned long
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\utility(274,16): warning C4244:         ]
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\utility(274,16): warning C4244:         and
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\utility(274,16): warning C4244:         [
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\utility(274,16): warning C4244:             _Ty1=uint8_t
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\utility(274,16): warning C4244:         ]
+  (компиляция исходного файла "source/templeware/utils/memory/patternscan/patternscan.cpp")
+      C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\utility(274,16):
+      контекст создания экземпляра шаблона (сначала самый старый)
+          C:\Users\YBA_Enjoyer012\3D Objects\forever-cs2\TempleWare-CS2\source\templeware\utils\memory\patternscan\patternscan.cpp(30,26):
+          выполняется компиляция ссылки на экземпляр шаблон функции "std::pair<uint8_t,bool> &std::vector<std::pair<uint8_t,bool>,std::allocator<std::pair<uint8_t,bool>>>::emplace_back<unsigned long,bool>(unsigned long &&,bool &&)"
+              C:\Users\YBA_Enjoyer012\3D Objects\forever-cs2\TempleWare-CS2\source\templeware\utils\memory\patternscan\patternscan.cpp(30,38):
+              см. первую ссылку на "std::vector<std::pair<uint8_t,bool>,std::allocator<std::pair<uint8_t,bool>>>::emplace_back" в "PatternToBytes"
+          C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\vector(924,24):
+          выполняется компиляция ссылки на экземпляр шаблон функции "_Ty &std::vector<_Ty,std::allocator<_Ty>>::_Emplace_one_at_back<unsigned long,bool>(unsigned long &&,bool &&)"
+          with
+          [
+              _Ty=std::pair<uint8_t,bool>
+          ]
+          C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\vector(845,20):
+          выполняется компиляция ссылки на экземпляр шаблон функции "_Ty &std::vector<_Ty,std::allocator<_Ty>>::_Emplace_back_with_unused_capacity<unsigned long,bool>(unsigned long &&,bool &&)"
+          with
+          [
+              _Ty=std::pair<uint8_t,bool>
+          ]
+          C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\vector(860,18):
+          выполняется компиляция ссылки на экземпляр шаблон функции "void std::_Construct_in_place<std::pair<uint8_t,bool>,_Ty,bool>(std::pair<uint8_t,bool> &,_Ty &&,bool &&) noexcept"
+          with
+          [
+              _Ty=unsigned long
+          ]
+          C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\xutility(476,61):
+          выполняется компиляция ссылки на экземпляр шаблон функции "std::pair<uint8_t,bool>::pair<_T,bool,0>(_Other1 &&,_Other2 &&) noexcept"
+          with
+          [
+              _T=unsigned long,
+              _Other1=unsigned long,
+              _Other2=bool
+          ]
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(12,9): warning C4005: DXGI_STATUS_OCCLUDED: изменение макроопределения
+  (компиляция исходного файла "source/templeware/features/visuals/visuals.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58190,9):
+      см. предыдущее определение "DXGI_STATUS_OCCLUDED"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(13,9): warning C4005: DXGI_STATUS_CLIPPED: изменение макроопределения
+  (компиляция исходного файла "source/templeware/features/visuals/visuals.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58199,9):
+      см. предыдущее определение "DXGI_STATUS_CLIPPED"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(14,9): warning C4005: DXGI_STATUS_NO_REDIRECTION: изменение макроопределения
+  (компиляция исходного файла "source/templeware/features/visuals/visuals.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58208,9):
+      см. предыдущее определение "DXGI_STATUS_NO_REDIRECTION"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(15,9): warning C4005: DXGI_STATUS_NO_DESKTOP_ACCESS: изменение макроопределения
+  (компиляция исходного файла "source/templeware/features/visuals/visuals.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58217,9):
+      см. предыдущее определение "DXGI_STATUS_NO_DESKTOP_ACCESS"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(16,9): warning C4005: DXGI_STATUS_GRAPHICS_VIDPN_SOURCE_IN_USE: изменение макроопределения
+  (компиляция исходного файла "source/templeware/features/visuals/visuals.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58226,9):
+      см. предыдущее определение "DXGI_STATUS_GRAPHICS_VIDPN_SOURCE_IN_USE"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(17,9): warning C4005: DXGI_STATUS_MODE_CHANGED: изменение макроопределения
+  (компиляция исходного файла "source/templeware/features/visuals/visuals.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58235,9):
+      см. предыдущее определение "DXGI_STATUS_MODE_CHANGED"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(18,9): warning C4005: DXGI_STATUS_MODE_CHANGE_IN_PROGRESS: изменение макроопределения
+  (компиляция исходного файла "source/templeware/features/visuals/visuals.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58244,9):
+      см. предыдущее определение "DXGI_STATUS_MODE_CHANGE_IN_PROGRESS"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(21,9): warning C4005: DXGI_ERROR_INVALID_CALL: изменение макроопределения
+  (компиляция исходного файла "source/templeware/features/visuals/visuals.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58259,9):
+      см. предыдущее определение "DXGI_ERROR_INVALID_CALL"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(22,9): warning C4005: DXGI_ERROR_NOT_FOUND: изменение макроопределения
+  (компиляция исходного файла "source/templeware/features/visuals/visuals.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58268,9):
+      см. предыдущее определение "DXGI_ERROR_NOT_FOUND"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(23,9): warning C4005: DXGI_ERROR_MORE_DATA: изменение макроопределения
+  (компиляция исходного файла "source/templeware/features/visuals/visuals.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58277,9):
+      см. предыдущее определение "DXGI_ERROR_MORE_DATA"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(24,9): warning C4005: DXGI_ERROR_UNSUPPORTED: изменение макроопределения
+  (компиляция исходного файла "source/templeware/features/visuals/visuals.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58286,9):
+      см. предыдущее определение "DXGI_ERROR_UNSUPPORTED"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(25,9): warning C4005: DXGI_ERROR_DEVICE_REMOVED: изменение макроопределения
+  (компиляция исходного файла "source/templeware/features/visuals/visuals.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58295,9):
+      см. предыдущее определение "DXGI_ERROR_DEVICE_REMOVED"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(26,9): warning C4005: DXGI_ERROR_DEVICE_HUNG: изменение макроопределения
+  (компиляция исходного файла "source/templeware/features/visuals/visuals.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58304,9):
+      см. предыдущее определение "DXGI_ERROR_DEVICE_HUNG"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(27,9): warning C4005: DXGI_ERROR_DEVICE_RESET: изменение макроопределения
+  (компиляция исходного файла "source/templeware/features/visuals/visuals.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58314,9):
+      см. предыдущее определение "DXGI_ERROR_DEVICE_RESET"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(28,9): warning C4005: DXGI_ERROR_WAS_STILL_DRAWING: изменение макроопределения
+  (компиляция исходного файла "source/templeware/features/visuals/visuals.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58323,9):
+      см. предыдущее определение "DXGI_ERROR_WAS_STILL_DRAWING"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(29,9): warning C4005: DXGI_ERROR_FRAME_STATISTICS_DISJOINT: изменение макроопределения
+  (компиляция исходного файла "source/templeware/features/visuals/visuals.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58333,9):
+      см. предыдущее определение "DXGI_ERROR_FRAME_STATISTICS_DISJOINT"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(30,9): warning C4005: DXGI_ERROR_GRAPHICS_VIDPN_SOURCE_IN_USE: изменение макроопределения
+  (компиляция исходного файла "source/templeware/features/visuals/visuals.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58342,9):
+      см. предыдущее определение "DXGI_ERROR_GRAPHICS_VIDPN_SOURCE_IN_USE"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(31,9): warning C4005: DXGI_ERROR_DRIVER_INTERNAL_ERROR: изменение макроопределения
+  (компиляция исходного файла "source/templeware/features/visuals/visuals.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58352,9):
+      см. предыдущее определение "DXGI_ERROR_DRIVER_INTERNAL_ERROR"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(32,9): warning C4005: DXGI_ERROR_NONEXCLUSIVE: изменение макроопределения
+  (компиляция исходного файла "source/templeware/features/visuals/visuals.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58361,9):
+      см. предыдущее определение "DXGI_ERROR_NONEXCLUSIVE"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(33,9): warning C4005: DXGI_ERROR_NOT_CURRENTLY_AVAILABLE: изменение макроопределения
+  (компиляция исходного файла "source/templeware/features/visuals/visuals.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58370,9):
+      см. предыдущее определение "DXGI_ERROR_NOT_CURRENTLY_AVAILABLE"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(34,9): warning C4005: DXGI_ERROR_REMOTE_CLIENT_DISCONNECTED: изменение макроопределения
+  (компиляция исходного файла "source/templeware/features/visuals/visuals.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58380,9):
+      см. предыдущее определение "DXGI_ERROR_REMOTE_CLIENT_DISCONNECTED"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dxgitype.h(35,9): warning C4005: DXGI_ERROR_REMOTE_OUTOFMEMORY: изменение макроопределения
+  (компиляция исходного файла "source/templeware/features/visuals/visuals.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58389,9):
+      см. предыдущее определение "DXGI_ERROR_REMOTE_OUTOFMEMORY"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\d3d11.h(917,9): warning C4005: D3D11_ERROR_TOO_MANY_UNIQUE_STATE_OBJECTS: изменение макроопределения
+  (компиляция исходного файла "source/templeware/features/visuals/visuals.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58695,9):
+      см. предыдущее определение "D3D11_ERROR_TOO_MANY_UNIQUE_STATE_OBJECTS"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\d3d11.h(918,9): warning C4005: D3D11_ERROR_FILE_NOT_FOUND: изменение макроопределения
+  (компиляция исходного файла "source/templeware/features/visuals/visuals.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58704,9):
+      см. предыдущее определение "D3D11_ERROR_FILE_NOT_FOUND"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\d3d11.h(919,9): warning C4005: D3D11_ERROR_TOO_MANY_UNIQUE_VIEW_OBJECTS: изменение макроопределения
+  (компиляция исходного файла "source/templeware/features/visuals/visuals.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58714,9):
+      см. предыдущее определение "D3D11_ERROR_TOO_MANY_UNIQUE_VIEW_OBJECTS"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\d3d11.h(920,9): warning C4005: D3D11_ERROR_DEFERRED_CONTEXT_MAP_WITHOUT_INITIAL_DISCARD: изменение макроопределения
+  (компиляция исходного файла "source/templeware/features/visuals/visuals.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58723,9):
+      см. предыдущее определение "D3D11_ERROR_DEFERRED_CONTEXT_MAP_WITHOUT_INITIAL_DISCARD"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\d3d10.h(608,9): warning C4005: D3D10_ERROR_TOO_MANY_UNIQUE_STATE_OBJECTS: изменение макроопределения
+  (компиляция исходного файла "source/templeware/features/visuals/visuals.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58671,9):
+      см. предыдущее определение "D3D10_ERROR_TOO_MANY_UNIQUE_STATE_OBJECTS"
+  
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\d3d10.h(609,9): warning C4005: D3D10_ERROR_FILE_NOT_FOUND: изменение макроопределения
+  (компиляция исходного файла "source/templeware/features/visuals/visuals.cpp")
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(58680,9):
+      см. предыдущее определение "D3D10_ERROR_FILE_NOT_FOUND"
+  
+  buffer.c
+  hde32.c
+  hde64.c
+  hook.c
+  trampoline.c
+  TempleWare-CS2.vcxproj -> C:\Users\YBA_Enjoyer012\3D Objects\forever-cs2\x64\Debug\forever-cs2.dll
