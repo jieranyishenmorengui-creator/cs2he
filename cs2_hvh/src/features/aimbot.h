@@ -9,7 +9,7 @@ struct AimbotConfig {
     int key1 = 0;            // secondary key
     int mode = 0;            // 0=off, 1=closest to crosshair, 2=distance, 3=fov
     int key_mode = 0;        // 0=hold, 1=toggle, 2=always
-    int target_bone = 6;     // 6=head, 5=neck, 4=chest, 1=pelvis
+    int target_bone = 7;     // 7=head, 6=neck, 3=spine, 1=pelvis
     float fov = 5.0f;
     float smooth = 2.0f;
     float max_distance = 0.0f; // 0 = no limit

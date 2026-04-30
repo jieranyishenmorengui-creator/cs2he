@@ -24,20 +24,22 @@ static Vector3 get_bone_pos(uintptr_t pawn, int bone_idx) {
     using namespace ::cs2::offsets;
 
     uintptr_t scene_node = read<uintptr_t>(pawn + NetVars::m_pGameSceneNode);
-    if (!scene_node) return {};
+    if (!IsRemotePtrValid(scene_node)) return {};
 
-    uintptr_t bone_array = read<uintptr_t>(scene_node + NetVars::m_modelState);
-    if (!bone_array) return {};
+    // CModelState embedded at scene_node + m_modelState, m_pBones at +0x80
+    uintptr_t model_state_addr = scene_node + NetVars::m_modelState;
+    uintptr_t bone_array = read<uintptr_t>(model_state_addr + NetVars::m_pBones);
+    if (!IsRemotePtrValid(bone_array)) return {};
 
-    // bone_array points to an array of BoneData
-    uintptr_t bone_addr = bone_array + bone_idx * 32; // sizeof(BoneData) = 32
-    return read<Vector3>(bone_addr);
+    // Each bone is a Matrix3x4 (48 bytes), not a flat Vector3
+    Matrix3x4 bone_mat = read<Matrix3x4>(bone_array + bone_idx * sizeof(Matrix3x4));
+    return bone_mat.get_position();
 }
 
 static Vector3 get_view_angles(uintptr_t player_controller) {
     using namespace ::cs2::memory;
     using namespace ::cs2::offsets;
-    uintptr_t pawn_handle = read<uint32_t>(player_controller + NetVars::m_hPlayerPawn);
+    uintptr_t pawn_handle = read<uint32_t>(player_controller + NetVars::m_hPawn);
     if (!pawn_handle) return {};
 
     uintptr_t pawn = get_entity_from_handle(pawn_handle);
@@ -74,13 +76,13 @@ void run(const AimbotConfig& cfg) {
     // Get local player
     uintptr_t local_controller = read<uintptr_t>(g_offsets.dwLocalPlayerController);
     if (!IsRemotePtrValid(local_controller)) return;
-    uint32_t local_pawn_handle = read<uint32_t>(local_controller + NetVars::m_hPlayerPawn);
+    uint32_t local_pawn_handle = read<uint32_t>(local_controller + NetVars::m_hPawn);
     if (!local_pawn_handle) return;
     uintptr_t local_pawn = get_entity_from_handle(local_pawn_handle);
     if (!IsRemotePtrValid(local_pawn)) return;
 
     uint8_t local_team = read<uint8_t>(local_pawn + NetVars::m_iTeamNum);
-    Vector3 local_origin = read<Vector3>(local_pawn + NetVars::m_vecOrigin);
+    Vector3 local_origin = read<Vector3>(local_pawn + NetVars::m_vOldOrigin);
     Vector3 local_view_offset = read<Vector3>(local_pawn + NetVars::m_vecViewOffset);
     Vector3 local_eye_pos = local_origin + local_view_offset;
     Vector3 view_angles = read<Vector3>(local_pawn + NetVars::m_angEyeAngles);
@@ -92,7 +94,15 @@ void run(const AimbotConfig& cfg) {
     std::vector<EntityInfo> targets;
 
     for (int i = 1; i < 64; ++i) {
-        uintptr_t pawn = get_entity_from_index(i);
+        // Get controller → resolve pawn via handle
+        uintptr_t controller = get_entity_from_index(i);
+        if (!IsRemotePtrValid(controller)) continue;
+        if (controller == local_controller) continue;
+
+        uint32_t pawn_handle = read<uint32_t>(controller + NetVars::m_hPawn);
+        if (!pawn_handle) continue;
+
+        uintptr_t pawn = get_entity_from_handle(pawn_handle);
         if (!IsRemotePtrValid(pawn) || pawn == local_pawn) continue;
 
         int health = read<int32_t>(pawn + NetVars::m_iHealth);
@@ -104,10 +114,11 @@ void run(const AimbotConfig& cfg) {
         uint8_t team = read<uint8_t>(pawn + NetVars::m_iTeamNum);
         if (cfg.team_check && team == local_team) continue;
 
-        bool dormant = read<bool>(pawn + NetVars::m_bDormant);
+        uintptr_t scene_node_dormant = read<uintptr_t>(pawn + NetVars::m_pGameSceneNode);
+        bool dormant = IsRemotePtrValid(scene_node_dormant) ? read<bool>(scene_node_dormant + 0x103) : true;
         if (dormant) continue;
 
-        Vector3 origin = read<Vector3>(pawn + NetVars::m_vecOrigin);
+        Vector3 origin = read<Vector3>(pawn + NetVars::m_vOldOrigin);
         Vector3 head_pos = get_bone_pos(pawn, cfg.target_bone);
 
         float distance = local_eye_pos.dist_to(origin);

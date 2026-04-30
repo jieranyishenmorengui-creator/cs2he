@@ -109,7 +109,7 @@ static bool create_d3d11_resources() {
     rt.Height = g_height;
     rt.MipLevels = 1;
     rt.ArraySize = 1;
-    rt.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+    rt.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
     rt.SampleDesc.Count = 1;
     rt.Usage = D3D11_USAGE_DEFAULT;
     rt.BindFlags = D3D11_BIND_RENDER_TARGET;
@@ -175,8 +175,12 @@ static void present_frame() {
     g_context->CopyResource(g_staging, g_renderTarget);
 
     D3D11_MAPPED_SUBRESOURCE map{};
-    if (FAILED(g_context->Map(g_staging, 0, D3D11_MAP_READ, 0, &map)))
+    HRESULT hr = g_context->Map(g_staging, 0, D3D11_MAP_READ, 0, &map);
+    if (FAILED(hr)) {
+        static bool logged = false;
+        if (!logged) { debug_log("Map staging FAILED (0x%08X)", (unsigned)hr); logged = true; }
         return;
+    }
 
     // Build BITMAPINFO for the layered window update
     BITMAPINFO bmi{};
@@ -205,12 +209,22 @@ static void present_frame() {
             SIZE   sz{ g_width, g_height };
             BLENDFUNCTION blend{ AC_SRC_OVER, 0, 255, AC_SRC_ALPHA };
 
-            UpdateLayeredWindow(g_overlayWnd, nullptr, nullptr, &sz,
+            BOOL ulw_ok = UpdateLayeredWindow(g_overlayWnd, nullptr, nullptr, &sz,
                                 hdcMem, &ptZero, 0, &blend, ULW_ALPHA);
+            if (!ulw_ok) {
+                static bool logged = false;
+                if (!logged) { debug_log("UpdateLayeredWindow FAILED (0x%08X)", (unsigned)GetLastError()); logged = true; }
+            }
 
             DeleteObject(hbm);
+        } else {
+            static bool logged = false;
+            if (!logged) { debug_log("CreateDIBSection FAILED"); logged = true; }
         }
         DeleteDC(hdcMem);
+    } else {
+        static bool logged = false;
+        if (!logged) { debug_log("CreateCompatibleDC FAILED"); logged = true; }
     }
 
     g_context->Unmap(g_staging, 0);
@@ -270,8 +284,10 @@ bool initialize(HINSTANCE hInstance, HWND targetWnd) {
     POINT tl{ r.left, r.top };
     ClientToScreen(targetWnd, &tl);
 
+    // Try with WS_EX_LAYERED first; if it fails fall back to a plain window
+    DWORD ex_style = WS_EX_LAYERED | WS_EX_TRANSPARENT | WS_EX_TOOLWINDOW | WS_EX_TOPMOST;
     g_overlayWnd = CreateWindowExW(
-        WS_EX_LAYERED | WS_EX_TRANSPARENT | WS_EX_TOOLWINDOW | WS_EX_TOPMOST,
+        ex_style,
         L"CS2_Overlay_Class", L"CS2 Overlay",
         WS_POPUP,
         tl.x, tl.y, g_width, g_height,

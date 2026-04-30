@@ -116,7 +116,7 @@ bool Config::load(const std::string& path) {
     aimbot.key1 = json_get_int(json, "AimKey1", 0);
     aimbot.mode = json_get_int(json, "AimMode", 0);
     aimbot.key_mode = json_get_int(json, "AimKeyMode", 0);
-    aimbot.target_bone = json_get_int(json, "AimTargetBone", 6);
+    aimbot.target_bone = json_get_int(json, "AimTargetBone", 7);
     aimbot.fov = json_get_float(json, "AimFOV", 5.0f);
     aimbot.smooth = json_get_float(json, "AimSmooth", 2.0f);
     aimbot.max_distance = json_get_float(json, "AimMaxDistance", 0.0f);

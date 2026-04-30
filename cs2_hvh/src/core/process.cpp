@@ -55,7 +55,6 @@ static HWND find_game_window(DWORD pid, const wchar_t* wclass) {
 bool initialize(const wchar_t* process_name, const wchar_t* window_class) {
     g_pid = find_process_id(process_name);
     if (!g_pid) {
-        MessageBoxA(nullptr, "cs2.exe not found!", "Error", MB_ICONERROR);
         return false;
     }
 
@@ -101,6 +100,16 @@ bool initialize(const wchar_t* process_name, const wchar_t* window_class) {
         return false;
     }
 
+    return true;
+}
+
+bool initialize(HWND target_hwnd) {
+    g_gameWnd = target_hwnd;
+    g_pid = 0;
+    g_hProcess = nullptr;
+    memory::g_hProcess = nullptr;
+    memory::g_moduleBase = 0;
+    memory::g_moduleSize = 0;
     return true;
 }
 

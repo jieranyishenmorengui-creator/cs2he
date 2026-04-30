@@ -29,7 +29,7 @@ void run(const MiscConfig& cfg) {
         uintptr_t local_controller = read<uintptr_t>(g_offsets.dwLocalPlayerController);
         if (!IsRemotePtrValid(local_controller)) return;
 
-        uint32_t pawn_handle = read<uint32_t>(local_controller + NetVars::m_hPlayerPawn);
+        uint32_t pawn_handle = read<uint32_t>(local_controller + NetVars::m_hPawn);
         if (!pawn_handle) return;
 
         uintptr_t pawn = get_entity_from_handle(pawn_handle);

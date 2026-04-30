@@ -106,11 +106,11 @@ static void tab_aimbot() {
     const char* aim_modes[] = { "Crosshair", "Distance", "FOV" };
     ImGui::Combo("Aim Mode", &cfg.mode, aim_modes, 3);
 
-    const char* bones[] = { "Pelvis", "Chest", "Neck", "Head" };
-    int bone_idx = (cfg.target_bone == 1) ? 0 : (cfg.target_bone == 4) ? 1
-                  : (cfg.target_bone == 5) ? 2 : 3;
+    const char* bones[] = { "Pelvis", "Spine", "Neck", "Head" };
+    int bone_idx = (cfg.target_bone == 1) ? 0 : (cfg.target_bone == 3) ? 1
+                  : (cfg.target_bone == 6) ? 2 : 3;
     if (ImGui::Combo("Target Bone", &bone_idx, bones, 4)) {
-        constexpr int map[] = { 1, 4, 5, 6 };
+        constexpr int map[] = { 1, 3, 6, 7 };
         cfg.target_bone = map[bone_idx];
     }
 

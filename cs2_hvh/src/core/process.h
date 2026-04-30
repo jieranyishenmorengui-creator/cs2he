@@ -10,6 +10,9 @@ namespace cs2::process {
 bool initialize(const wchar_t* process_name = L"cs2.exe",
                 const wchar_t* window_class = L"SDL_app");
 
+// Initialize with a specific window (for testing without CS2)
+bool initialize(HWND target_hwnd);
+
 // Cleanup handles
 void shutdown();
 
