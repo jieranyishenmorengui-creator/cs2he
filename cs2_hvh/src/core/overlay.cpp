@@ -5,6 +5,7 @@
 #include "../imgui/imgui_impl_dx11.h"
 #include "../imgui/imgui_impl_win32.h"
 #include <dwmapi.h>
+#include <dxgi.h>
 #include <cstdio>
 
 #pragma comment(lib, "d3d11.lib")
