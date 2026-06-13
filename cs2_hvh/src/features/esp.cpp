@@ -5,6 +5,7 @@
 #include "../core/renderer.h"
 #include "../utils/debug_log.h"
 #include <string>
+#include <cstring>
 #include <vector>
 #include <algorithm>
 #include <cwchar>
@@ -53,84 +54,41 @@ static const int BONE_CONNECTIONS[][2] = {
 };
 static constexpr int NUM_BONE_CONNS = sizeof(BONE_CONNECTIONS) / sizeof(BONE_CONNECTIONS[0]);
 
-// ── Bone world position via Matrix3x4 ───────────────────────────────
-static Vector3 get_bone_pos(uintptr_t pawn, int bone_idx) {
-    using namespace cs2::offsets;
-    uintptr_t scene = read<uintptr_t>(pawn + NetVars::m_pGameSceneNode);
-    if (!scene) return {};
-
-    // m_modelState is embedded in CSkeletonInstance (not a pointer)
-    uintptr_t model_state = scene + NetVars::m_modelState;
-    uintptr_t bone_array = read<uintptr_t>(model_state + NetVars::m_pBones);
-    if (!bone_array) return {};
-
-    return read<Matrix3x4>(bone_array + bone_idx * 0x20).get_position();
-}
-
-static bool get_bone_array_ptr(uintptr_t pawn, uintptr_t& out) {
-    using namespace cs2::offsets;
-    uintptr_t scene = read<uintptr_t>(pawn + NetVars::m_pGameSceneNode);
-    if (!scene) return false;
-
-    uintptr_t model_state = scene + NetVars::m_modelState;
-    out = read<uintptr_t>(model_state + NetVars::m_pBones);
-    return out != 0;
-}
-
 // ── Weapon name via item definition index ───────────────────────────
 static const char* weapon_id_to_name(uint16_t id) {
     switch (id) {
-    case 1:  return "DEAGLE";
-    case 2:  return "ELITE";
-    case 3:  return "FIVESEVEN";
-    case 4:  return "GLOCK";
-    case 7:  return "AK47";
-    case 8:  return "AUG";
-    case 9:  return "AWP";
-    case 10: return "FAMAS";
-    case 11: return "G3SG1";
-    case 13: return "GALIL";
-    case 14: return "M249";
-    case 16: return "M4A4";
-    case 17: return "MAC10";
-    case 19: return "P90";
-    case 23: return "MP5SD";
-    case 24: return "UMP45";
-    case 25: return "XM1014";
-    case 26: return "BIZON";
-    case 27: return "MAG7";
-    case 28: return "NEGEV";
-    case 29: return "SAWEDOFF";
-    case 30: return "TEC9";
-    case 31: return "ZEUS";
-    case 32: return "P2000";
-    case 33: return "MP7";
-    case 34: return "MP9";
-    case 35: return "NOVA";
-    case 36: return "P250";
-    case 38: return "SCAR20";
-    case 39: return "SG556";
-    case 40: return "SSG08";
-    case 60: return "M4A1S";
-    case 61: return "USPS";
-    case 63: return "CZ75";
-    case 64: return "REVOLVER";
-    default: return "";
+    case 1:  return "DEAGLE";   case 2:  return "ELITE";
+    case 3:  return "FIVESEVEN"; case 4:  return "GLOCK";
+    case 7:  return "AK47";     case 8:  return "AUG";
+    case 9:  return "AWP";      case 10: return "FAMAS";
+    case 11: return "G3SG1";    case 13: return "GALIL";
+    case 14: return "M249";     case 16: return "M4A4";
+    case 17: return "MAC10";    case 19: return "P90";
+    case 23: return "MP5SD";    case 24: return "UMP45";
+    case 25: return "XM1014";   case 26: return "BIZON";
+    case 27: return "MAG7";     case 28: return "NEGEV";
+    case 29: return "SAWEDOFF"; case 30: return "TEC9";
+    case 31: return "ZEUS";     case 32: return "P2000";
+    case 33: return "MP7";      case 34: return "MP9";
+    case 35: return "NOVA";     case 36: return "P250";
+    case 38: return "SCAR20";   case 39: return "SG556";
+    case 40: return "SSG08";    case 60: return "M4A1S";
+    case 61: return "USPS";     case 63: return "CZ75";
+    case 64: return "REVOLVER"; default: return "";
     }
 }
 
-static std::string get_weapon_name(uintptr_t pawn) {
+// Resolve weapon name using a cached entity-list base (avoids re-reading dwEntityList)
+static std::string get_weapon_name_cached(uintptr_t pawn, uintptr_t entListBase) {
     using namespace cs2::offsets;
     uintptr_t svc = read<uintptr_t>(pawn + NetVars::m_pWeaponServices);
     if (!svc) return "";
     uint32_t h = read<uint32_t>(svc + NetVars::m_hActiveWeapon);
     if (!h) return "";
     uint32_t idx = h & 0x7FFF;
-    if (!idx) return "";
+    if (!idx || !entListBase) return "";
 
-    uintptr_t list = read<uintptr_t>(g_offsets.dwEntityList);
-    if (!list) return "";
-    uintptr_t entry = read<uintptr_t>(list + 8 * (idx >> 9) + 16);
+    uintptr_t entry = read<uintptr_t>(entListBase + 8 * (idx >> 9) + 16);
     if (!entry) return "";
     uintptr_t weapon = read<uintptr_t>(entry + 112 * (idx & 0x1FF));
     if (!weapon) return "";
@@ -140,26 +98,26 @@ static std::string get_weapon_name(uintptr_t pawn) {
 }
 
 // ═════════════════════════════════════════════════════════════════════
-//  ESP main entry (FIXED VERSION)
+//  ESP main entry (OPTIMISED with bulk reads + head bone)
 // ═════════════════════════════════════════════════════════════════════
 void run(const ESPConfig& cfg) {
     using namespace cs2::renderer;
-
-    debug_log("ESP run: enabled=%d, show_box=%d, team_check=%d, max_dist=%.1f",
-        cfg.enabled, cfg.show_box, cfg.team_check, cfg.max_distance);
-
-    using namespace cs2::offsets;
     if (!cfg.enabled || !overlay::is_ready()) return;
+    using namespace cs2::offsets;
 
-    // ── Local player ────────────────────────────────────────────────
+    // ── Cache entity-list base (read ONCE, not per entity) ───────
+    uintptr_t entListBase = read<uintptr_t>(g_offsets.dwEntityList);
+    if (!entListBase) return;
+
+    // ── Local player ─────────────────────────────────────────────
     uintptr_t local_ctrl = read<uintptr_t>(g_offsets.dwLocalPlayerController);
-    if (!local_ctrl) { debug_log("ESP: no local controller"); return; }
+    if (!local_ctrl) return;
 
     uint32_t local_handle = read<uint32_t>(local_ctrl + NetVars::m_hPawn);
-    if (!local_handle) { debug_log("ESP: no local pawn handle"); return; }
+    if (!local_handle) return;
 
     uintptr_t local_pawn = get_entity_from_handle(local_handle);
-    if (!local_pawn) { debug_log("ESP: no local pawn"); return; }
+    if (!local_pawn) return;
 
     uint8_t local_team = read<uint8_t>(local_pawn + NetVars::m_iTeamNum);
     ViewMatrix vm = read<ViewMatrix>(g_offsets.dwViewMatrix);
@@ -167,52 +125,78 @@ void run(const ESPConfig& cfg) {
     int sw = overlay::get_width();
     int sh = overlay::get_height();
 
-    // ── Entity loop ────────────────────────────────────────────────
+    // ── Entity loop ──────────────────────────────────────────────
     std::vector<ESPEntity> entities;
 
     for (int i = 1; i < 64; ++i) {
-        uintptr_t controller = get_entity_from_index(i);
+        // ── Traverse entity list with cached base ────────────────
+        uintptr_t chunkPtr = read<uintptr_t>(entListBase + 8 * (i >> 9) + 0x10);
+        if (!chunkPtr) continue;
+        uintptr_t controller = read<uintptr_t>(chunkPtr + 112 * (i & 0x1FF));
         if (!controller || controller == local_ctrl) continue;
 
-        uint32_t pawn_handle = read<uint32_t>(controller + NetVars::m_hPawn);
+        // ── Batch-read controller: m_hPawn(0x6BC) + name(0x6F0) ──
+        // Layout: [0x00] pawnHandle(4) @0x6BC, [0x34] playerName @0x6F0
+        uint8_t ctrlBuf[0x60];
+        if (!read(controller + 0x6BC, ctrlBuf, 0x58)) continue;
+        uint32_t pawn_handle = *(uint32_t*)(ctrlBuf + 0x00);
         if (!pawn_handle) continue;
 
         uintptr_t pawn = get_entity_from_handle(pawn_handle);
         if (!pawn || pawn == local_pawn) continue;
 
-        int32_t health = read<int32_t>(pawn + NetVars::m_iHealth);
-        uint8_t life   = read<uint8_t>(pawn + NetVars::m_lifeState);
-        uint8_t team   = read<uint8_t>(pawn + NetVars::m_iTeamNum);
-        Vector3 origin = read<Vector3>(pawn + NetVars::m_vOldOrigin);
-
+        // ── Batch-read pawn core (0x330 ~ 0x400) ─────────────────
+        // Layout at offsets from 0x330:
+        //   [+0x00] m_pGameSceneNode(8), [+0x1C] m_iHealth(4),
+        //   [+0x24] m_lifeState(1), [+0xBB] m_iTeamNum(1)
+        uint8_t pawnCore[0xD0];
+        if (!read(pawn + 0x330, pawnCore, 0xD0)) continue;
+        uintptr_t sceneNode = *(uintptr_t*)(pawnCore + 0x00);
+        int32_t  health     = *(int32_t*)(pawnCore + 0x1C);
+        uint8_t  life       = *(uint8_t*)(pawnCore + 0x24);
+        uint8_t  team       = *(uint8_t*)(pawnCore + 0xBB);
         if (health <= 0 || health > 200) continue;
         if (life != 0) continue;
         if (cfg.team_check && team == local_team) continue;
 
-        uintptr_t sn = read<uintptr_t>(pawn + NetVars::m_pGameSceneNode);
-        if (!sn) continue;
+        // ── Origin (far offset, separate read) ───────────────────
+        Vector3 origin;
+        if (!read(pawn + NetVars::m_vOldOrigin, &origin, 12)) continue;
 
-        debug_log("  Entity[%d] OK: team=%d health=%d", i, team, health);
+        // ── Screen: foot ─────────────────────────────────────────
+        Vector2 foot;
+        if (!world_to_screen(origin, foot, vm, sw, sh)) continue;
 
-        Vector2 foot, head2d;
+        // ── Head: use actual head bone position ──────────────────
+        // This is both more accurate & the fix for "不紧" tracking
+        Vector3 headPos;
+        bool head_from_bone = false;
+        if (sceneNode) {
+            uintptr_t model_state = sceneNode + NetVars::m_modelState;
+            uintptr_t bone_array  = read<uintptr_t>(model_state + NetVars::m_pBones);
+            if (bone_array) {
+                Matrix3x4 headMat = read<Matrix3x4>(bone_array + BoneIndex::HEAD * 0x20);
+                Vector3 bp = headMat.get_position();
+                if (bp.length() > 1.0f) {
+                    headPos = bp;
+                    head_from_bone = true;
+                }
+            }
+        }
+        if (!head_from_bone) {
+            headPos = origin;
+            headPos.z += 72.0f;  // fallback approximation
+        }
 
-        // 脚底（稳定）
-        if (!world_to_screen(origin, foot, vm, sw, sh))
-            continue;
-
-        // 头部直接用 origin + 75u 模拟（CS2 100% 稳定）
-        Vector3 head3d = origin;
-        head3d.z += 75.0f;
-
-        if (!world_to_screen(head3d, head2d, vm, sw, sh))
-            continue;
+        Vector2 head2d;
+        if (!world_to_screen(headPos, head2d, vm, sw, sh)) continue;
 
         float dist = local_origin.dist_to(origin);
 
         ESPEntity ent;
         ent.pawn          = pawn;
         ent.origin        = origin;
-        ent.head_pos      = head3d;
+        ent.head_pos      = headPos;
         ent.screen_origin = foot;
         ent.screen_head   = head2d;
         ent.health        = health;
@@ -220,22 +204,33 @@ void run(const ESPConfig& cfg) {
         ent.distance      = dist;
         ent.valid         = true;
 
-        ent.name = read_string(controller + NetVars::m_iszPlayerName, 32);
-        ent.weapon_name = cfg.show_weapon ? get_weapon_name(pawn) : "";
+        // Name: already in ctrlBuf[0x34..] (bulk-read above)
+        {
+            const char* name_start = (const char*)(ctrlBuf + 0x34);
+            size_t name_len = strnlen(name_start, 32);
+            ent.name.assign(name_start, name_len);
+        }
 
+        ent.weapon_name = cfg.show_weapon ? get_weapon_name_cached(pawn, entListBase) : "";
+
+        // ── Skeleton: bulk-read ALL bone matrices in one RPM call ─
         ent.bones_valid = false;
-        if (cfg.show_skeleton) {
-            uintptr_t ba = 0;
-            if (get_bone_array_ptr(pawn, ba)) {
-                ent.bones_valid = true;
-                for (int b = 0; b < BoneIndex::MAX_BONES; ++b) {
-                    auto mat = read<Matrix3x4>(ba + b * 0x20);
-                    Vector3 bp = mat.get_position();
-                    if (bp.length() < 0.001f) continue;
-                    Vector2 sp;
-                    if (world_to_screen(bp, sp, vm, sw, sh)) {
-                        ent.bone_positions[b * 2 + 0] = (int)sp.x;
-                        ent.bone_positions[b * 2 + 1] = (int)sp.y;
+        if (cfg.show_skeleton && sceneNode) {
+            uintptr_t model_state = sceneNode + NetVars::m_modelState;
+            uintptr_t boneArray = read<uintptr_t>(model_state + NetVars::m_pBones);
+            if (boneArray) {
+                // Read all 32 bone matrices in one go
+                Matrix3x4 allBones[BoneIndex::MAX_BONES];
+                if (read(boneArray, allBones, sizeof(allBones))) {
+                    ent.bones_valid = true;
+                    for (int b = 0; b < BoneIndex::MAX_BONES; ++b) {
+                        Vector3 bp = allBones[b].get_position();
+                        if (bp.length() < 0.001f) continue;
+                        Vector2 sp;
+                        if (world_to_screen(bp, sp, vm, sw, sh)) {
+                            ent.bone_positions[b * 2 + 0] = (int)sp.x;
+                            ent.bone_positions[b * 2 + 1] = (int)sp.y;
+                        }
                     }
                 }
             }

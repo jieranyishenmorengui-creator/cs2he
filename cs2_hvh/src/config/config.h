@@ -12,6 +12,11 @@ struct Config {
     int menu_key = VK_INSERT;
     int panic_key = VK_END;
 
+    // Feature toggle keys (0 = disabled / not bound)
+    int esp_toggle_key = 0;
+    int aimbot_toggle_key = 0;
+    int crosshair_toggle_key = 0;
+
     // Feature configs
     aimbot::AimbotConfig aimbot;
     esp::ESPConfig esp;

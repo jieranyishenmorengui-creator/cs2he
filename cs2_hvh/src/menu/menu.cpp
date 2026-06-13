@@ -93,9 +93,11 @@ static void key_bind_widget(const char* label, int* key, int bind_id) {
 // ── Tab content ─────────────────────────────────────────────────
 
 static void tab_aimbot() {
-    auto& cfg = config::get().aimbot;
+    auto& cfg_all = config::get();
+    auto& cfg = cfg_all.aimbot;
 
     ImGui::Checkbox("Enable Aimbot", &cfg.enabled);
+    key_bind_widget("Toggle Aimbot", &cfg_all.aimbot_toggle_key, 11);
 
     key_bind_widget("Aim Key 1", &cfg.key0, 0);
     key_bind_widget("Aim Key 2", &cfg.key1, 1);
@@ -133,9 +135,11 @@ static void tab_aimbot() {
 }
 
 static void tab_visuals() {
-    auto& cfg = config::get().esp;
+    auto& cfg_all = config::get();
+    auto& cfg = cfg_all.esp;
 
     ImGui::Checkbox("Enable ESP", &cfg.enabled);
+    key_bind_widget("Toggle ESP", &cfg_all.esp_toggle_key, 10);
     ImGui::Checkbox("Team Check", &cfg.team_check);
     ImGui::Separator();
 
@@ -168,9 +172,11 @@ static void tab_visuals() {
 }
 
 static void tab_crosshair() {
-    auto& cfg = config::get().crosshair;
+    auto& cfg_all = config::get();
+    auto& cfg = cfg_all.crosshair;
 
     ImGui::Checkbox("Enable Crosshair", &cfg.enabled);
+    key_bind_widget("Toggle Crosshair", &cfg_all.crosshair_toggle_key, 12);
 
     const char* types[] = { "Cross", "Circle", "Dot" };
     ImGui::Combo("Type", &cfg.type, types, 3);

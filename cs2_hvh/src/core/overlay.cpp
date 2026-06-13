@@ -31,9 +31,8 @@ static uint8_t                g_keyState[256] = {};
 static uint8_t                g_keyPrev[256] = {};
 static bool                   g_menu_open = false;
 
-// D3D11 render-target + staging (no swap chain — we use UpdateLayeredWindow instead)
-static ID3D11Texture2D*      g_renderTarget = nullptr;
-static ID3D11Texture2D*      g_staging = nullptr;
+// DXGI swap chain (replaces old GDI UpdateLayeredWindow + staging approach)
+static IDXGISwapChain*       g_swapChain = nullptr;
 
 void set_menu_open(bool open) {
     g_menu_open = open;
@@ -75,7 +74,7 @@ static LRESULT CALLBACK wnd_proc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp) {
     return DefWindowProcW(hwnd, msg, wp, lp);
 }
 
-// ── Create render target + staging textures (no swap chain) ─────
+// ── Create D3D11 device + swap chain ───────────────────────────
 
 static bool create_d3d11_resources() {
     D3D_FEATURE_LEVEL feats[] = {
@@ -104,44 +103,74 @@ static bool create_d3d11_resources() {
     }
     debug_log("D3D11 device OK");
 
-    // Render-target texture (GPU-only, no CPU access)
-    D3D11_TEXTURE2D_DESC rt{};
-    rt.Width  = g_width;
-    rt.Height = g_height;
-    rt.MipLevels = 1;
-    rt.ArraySize = 1;
-    rt.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
-    rt.SampleDesc.Count = 1;
-    rt.Usage = D3D11_USAGE_DEFAULT;
-    rt.BindFlags = D3D11_BIND_RENDER_TARGET;
+    // ── Create DXGI swap chain ──────────────────────────────────
+    // Note: CreateSwapChain fails if WS_EX_LAYERED is set, so we
+    // temporarily remove it, then re-add with chroma-key transparency.
+    IDXGIDevice*  pDXGIDevice = nullptr;
+    IDXGIAdapter* pAdapter    = nullptr;
+    IDXGIFactory* pFactory    = nullptr;
 
-    if (FAILED(g_device->CreateTexture2D(&rt, nullptr, &g_renderTarget))) {
-        debug_log("CreateTexture2D RT failed");
+    g_device->QueryInterface(__uuidof(IDXGIDevice), (void**)&pDXGIDevice);
+    pDXGIDevice->GetAdapter(&pAdapter);
+    pAdapter->GetParent(__uuidof(IDXGIFactory), (void**)&pFactory);
+
+    LONG ex_style = GetWindowLongW(g_overlayWnd, GWL_EXSTYLE);
+    bool was_layered = (ex_style & WS_EX_LAYERED) != 0;
+    if (was_layered)
+        SetWindowLongW(g_overlayWnd, GWL_EXSTYLE, ex_style & ~WS_EX_LAYERED);
+
+    DXGI_SWAP_CHAIN_DESC sd{};
+    sd.BufferDesc.Width       = g_width;
+    sd.BufferDesc.Height      = g_height;
+    sd.BufferDesc.Format      = DXGI_FORMAT_B8G8R8A8_UNORM;
+    sd.SampleDesc.Count       = 1;
+    sd.BufferUsage            = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+    sd.BufferCount            = 1;
+    sd.OutputWindow           = g_overlayWnd;
+    sd.Windowed               = TRUE;
+    sd.SwapEffect             = DXGI_SWAP_EFFECT_DISCARD;
+
+    hr = pFactory->CreateSwapChain(g_device, &sd, &g_swapChain);
+
+    // Restore layered flag + set chroma-key transparency (black = transparent)
+    if (was_layered) {
+        SetWindowLongW(g_overlayWnd, GWL_EXSTYLE, ex_style);
+        if (SUCCEEDED(hr))
+            SetLayeredWindowAttributes(g_overlayWnd, RGB(0, 0, 0), 0, LWA_COLORKEY);
+    }
+
+    pDXGIDevice->Release();
+    pAdapter->Release();
+    pFactory->Release();
+
+    if (FAILED(hr)) {
+        debug_log("CreateSwapChain FAILED (0x%08X)", (unsigned)hr);
         return false;
     }
-    if (FAILED(g_device->CreateRenderTargetView(g_renderTarget, nullptr, &g_rtv))) {
-        debug_log("CreateRenderTargetView failed");
+    debug_log("Swap chain created (%dx%d)", g_width, g_height);
+
+    // ── Get back-buffer and create RTV ───────────────────────────
+    ID3D11Texture2D* backBuffer = nullptr;
+    if (FAILED(g_swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&backBuffer))) {
+        debug_log("GetBuffer FAILED");
         return false;
     }
-
-    // Staging texture (CPU-readable copy)
-    rt.Usage = D3D11_USAGE_STAGING;
-    rt.BindFlags = 0;
-    rt.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
-
-    if (FAILED(g_device->CreateTexture2D(&rt, nullptr, &g_staging))) {
-        debug_log("CreateTexture2D staging failed");
+    if (FAILED(g_device->CreateRenderTargetView(backBuffer, nullptr, &g_rtv))) {
+        debug_log("CreateRenderTargetView FAILED");
+        backBuffer->Release();
         return false;
     }
+    backBuffer->Release();
 
-    debug_log("Render target + staging created (%dx%d)", g_width, g_height);
+    debug_log("D3D11 + swap chain ready (%dx%d)", g_width, g_height);
     return true;
 }
 
 static void destroy_d3d11_resources() {
-    if (g_rtv) { g_rtv->Release(); g_rtv = nullptr; }
-    if (g_staging) { g_staging->Release(); g_staging = nullptr; }
-    if (g_renderTarget) { g_renderTarget->Release(); g_renderTarget = nullptr; }
+    // Unbind RTV from the pipeline first
+    if (g_context) g_context->OMSetRenderTargets(0, nullptr, nullptr);
+    if (g_rtv)       { g_rtv->Release();       g_rtv       = nullptr; }
+    if (g_swapChain) { g_swapChain->Release();  g_swapChain = nullptr; }
 }
 
 static bool init_imgui() {
@@ -166,69 +195,12 @@ static bool init_imgui() {
     return true;
 }
 
-// ── Present via UpdateLayeredWindow ─────────────────────────────
-
+// ── Present via swap chain ────────────────────────────────────
+// No GPU→CPU readback, no GDI — just flip the back buffer.
 static void present_frame() {
-    if (!g_ready || !g_context || !g_staging || !g_overlayWnd)
+    if (!g_ready || !g_swapChain || !g_context)
         return;
-
-    // Copy GPU render target → CPU-readable staging texture
-    g_context->CopyResource(g_staging, g_renderTarget);
-
-    D3D11_MAPPED_SUBRESOURCE map{};
-    HRESULT hr = g_context->Map(g_staging, 0, D3D11_MAP_READ, 0, &map);
-    if (FAILED(hr)) {
-        static bool logged = false;
-        if (!logged) { debug_log("Map staging FAILED (0x%08X)", (unsigned)hr); logged = true; }
-        return;
-    }
-
-    // Build BITMAPINFO for the layered window update
-    BITMAPINFO bmi{};
-    bmi.bmiHeader.biSize        = sizeof(BITMAPINFOHEADER);
-    bmi.bmiHeader.biWidth       = g_width;
-    bmi.bmiHeader.biHeight      = -g_height;  // top-down
-    bmi.bmiHeader.biPlanes      = 1;
-    bmi.bmiHeader.biBitCount    = 32;
-    bmi.bmiHeader.biCompression = BI_RGB;
-
-    HDC hdcMem = CreateCompatibleDC(nullptr);
-    if (hdcMem) {
-        void* bits = nullptr;
-        HBITMAP hbm = CreateDIBSection(hdcMem, &bmi, DIB_RGB_COLORS, &bits, nullptr, 0);
-        if (hbm && bits) {
-            // Copy pixel rows (map.RowPitch may be wider than width*4)
-            uint8_t* src = (uint8_t*)map.pData;
-            uint8_t* dst = (uint8_t*)bits;
-            for (int y = 0; y < g_height; y++) {
-                memcpy(dst + y * g_width * 4, src + y * map.RowPitch, (size_t)g_width * 4);
-            }
-
-            SelectObject(hdcMem, hbm);
-
-            POINT  ptZero{ 0, 0 };
-            SIZE   sz{ g_width, g_height };
-            BLENDFUNCTION blend{ AC_SRC_OVER, 0, 255, AC_SRC_ALPHA };
-
-            BOOL ulw_ok = UpdateLayeredWindow(g_overlayWnd, nullptr, nullptr, &sz,
-                                hdcMem, &ptZero, 0, &blend, ULW_ALPHA);
-            if (!ulw_ok) {
-                static bool logged = false;
-                if (!logged) { debug_log("UpdateLayeredWindow FAILED (0x%08X)", (unsigned)GetLastError()); logged = true; }
-            }
-
-            DeleteObject(hbm);
-        } else {
-            static bool logged = false;
-            if (!logged) { debug_log("CreateDIBSection FAILED"); logged = true; }
-        }
-        DeleteDC(hdcMem);
-    } else {
-        static bool logged = false;
-        if (!logged) { debug_log("CreateCompatibleDC FAILED"); logged = true; }
-    }
-
-    g_context->Unmap(g_staging, 0);
+    g_swapChain->Present(0, 0);  // 0 = no vsync (FPS cap is done by the frame limiter)
 }
 
 // ── Position & resize ───────────────────────────────────────────

@@ -117,6 +117,9 @@ static void render_thread_logic() {
     printf("[*] Render thread started\n");
     debug_log("Render thread started");
 
+    using clock = std::chrono::high_resolution_clock;
+    auto last_frame = clock::now();
+
     int frame_count = 0;
     while (g_running) {
         if (!overlay::is_ready()) {
@@ -138,6 +141,16 @@ static void render_thread_logic() {
             break;
         }
 
+        auto& cfg = config::get();
+
+        // ── Feature toggle hotkeys ─────────────────────────────
+        if (cfg.esp_toggle_key && overlay::was_key_pressed(cfg.esp_toggle_key))
+            cfg.esp.enabled = !cfg.esp.enabled;
+        if (cfg.aimbot_toggle_key && overlay::was_key_pressed(cfg.aimbot_toggle_key))
+            cfg.aimbot.enabled = !cfg.aimbot.enabled;
+        if (cfg.crosshair_toggle_key && overlay::was_key_pressed(cfg.crosshair_toggle_key))
+            cfg.crosshair.enabled = !cfg.crosshair.enabled;
+
         // All ImGui calls in the same thread
         overlay::begin_frame();
 
@@ -152,8 +165,6 @@ static void render_thread_logic() {
             ImGui::Text("Menu: INSERT  |  Status: %s", g_init_status.load());
             ImGui::End();
         }
-
-        auto& cfg = config::get();
 
         // Read keys and set atomic flags for game thread
         if (overlay::was_key_pressed(cfg.panic_key))
@@ -209,7 +220,18 @@ static void render_thread_logic() {
         }
 
         overlay::end_frame();
-        Sleep(7);
+
+        // ── Frame limiter ──────────────────────────────────────
+        auto now = clock::now();
+        double elapsed_ms = std::chrono::duration<double, std::milli>(now - last_frame).count();
+        double target_ms = 1000.0 / std::max(cfg.misc.max_fps, 1);
+        if (elapsed_ms < target_ms) {
+            DWORD sleep_ms = DWORD(target_ms - elapsed_ms);
+            if (sleep_ms > 0 && sleep_ms <= 100)
+                Sleep(sleep_ms);
+        }
+        last_frame = clock::now();
+
         frame_count++;
     }
 }

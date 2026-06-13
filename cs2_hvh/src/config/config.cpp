@@ -110,6 +110,11 @@ bool Config::load(const std::string& path) {
     menu_key = json_get_int(json, "MenuKey", VK_INSERT);
     panic_key = json_get_int(json, "PanicKey", VK_END);
 
+    // Toggle keys
+    esp_toggle_key = json_get_int(json, "ESPToggleKey", 0);
+    aimbot_toggle_key = json_get_int(json, "AimbotToggleKey", 0);
+    crosshair_toggle_key = json_get_int(json, "CrosshairToggleKey", 0);
+
     // Aimbot
     aimbot.enabled = json_get_bool(json, "AimBotEnable", false);
     aimbot.key0 = json_get_int(json, "AimKey0", VK_LBUTTON);
@@ -167,6 +172,14 @@ bool Config::save(const std::string& path) {
     write_json_int(f, "MenuKey", menu_key);
     fprintf(f, ",\n");
     write_json_int(f, "PanicKey", panic_key);
+    fprintf(f, ",\n");
+
+    // Toggle keys
+    write_json_int(f, "ESPToggleKey", esp_toggle_key);
+    fprintf(f, ",\n");
+    write_json_int(f, "AimbotToggleKey", aimbot_toggle_key);
+    fprintf(f, ",\n");
+    write_json_int(f, "CrosshairToggleKey", crosshair_toggle_key);
     fprintf(f, ",\n");
 
     // Aimbot
@@ -255,6 +268,10 @@ bool Config::save(const std::string& path) {
 void Config::set_defaults() {
     menu_key = VK_INSERT;
     panic_key = VK_END;
+
+    esp_toggle_key = 0;
+    aimbot_toggle_key = 0;
+    crosshair_toggle_key = 0;
 
     aimbot = aimbot::AimbotConfig();
     esp = esp::ESPConfig();

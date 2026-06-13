@@ -14,14 +14,13 @@ std::vector<uint8_t> read_bytes(uintptr_t addr, size_t size) {
 }
 
 std::string read_string(uintptr_t addr, size_t max_len) {
-    std::string result;
-    char ch;
-    for (size_t i = 0; i < max_len; ++i) {
-        if (!ReadProcessMemory(g_hProcess, (LPCVOID)(addr + i), &ch, 1, nullptr) || ch == '\0')
-            break;
-        result += ch;
+    std::string result(max_len, '\0');
+    if (ReadProcessMemory(g_hProcess, (LPCVOID)addr, &result[0], max_len, nullptr)) {
+        size_t len = strnlen(result.c_str(), max_len);
+        result.resize(len);
+        return result;
     }
-    return result;
+    return {};
 }
 
 uintptr_t read_ptr(uintptr_t addr) {

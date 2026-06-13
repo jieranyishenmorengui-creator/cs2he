@@ -66,4 +66,14 @@ if(MSVC)
     set_target_properties(${PROJECT_NAME} PROPERTIES
         LINK_FLAGS "/SUBSYSTEM:WINDOWS"
     )
+else()
+    # MinGW/GCC: 静态链接所有运行时库,确保 exe 独立运行
+    target_link_options(${PROJECT_NAME} PRIVATE
+        -static-libgcc
+        -static-libstdc++
+        -static
+    )
+    set_target_properties(${PROJECT_NAME} PROPERTIES
+        LINK_FLAGS "-mwindows"
+    )
 endif()
