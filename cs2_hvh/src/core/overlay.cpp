@@ -103,9 +103,10 @@ static bool create_d3d11_resources() {
     }
     debug_log("D3D11 device OK");
 
-    // ── Create DXGI swap chain with alpha (no WS_EX_LAYERED) ──────
-    // Using CreateSwapChainForHwnd with premultiplied alpha so DWM
-    // composites per-pixel transparency directly from the buffer.
+    // ── Create DXGI swap chain (FLIP_DISCARD + premultiplied alpha) ─
+    // FLIP_DISCARD + DXGI_ALPHA_MODE_PREMULTIPLIED lets DWM composite
+    // per-pixel transparency directly from the buffer's alpha channel.
+    // Window is NOT WS_EX_LAYERED — no chroma-key needed.
     IDXGIDevice*   pDXGIDevice = nullptr;
     IDXGIAdapter*  pAdapter    = nullptr;
     IDXGIFactory2* pFactory2   = nullptr;
@@ -120,14 +121,22 @@ static bool create_d3d11_resources() {
     sd1.Format            = DXGI_FORMAT_B8G8R8A8_UNORM;
     sd1.SampleDesc.Count  = 1;
     sd1.BufferUsage       = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-    sd1.BufferCount       = 1;
-    sd1.SwapEffect        = DXGI_SWAP_EFFECT_DISCARD;
+    sd1.BufferCount       = 2;       // flip model requires ≥2
+    sd1.SwapEffect        = DXGI_SWAP_EFFECT_FLIP_DISCARD;
     sd1.AlphaMode         = DXGI_ALPHA_MODE_PREMULTIPLIED;
+    sd1.Flags             = DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING;
 
     IDXGISwapChain1* swap1 = nullptr;
     hr = pFactory2->CreateSwapChainForHwnd(g_device, g_overlayWnd,
                                            &sd1, nullptr, nullptr, &swap1);
-    g_swapChain = swap1;   // IDXGISwapChain1 → base
+    if (FAILED(hr)) {
+        debug_log("CreateSwapChainForHwnd FAILED (0x%08X)", (unsigned)hr);
+        pDXGIDevice->Release();
+        pAdapter->Release();
+        pFactory2->Release();
+        return false;
+    }
+    g_swapChain = swap1;   // IDXGISwapChain1 → base IDXGISwapChain
 
     pDXGIDevice->Release();
     pAdapter->Release();
@@ -185,12 +194,13 @@ static bool init_imgui() {
     return true;
 }
 
-// ── Present via swap chain ────────────────────────────────────
+// ── Present via flip-model swap chain ─────────────────────────
+// FLIP_DISCARD + ALLOW_TEARING = zero-copy, bypass DWM queue.
 static void present_frame() {
     if (!g_ready || !g_swapChain || !g_context)
         return;
-    g_swapChain->Present(0, 0);
-    // FPS cap is done by the frame limiter in render_thread_logic
+    g_swapChain->Present(0, DXGI_PRESENT_ALLOW_TEARING);
+    // FPS cap is done by the frame limiter
 }
 
 // ── Position & resize ───────────────────────────────────────────
