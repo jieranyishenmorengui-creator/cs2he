@@ -54,11 +54,9 @@ static LRESULT CALLBACK wnd_proc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp) {
     if (msg == WM_NCHITTEST && g_menu_open) {
         POINT pt{ GET_X_LPARAM(lp), GET_Y_LPARAM(lp) };
         ScreenToClient(g_overlayWnd, &pt);
-        // Only capture clicks inside the ImGui menu window
-        if (!menu::is_point_over((float)pt.x, (float)pt.y))
-            return HTTRANSPARENT;  // outside menu → click passes to game
-        // Inside menu → fall through to ImGui handler below
-        // Inside menu → fall through to ImGui handler below
+        if (menu::is_point_over((float)pt.x, (float)pt.y))
+            return HTCLIENT;       // on menu → capture click for ImGui
+        return HTTRANSPARENT;      // outside → pass through to game
     }
 
     if (g_menu_open && ImGui_ImplWin32_WndProcHandler(hwnd, msg, wp, lp))
