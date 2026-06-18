@@ -50,13 +50,14 @@ void set_menu_open(bool open) {
 bool is_menu_open() { return g_menu_open; }
 
 static LRESULT CALLBACK wnd_proc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp) {
-    // ── Hit-test: intercept mouse only when over the ImGui menu ──
-    if (msg == WM_NCHITTEST && g_menu_open) {
+    // ── Manual hit-test: no WS_EX_TRANSPARENT on window ─────────
+    // We handle passthrough ourselves: menu area → HTCLIENT, else → HTTRANSPARENT.
+    if (msg == WM_NCHITTEST) {
         POINT pt{ GET_X_LPARAM(lp), GET_Y_LPARAM(lp) };
         ScreenToClient(g_overlayWnd, &pt);
-        if (menu::is_point_over((float)pt.x, (float)pt.y))
+        if (g_menu_open && menu::is_point_over((float)pt.x, (float)pt.y))
             return HTCLIENT;       // on menu → capture click for ImGui
-        return HTTRANSPARENT;      // outside → pass through to game
+        return HTTRANSPARENT;      // outside / menu closed → pass through to game
     }
 
     if (g_menu_open && ImGui_ImplWin32_WndProcHandler(hwnd, msg, wp, lp))
@@ -310,9 +311,9 @@ bool initialize(HINSTANCE hInstance, HWND targetWnd) {
     POINT tl{ r.left, r.top };
     ClientToScreen(targetWnd, &tl);
 
-    DWORD ex_style = WS_EX_LAYERED | WS_EX_TRANSPARENT | WS_EX_TOOLWINDOW | WS_EX_TOPMOST;
-    // WS_EX_LAYERED is needed so the window background is transparent;
-    // per-pixel alpha comes from the DComp visual, NOT from chroma key.
+    DWORD ex_style = WS_EX_LAYERED | WS_EX_TOOLWINDOW | WS_EX_TOPMOST;
+    // No WS_EX_TRANSPARENT — WM_NCHITTEST handles passthrough manually.
+    // WS_EX_LAYERED makes the window background transparent via DComp alpha.
     g_overlayWnd = CreateWindowExW(
         ex_style,
         L"CS2_Overlay_Class", L"CS2 Overlay",
