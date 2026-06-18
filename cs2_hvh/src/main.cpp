@@ -173,6 +173,7 @@ static void render_thread_logic() {
             g_menu_toggle = true;
 
         // Draw features
+        auto t_feature_start = clock::now();
         if (g_test_mode) {
             ImGui::GetForegroundDrawList()->AddRectFilled(
                 ImVec2(0, 0),
@@ -189,11 +190,15 @@ static void render_thread_logic() {
                 crosshair::run(cfg.crosshair);
             }
         }
+        double dt_feature = std::chrono::duration<double, std::milli>(clock::now() - t_feature_start).count();
 
+        auto t_menu_start = clock::now();
         menu::render();
+        double dt_menu = std::chrono::duration<double, std::milli>(clock::now() - t_menu_start).count();
 
-        // FPS counter
+        // FPS counter + timing breakdown
         {
+            using namespace cs2::renderer;
             using namespace cs2::renderer;
             static int g_frame_count = 0;
             static auto g_fps_timer = std::chrono::high_resolution_clock::now();
@@ -208,8 +213,9 @@ static void render_thread_logic() {
                 g_fps_timer = fps_now;
             }
 
-            wchar_t fps_buf[32];
-            swprintf(fps_buf, 32, L"FPS: %d", g_current_fps);
+            wchar_t fps_buf[64];
+            swprintf(fps_buf, 64, L"FPS: %d  |  ESP: %.1fms  Menu: %.1fms",
+                     g_current_fps, dt_feature, dt_menu);
             draw_text_shadow(8, 8, fps_buf, Color(0, 1, 0, 1), 0.7f);
 
             const char* status = g_init_status.load();

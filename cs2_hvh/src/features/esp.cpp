@@ -162,7 +162,13 @@ void run(const ESPConfig& cfg) {
         uint32_t pawn_handle = *(uint32_t*)(ctrlBuf + 0x00);
         if (!pawn_handle) continue;
 
-        uintptr_t pawn = get_entity_from_handle(pawn_handle);
+        // Inline pawn traversal with cached entListBase (avoids 3× VirtualQueryEx)
+        uintptr_t pawn = 0;
+        {
+            uint32_t pIdx = pawn_handle & 0x7FFF;
+            uintptr_t pChunk = read<uintptr_t>(entListBase + 8 * (pIdx >> 9) + 0x10);
+            if (pChunk) pawn = read<uintptr_t>(pChunk + 112 * (pIdx & 0x1FF));
+        }
         if (!pawn || pawn == local_pawn) continue;
 
         // Batch-read pawn core (0x330 ~ 0x400)
