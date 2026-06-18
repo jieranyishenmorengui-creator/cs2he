@@ -73,24 +73,20 @@ static void forward_to_game(UINT msg, WPARAM wp, LPARAM lp) {
 }
 
 static LRESULT CALLBACK wnd_proc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp) {
-    // ── HTCLIENT always ─────────────────────────────────────────
-    // We manually decide which events go to ImGui vs CS2.
     if (msg == WM_NCHITTEST)
         return HTCLIENT;
 
-    // Let ImGui process first (menu mouse/keyboard)
-    if (g_menu_open && ImGui_ImplWin32_WndProcHandler(hwnd, msg, wp, lp))
-        return 1;
+    // ── Always feed ImGui (it returns 0 for mouse events) ──────
+    ImGui_ImplWin32_WndProcHandler(hwnd, msg, wp, lp);
 
-    // ── Forward mouse events to CS2 when NOT on the ImGui menu ──
-    // Exclude WM_MOUSEMOVE — the game already gets mouse via raw input.
+    // ── Forward click/wheel to CS2 unless ImGui wants them ──────
+    // io.WantCaptureMouse is true when any ImGui window is active.
     if (msg == WM_LBUTTONDOWN || msg == WM_LBUTTONUP   ||
         msg == WM_RBUTTONDOWN || msg == WM_RBUTTONUP   ||
         msg == WM_MBUTTONDOWN || msg == WM_MBUTTONUP   ||
         msg == WM_MOUSEWHEEL  || msg == WM_MOUSEHWHEEL) {
-        // On menu + menu is open → let DefWindowProc feed ImGui
-        if (g_menu_open && menu::is_point_over((float)GET_X_LPARAM(lp), (float)GET_Y_LPARAM(lp)))
-            return DefWindowProcW(hwnd, msg, wp, lp);
+        if (g_menu_open && ImGui::GetIO().WantCaptureMouse)
+            return 0;  // ImGui handles it
         forward_to_game(msg, wp, lp);
         return 0;
     }
