@@ -5,7 +5,7 @@
 #include "../imgui/imgui_impl_dx11.h"
 #include "../imgui/imgui_impl_win32.h"
 #include <dwmapi.h>
-#include <dxgi1_3.h>
+#include <dxgi.h>
 #include <cstdio>
 
 #pragma comment(lib, "d3d11.lib")
@@ -103,44 +103,56 @@ static bool create_d3d11_resources() {
     }
     debug_log("D3D11 device OK");
 
-    // ── Create DXGI swap chain (FLIP_DISCARD + premultiplied alpha) ─
-    // FLIP_DISCARD + DXGI_ALPHA_MODE_PREMULTIPLIED lets DWM composite
-    // per-pixel transparency directly from the buffer's alpha channel.
-    // Window is NOT WS_EX_LAYERED — no chroma-key needed.
-    IDXGIDevice*   pDXGIDevice = nullptr;
-    IDXGIAdapter*  pAdapter    = nullptr;
-    IDXGIFactory2* pFactory2   = nullptr;
+    // ── Create DXGI swap chain (DISCARD model) ────────────────────
+    // FLIP_DISCARD + DXGI_ALPHA_MODE fails on some setups with
+    // DXGI_ERROR_INVALID_CALL (0x887A0001). Fall back to classic
+    // DISCARD + WS_EX_LAYERED + LWA_COLORKEY for widest compatibility.
+    IDXGIDevice*  pDXGIDevice = nullptr;
+    IDXGIAdapter* pAdapter    = nullptr;
+    IDXGIFactory* pFactory    = nullptr;
 
     g_device->QueryInterface(__uuidof(IDXGIDevice), (void**)&pDXGIDevice);
     pDXGIDevice->GetAdapter(&pAdapter);
-    pAdapter->GetParent(__uuidof(IDXGIFactory2), (void**)&pFactory2);
+    pAdapter->GetParent(__uuidof(IDXGIFactory), (void**)&pFactory);
 
-    DXGI_SWAP_CHAIN_DESC1 sd1{};
-    sd1.Width             = g_width;
-    sd1.Height            = g_height;
-    sd1.Format            = DXGI_FORMAT_B8G8R8A8_UNORM;
-    sd1.SampleDesc.Count  = 1;
-    sd1.BufferUsage       = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-    sd1.BufferCount       = 2;       // flip model requires ≥2
-    sd1.SwapEffect        = DXGI_SWAP_EFFECT_FLIP_DISCARD;
-    sd1.AlphaMode         = DXGI_ALPHA_MODE_PREMULTIPLIED;
-    sd1.Flags             = DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING;
+    // Remove WS_EX_LAYERED temporarily (CreateSwapChain fails with it)
+    LONG ex_style = GetWindowLongW(g_overlayWnd, GWL_EXSTYLE);
+    bool was_layered = (ex_style & WS_EX_LAYERED) != 0;
+    if (!was_layered) {
+        // Add WS_EX_LAYERED temporarily so we know to restore it
+        SetWindowLongW(g_overlayWnd, GWL_EXSTYLE, ex_style | WS_EX_LAYERED);
+        was_layered = true;
+    }
+    SetWindowLongW(g_overlayWnd, GWL_EXSTYLE, ex_style & ~WS_EX_LAYERED);
 
-    IDXGISwapChain1* swap1 = nullptr;
-    hr = pFactory2->CreateSwapChainForHwnd(g_device, g_overlayWnd,
-                                           &sd1, nullptr, nullptr, &swap1);
+    DXGI_SWAP_CHAIN_DESC sd{};
+    sd.BufferDesc.Width       = g_width;
+    sd.BufferDesc.Height      = g_height;
+    sd.BufferDesc.Format      = DXGI_FORMAT_B8G8R8A8_UNORM;
+    sd.SampleDesc.Count       = 1;
+    sd.BufferUsage            = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+    sd.BufferCount            = 1;
+    sd.OutputWindow           = g_overlayWnd;
+    sd.Windowed               = TRUE;
+    sd.SwapEffect             = DXGI_SWAP_EFFECT_DISCARD;
+
+    hr = pFactory->CreateSwapChain(g_device, &sd, &g_swapChain);
     if (FAILED(hr)) {
-        debug_log("CreateSwapChainForHwnd FAILED (0x%08X)", (unsigned)hr);
+        debug_log("CreateSwapChain FAILED (0x%08X)", (unsigned)hr);
+        SetWindowLongW(g_overlayWnd, GWL_EXSTYLE, ex_style);
         pDXGIDevice->Release();
         pAdapter->Release();
-        pFactory2->Release();
+        pFactory->Release();
         return false;
     }
-    g_swapChain = swap1;   // IDXGISwapChain1 → base IDXGISwapChain
+
+    // Restore layered flag + set chroma-key transparency
+    SetWindowLongW(g_overlayWnd, GWL_EXSTYLE, ex_style | WS_EX_LAYERED);
+    SetLayeredWindowAttributes(g_overlayWnd, RGB(0, 0, 0), 0, LWA_COLORKEY);
 
     pDXGIDevice->Release();
     pAdapter->Release();
-    pFactory2->Release();
+    pFactory->Release();
 
     if (FAILED(hr)) {
         debug_log("CreateSwapChain FAILED (0x%08X)", (unsigned)hr);
@@ -194,13 +206,11 @@ static bool init_imgui() {
     return true;
 }
 
-// ── Present via flip-model swap chain ─────────────────────────
-// FLIP_DISCARD + ALLOW_TEARING = zero-copy, bypass DWM queue.
+// ── Present via swap chain ────────────────────────────────────
 static void present_frame() {
     if (!g_ready || !g_swapChain || !g_context)
         return;
-    g_swapChain->Present(0, DXGI_PRESENT_ALLOW_TEARING);
-    // FPS cap is done by the frame limiter
+    g_swapChain->Present(0, 0);
 }
 
 // ── Position & resize ───────────────────────────────────────────
@@ -257,9 +267,7 @@ bool initialize(HINSTANCE hInstance, HWND targetWnd) {
     POINT tl{ r.left, r.top };
     ClientToScreen(targetWnd, &tl);
 
-    // Try with WS_EX_TRANSPARENT first; fall back to a plain window
-    DWORD ex_style = WS_EX_TRANSPARENT | WS_EX_TOOLWINDOW | WS_EX_TOPMOST;
-    // Note: no WS_EX_LAYERED — we use DXGI_ALPHA_MODE_PREMULTIPLIED instead
+    DWORD ex_style = WS_EX_LAYERED | WS_EX_TRANSPARENT | WS_EX_TOOLWINDOW | WS_EX_TOPMOST;
     g_overlayWnd = CreateWindowExW(
         ex_style,
         L"CS2_Overlay_Class", L"CS2 Overlay",
