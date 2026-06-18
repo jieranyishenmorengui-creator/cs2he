@@ -307,8 +307,9 @@ bool initialize(HINSTANCE hInstance, HWND targetWnd) {
     POINT tl{ r.left, r.top };
     ClientToScreen(targetWnd, &tl);
 
-    DWORD ex_style = WS_EX_TRANSPARENT | WS_EX_TOOLWINDOW | WS_EX_TOPMOST;
-    // WS_EX_LAYERED added later by fallback path if needed
+    DWORD ex_style = WS_EX_LAYERED | WS_EX_TRANSPARENT | WS_EX_TOOLWINDOW | WS_EX_TOPMOST;
+    // WS_EX_LAYERED is needed so the window background is transparent;
+    // per-pixel alpha comes from the DComp visual, NOT from chroma key.
     g_overlayWnd = CreateWindowExW(
         ex_style,
         L"CS2_Overlay_Class", L"CS2 Overlay",
