@@ -91,6 +91,10 @@ static LRESULT CALLBACK wnd_proc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp) {
         PostQuitMessage(0);
         return 0;
     case WM_KEYDOWN:
+        if (wp == VK_INSERT && g_menu_open) {
+            menu::toggle();  // immediate, no message pump delay
+            return 0;
+        }
         g_keyState[wp] = 1;
         return 0;
     case WM_KEYUP:
