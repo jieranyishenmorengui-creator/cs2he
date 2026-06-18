@@ -43,29 +43,27 @@ static IDCompositionVisual*  g_dcompVisual = nullptr;
 
 void set_menu_open(bool open) {
     g_menu_open = open;
-    // WS_EX_TRANSPARENT is NEVER used — we manually forward to CS2.
+    if (g_overlayWnd) {
+        LONG style = GetWindowLongW(g_overlayWnd, GWL_EXSTYLE);
+        if (open) style &= ~WS_EX_TRANSPARENT;  // menu open → capture clicks
+        else      style |= WS_EX_TRANSPARENT;   // menu closed → passthrough
+        SetWindowLongW(g_overlayWnd, GWL_EXSTYLE, style);
+        SetWindowPos(g_overlayWnd, nullptr, 0, 0, 0, 0,
+                     SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER);
+    }
 }
 
 bool is_menu_open() { return g_menu_open; }
 
-// Forward mouse event to CS2 only if the cursor is within the game window.
+// Forward mouse event to CS2 only if cursor is within the game window.
 static void forward_to_game(UINT msg, WPARAM wp, LPARAM lp) {
     HWND game = process::get_game_window();
     if (!game || !IsWindow(game)) return;
-
-    // Get cursor screen position from the message
-    POINT pt;
-    GetCursorPos(&pt);
-
-    // Only forward if the click is inside the game window's client area
-    RECT r;
-    GetClientRect(game, &r);
+    POINT pt; GetCursorPos(&pt);
+    RECT r; GetClientRect(game, &r);
     MapWindowPoints(game, nullptr, (POINT*)&r, 2);
     if (pt.x < r.left || pt.x > r.right || pt.y < r.top || pt.y > r.bottom)
-        return;  // outside game bounds → let Windows handle naturally
-
-    // Convert overlay client coords → game client coords
-    // (overlay & game are positioned 1:1 so raw lp works, but be safe)
+        return;
     POINT cpt{ GET_X_LPARAM(lp), GET_Y_LPARAM(lp) };
     ClientToScreen(g_overlayWnd, &cpt);
     ScreenToClient(game, &cpt);
@@ -73,22 +71,19 @@ static void forward_to_game(UINT msg, WPARAM wp, LPARAM lp) {
 }
 
 static LRESULT CALLBACK wnd_proc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp) {
-    if (msg == WM_NCHITTEST)
-        return HTCLIENT;
-
-    // ── Always feed ImGui (it returns 0 for mouse events) ──────
+    // Feed ImGui first (updates io state regardless)
     ImGui_ImplWin32_WndProcHandler(hwnd, msg, wp, lp);
 
-    // ── Forward click/wheel to CS2 unless ImGui wants them ──────
-    // io.WantCaptureMouse is true when any ImGui window is active.
+    // Mouse clicks: if menu is open and ImGui doesn't want it → forward to CS2
     if (msg == WM_LBUTTONDOWN || msg == WM_LBUTTONUP   ||
         msg == WM_RBUTTONDOWN || msg == WM_RBUTTONUP   ||
         msg == WM_MBUTTONDOWN || msg == WM_MBUTTONUP   ||
         msg == WM_MOUSEWHEEL  || msg == WM_MOUSEHWHEEL) {
-        if (g_menu_open && ImGui::GetIO().WantCaptureMouse)
-            return 0;  // ImGui handles it
-        forward_to_game(msg, wp, lp);
-        return 0;
+        if (g_menu_open && !ImGui::GetIO().WantCaptureMouse) {
+            forward_to_game(msg, wp, lp);
+            return 0;
+        }
+        // ImGui handles or menu closed → DefWindowProc (WS_EX_TRANSPARENT does its thing)
     }
 
     switch (msg) {
@@ -339,9 +334,8 @@ bool initialize(HINSTANCE hInstance, HWND targetWnd) {
     POINT tl{ r.left, r.top };
     ClientToScreen(targetWnd, &tl);
 
-    DWORD ex_style = WS_EX_LAYERED | WS_EX_TOOLWINDOW | WS_EX_TOPMOST;
-    // No WS_EX_TRANSPARENT — WM_NCHITTEST handles passthrough manually.
-    // WS_EX_LAYERED makes the window background transparent via DComp alpha.
+    DWORD ex_style = WS_EX_LAYERED | WS_EX_TRANSPARENT | WS_EX_TOOLWINDOW | WS_EX_TOPMOST;
+    // WS_EX_TRANSPARENT toggled by set_menu_open for click passthrough.
     g_overlayWnd = CreateWindowExW(
         ex_style,
         L"CS2_Overlay_Class", L"CS2 Overlay",
