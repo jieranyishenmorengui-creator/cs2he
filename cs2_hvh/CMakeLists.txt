@@ -56,6 +56,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     d3dcompiler
     dwmapi
     dcomp
+    winmm
 )
 
 set_target_properties(${PROJECT_NAME} PROPERTIES

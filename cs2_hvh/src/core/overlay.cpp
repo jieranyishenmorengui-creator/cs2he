@@ -227,7 +227,7 @@ static bool init_imgui() {
     ImGui::CreateContext();
 
     ImGuiIO& io = ImGui::GetIO();
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+    // io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;  // ← disabled: steals Insert/home/end etc.
     io.IniFilename = nullptr;
 
     ImGui::StyleColorsDark();

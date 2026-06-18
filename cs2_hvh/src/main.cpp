@@ -4,6 +4,8 @@
 #include <thread>
 #include <atomic>
 #include <chrono>
+#include <mmsystem.h>
+#pragma comment(lib, "winmm.lib")
 
 #include "core/memory.h"
 #include "core/process.h"
@@ -227,16 +229,26 @@ static void render_thread_logic() {
 
         overlay::end_frame();
 
-        // ── Frame limiter ──────────────────────────────────────
-        auto now = clock::now();
-        double elapsed_ms = std::chrono::duration<double, std::milli>(now - last_frame).count();
-        double target_ms = 1000.0 / std::max(cfg.misc.max_fps, 1);
-        if (elapsed_ms < target_ms) {
-            DWORD sleep_ms = DWORD(target_ms - elapsed_ms);
-            if (sleep_ms > 0 && sleep_ms <= 100)
-                Sleep(sleep_ms);
+        // ── Frame limiter (high precision) ────────────────────
+        // Sleep has ~15ms granularity by default, so for small waits
+        // we spin-wait the final 1ms after a coarse Sleep.
+        {
+            auto now = clock::now();
+            double elapsed_ms = std::chrono::duration<double, std::milli>(now - last_frame).count();
+            double target_ms = 1000.0 / std::max(cfg.misc.max_fps, 1);
+            if (elapsed_ms < target_ms) {
+                double remain_ms = target_ms - elapsed_ms;
+                if (remain_ms > 2.0) {
+                    Sleep(DWORD(remain_ms - 1.0));  // coarse wait
+                }
+                // Spin-wait for final precision (avoids Sleep(1)≈15ms)
+                while (std::chrono::duration<double, std::milli>(
+                           clock::now() - last_frame).count() < target_ms) {
+                    Sleep(0);  // yield timeslice
+                }
+            }
+            last_frame = clock::now();
         }
-        last_frame = clock::now();
 
         frame_count++;
     }
@@ -251,6 +263,9 @@ static void init_console() {
 }
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd) {
+    // High-resolution timer for Sleep() precision
+    timeBeginPeriod(1);
+
     FILE* f = fopen("cs2_hvh_debug.txt", "w");
     if (f) fclose(f);
 
@@ -347,6 +362,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     cs2::process::shutdown();
 
     printf("[*] Goodbye\n");
+    timeEndPeriod(1);
     FreeConsole();
     return 0;
 }
