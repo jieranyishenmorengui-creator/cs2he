@@ -59,8 +59,8 @@ static LRESULT CALLBACK wnd_proc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp) {
         ScreenToClient(g_overlayWnd, &pt);
         if (menu::is_point_over((float)pt.x, (float)pt.y))
             return HTCLIENT;       // on menu → capture for ImGui
-        // Outside menu → let DefWindowProc handle (WS_EX_LAYERED → pass through)
-        break;
+        // Outside menu → let DefWindowProc handle default
+        return DefWindowProcW(hwnd, msg, wp, lp);
     }
 
     // ImGui processes menu mouse/key messages first
