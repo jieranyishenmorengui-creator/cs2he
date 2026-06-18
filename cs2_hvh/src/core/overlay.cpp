@@ -5,7 +5,8 @@
 #include "../imgui/imgui_impl_dx11.h"
 #include "../imgui/imgui_impl_win32.h"
 #include <dwmapi.h>
-#include <dxgi.h>
+#include <dxgi1_3.h>
+#include <dcomp.h>
 #include <cstdio>
 
 #pragma comment(lib, "d3d11.lib")
@@ -31,8 +32,12 @@ static uint8_t                g_keyState[256] = {};
 static uint8_t                g_keyPrev[256] = {};
 static bool                   g_menu_open = false;
 
-// DXGI swap chain (replaces old GDI UpdateLayeredWindow + staging approach)
+// DXGI swap chain
 static IDXGISwapChain*       g_swapChain = nullptr;
+// DirectComposition (Windows 8+ fast composition path)
+static IDCompositionDevice*  g_dcompDevice = nullptr;
+static IDCompositionTarget*  g_dcompTarget = nullptr;
+static IDCompositionVisual*  g_dcompVisual = nullptr;
 
 void set_menu_open(bool open) {
     g_menu_open = open;
@@ -103,56 +108,89 @@ static bool create_d3d11_resources() {
     }
     debug_log("D3D11 device OK");
 
-    // ── Create DXGI swap chain (DISCARD model) ────────────────────
-    // FLIP_DISCARD + DXGI_ALPHA_MODE fails on some setups with
-    // DXGI_ERROR_INVALID_CALL (0x887A0001). Fall back to classic
-    // DISCARD + WS_EX_LAYERED + LWA_COLORKEY for widest compatibility.
-    IDXGIDevice*  pDXGIDevice = nullptr;
-    IDXGIAdapter* pAdapter    = nullptr;
-    IDXGIFactory* pFactory    = nullptr;
+    // ── DirectComposition + CreateSwapChainForComposition ──────────
+    // Modern Windows 8+ composition API — no WS_EX_LAYERED, no chroma-key.
+    // DWM composites per-pixel alpha directly from the swap chain buffer.
+    IDXGIDevice*   pDXGIDevice = nullptr;
+    IDXGIAdapter*  pAdapter    = nullptr;
+    IDXGIFactory2* pFactory2   = nullptr;
 
     g_device->QueryInterface(__uuidof(IDXGIDevice), (void**)&pDXGIDevice);
-    pDXGIDevice->GetAdapter(&pAdapter);
-    pAdapter->GetParent(__uuidof(IDXGIFactory), (void**)&pFactory);
-
-    // Remove WS_EX_LAYERED temporarily (CreateSwapChain fails with it)
-    LONG ex_style = GetWindowLongW(g_overlayWnd, GWL_EXSTYLE);
-    bool was_layered = (ex_style & WS_EX_LAYERED) != 0;
-    if (!was_layered) {
-        // Add WS_EX_LAYERED temporarily so we know to restore it
-        SetWindowLongW(g_overlayWnd, GWL_EXSTYLE, ex_style | WS_EX_LAYERED);
-        was_layered = true;
-    }
-    SetWindowLongW(g_overlayWnd, GWL_EXSTYLE, ex_style & ~WS_EX_LAYERED);
-
-    DXGI_SWAP_CHAIN_DESC sd{};
-    sd.BufferDesc.Width       = g_width;
-    sd.BufferDesc.Height      = g_height;
-    sd.BufferDesc.Format      = DXGI_FORMAT_B8G8R8A8_UNORM;
-    sd.SampleDesc.Count       = 1;
-    sd.BufferUsage            = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-    sd.BufferCount            = 1;
-    sd.OutputWindow           = g_overlayWnd;
-    sd.Windowed               = TRUE;
-    sd.SwapEffect             = DXGI_SWAP_EFFECT_DISCARD;
-
-    hr = pFactory->CreateSwapChain(g_device, &sd, &g_swapChain);
-    if (FAILED(hr)) {
-        debug_log("CreateSwapChain FAILED (0x%08X)", (unsigned)hr);
-        SetWindowLongW(g_overlayWnd, GWL_EXSTYLE, ex_style);
+    if (FAILED(pDXGIDevice->GetAdapter(&pAdapter))) {
+        debug_log("GetAdapter FAILED");
         pDXGIDevice->Release();
-        pAdapter->Release();
-        pFactory->Release();
         return false;
     }
+    if (FAILED(pAdapter->GetParent(__uuidof(IDXGIFactory2), (void**)&pFactory2))) {
+        debug_log("GetParent IDXGIFactory2 FAILED — trying IDXGIFactory");
+        // Fallback: old CreateSwapChain + WS_EX_LAYERED
+        IDXGIFactory* pFactory = nullptr;
+        pAdapter->GetParent(__uuidof(IDXGIFactory), (void**)&pFactory);
+        if (!pFactory) { pAdapter->Release(); pDXGIDevice->Release(); return false; }
 
-    // Restore layered flag + set chroma-key transparency
-    SetWindowLongW(g_overlayWnd, GWL_EXSTYLE, ex_style | WS_EX_LAYERED);
-    SetLayeredWindowAttributes(g_overlayWnd, RGB(0, 0, 0), 0, LWA_COLORKEY);
+        LONG es = GetWindowLongW(g_overlayWnd, GWL_EXSTYLE);
+        SetWindowLongW(g_overlayWnd, GWL_EXSTYLE, es & ~WS_EX_LAYERED);
+        DXGI_SWAP_CHAIN_DESC sd{};
+        sd.BufferDesc.Width  = g_width; sd.BufferDesc.Height = g_height;
+        sd.BufferDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
+        sd.SampleDesc.Count  = 1;
+        sd.BufferUsage       = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+        sd.BufferCount       = 1;
+        sd.OutputWindow      = g_overlayWnd;
+        sd.Windowed          = TRUE;
+        sd.SwapEffect        = DXGI_SWAP_EFFECT_DISCARD;
+        hr = pFactory->CreateSwapChain(g_device, &sd, &g_swapChain);
+        if (SUCCEEDED(hr)) {
+            SetWindowLongW(g_overlayWnd, GWL_EXSTYLE, es | WS_EX_LAYERED);
+            SetLayeredWindowAttributes(g_overlayWnd, RGB(0,0,0), 0, LWA_COLORKEY);
+        }
+        pFactory->Release(); pAdapter->Release(); pDXGIDevice->Release();
+        return SUCCEEDED(hr);
+    }
 
-    pDXGIDevice->Release();
-    pAdapter->Release();
-    pFactory->Release();
+    // ── DComp path ──────────────────────────────────────────────────
+    // Create swap chain for composition
+    DXGI_SWAP_CHAIN_DESC1 sd1{};
+    sd1.Width             = g_width;
+    sd1.Height            = g_height;
+    sd1.Format            = DXGI_FORMAT_B8G8R8A8_UNORM;
+    sd1.SampleDesc.Count  = 1;
+    sd1.BufferUsage       = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+    sd1.BufferCount       = 2;
+    sd1.SwapEffect        = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;
+    sd1.AlphaMode         = DXGI_ALPHA_MODE_PREMULTIPLIED;
+    sd1.Flags             = DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING;
+
+    IDXGISwapChain1* swap1 = nullptr;
+    hr = pFactory2->CreateSwapChainForComposition(g_device, &sd1, nullptr, &swap1);
+    if (FAILED(hr)) {
+        debug_log("CreateSwapChainForComposition FAILED (0x%08X)", (unsigned)hr);
+        pFactory2->Release(); pAdapter->Release(); pDXGIDevice->Release();
+        return false;
+    }
+    g_swapChain = swap1;
+
+    // Create DComp device, target, visual
+    hr = DCompositionCreateDevice(pDXGIDevice, __uuidof(IDCompositionDevice),
+                                  (void**)&g_dcompDevice);
+    if (FAILED(hr)) {
+        debug_log("DCompositionCreateDevice FAILED (0x%08X)", (unsigned)hr);
+        pFactory2->Release(); pAdapter->Release(); pDXGIDevice->Release();
+        return false;
+    }
+    if (FAILED(g_dcompDevice->CreateTargetForHwnd(g_overlayWnd, TRUE, &g_dcompTarget))) {
+        debug_log("CreateTargetForHwnd FAILED");
+        return false;
+    }
+    if (FAILED(g_dcompDevice->CreateVisual(&g_dcompVisual))) {
+        debug_log("CreateVisual FAILED");
+        return false;
+    }
+    g_dcompVisual->SetContent(swap1);
+    g_dcompTarget->SetRoot(g_dcompVisual);
+    g_dcompDevice->Commit();
+
+    pFactory2->Release(); pAdapter->Release(); pDXGIDevice->Release();
 
     if (FAILED(hr)) {
         debug_log("CreateSwapChain FAILED (0x%08X)", (unsigned)hr);
@@ -206,11 +244,13 @@ static bool init_imgui() {
     return true;
 }
 
-// ── Present via swap chain ────────────────────────────────────
+// ── Present ───────────────────────────────────────────────────
+// DComp path: Present updates the visual, DWM composites it.
+// Fallback DISCARD path: Present(0, 0) → LWA_COLORKEY path.
 static void present_frame() {
-    if (!g_ready || !g_swapChain || !g_context)
-        return;
-    g_swapChain->Present(0, 0);
+    if (!g_ready || !g_swapChain || !g_context) return;
+    // ALLOW_TEARING is harmless when the flag wasn't set at creation
+    g_swapChain->Present(0, DXGI_PRESENT_ALLOW_TEARING);
 }
 
 // ── Position & resize ───────────────────────────────────────────
@@ -267,7 +307,8 @@ bool initialize(HINSTANCE hInstance, HWND targetWnd) {
     POINT tl{ r.left, r.top };
     ClientToScreen(targetWnd, &tl);
 
-    DWORD ex_style = WS_EX_LAYERED | WS_EX_TRANSPARENT | WS_EX_TOOLWINDOW | WS_EX_TOPMOST;
+    DWORD ex_style = WS_EX_TRANSPARENT | WS_EX_TOOLWINDOW | WS_EX_TOPMOST;
+    // WS_EX_LAYERED added later by fallback path if needed
     g_overlayWnd = CreateWindowExW(
         ex_style,
         L"CS2_Overlay_Class", L"CS2 Overlay",
@@ -311,6 +352,10 @@ void shutdown() {
     ImGui::DestroyContext();
 
     destroy_d3d11_resources();
+
+    if (g_dcompVisual)  { g_dcompVisual->Release();  g_dcompVisual  = nullptr; }
+    if (g_dcompTarget)  { g_dcompTarget->Release();  g_dcompTarget  = nullptr; }
+    if (g_dcompDevice)  { g_dcompDevice->Release();  g_dcompDevice  = nullptr; }
 
     if (g_context) { g_context->Release(); g_context = nullptr; }
     if (g_device)  { g_device->Release();  g_device  = nullptr; }
