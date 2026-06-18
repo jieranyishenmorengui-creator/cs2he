@@ -18,6 +18,7 @@ struct ESPConfig {
     float max_distance = 200.0f;
     float global_alpha = 1.0f;
     float shadow_alpha = 0.5f;
+    float smooth_factor = 0.0f;   // 0=无平滑, >0=插值强度
 
     Color team_color     = Color(0.2f, 0.8f, 1.0f, 1.0f);
     Color enemy_color    = Color(1.0f, 0.3f, 0.2f, 1.0f);

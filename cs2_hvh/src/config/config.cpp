@@ -145,6 +145,7 @@ bool Config::load(const std::string& path) {
     esp.max_distance = json_get_float(json, "ESP_MaxDistance", 200.0f);
     esp.global_alpha = json_get_float(json, "GlobalAlpha", 1.0f);
     esp.shadow_alpha = json_get_float(json, "ShadowAlpha", 0.5f);
+    esp.smooth_factor = json_get_float(json, "SmoothFactor", 0.0f);
     esp.team_color = json_get_color(json, "Col_ESP_Team", Color(0.2f, 0.8f, 1.0f, 1.0f));
     esp.enemy_color = json_get_color(json, "Col_ESP_Enemy", Color(1.0f, 0.3f, 0.2f, 1.0f));
     esp.aim_target_color = json_get_color(json, "Col_ESP_AimTarget", Color(1.0f, 1.0f, 0.0f, 1.0f));
@@ -246,6 +247,8 @@ bool Config::save(const std::string& path) {
     write_json_color(f, "Col_ESP_AimTarget", esp.aim_target_color);
     fprintf(f, ",\n");
     write_json_color(f, "Col_ESP_Shadow", esp.shadow_color);
+    fprintf(f, ",\n");
+    write_json_float(f, "SmoothFactor", esp.smooth_factor);
     fprintf(f, ",\n");
 
     // Crosshair

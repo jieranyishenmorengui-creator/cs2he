@@ -162,6 +162,7 @@ static void tab_visuals() {
     ImGui::Separator();
     ImGui::SliderFloat("Max Distance", &cfg.max_distance, 0.0f, 500.0f, "%.0f m");
     ImGui::SliderFloat("Global Alpha", &cfg.global_alpha, 0.0f, 1.0f, "%.2f");
+    ImGui::SliderFloat("Smooth Factor", &cfg.smooth_factor, 0.0f, 0.9f, "%.2f");
 
     ImGui::Separator();
     ImGui::TextUnformatted("Colors");
