@@ -50,20 +50,25 @@ void set_menu_open(bool open) {
 bool is_menu_open() { return g_menu_open; }
 
 static LRESULT CALLBACK wnd_proc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp) {
-    // ── Always return HTCLIENT → overlay gets all mouse events ────
-    // We manually forward non-menu clicks to the game window below.
-    if (msg == WM_NCHITTEST)
-        return HTCLIENT;
+    // ── Hit-test: intercept only when over the open menu ─────────
+    if (msg == WM_NCHITTEST) {
+        if (!g_menu_open)
+            return HTTRANSPARENT;  // menu closed → pass through naturally
+        // Menu open: check if cursor is over the menu window
+        POINT pt{ GET_X_LPARAM(lp), GET_Y_LPARAM(lp) };
+        ScreenToClient(g_overlayWnd, &pt);
+        if (menu::is_point_over((float)pt.x, (float)pt.y))
+            return HTCLIENT;       // on menu → capture for ImGui
+        // Outside menu → let DefWindowProc handle (WS_EX_LAYERED → pass through)
+        break;
+    }
 
     // ImGui processes menu mouse/key messages first
     if (g_menu_open && ImGui_ImplWin32_WndProcHandler(hwnd, msg, wp, lp))
         return 1;
 
-    // ── Forward mouse events to game if not on the ImGui menu ──
-    if (msg >= WM_MOUSEFIRST && msg <= WM_MOUSELAST) {
-        if (g_menu_open && menu::is_point_over((float)GET_X_LPARAM(lp), (float)GET_Y_LPARAM(lp)))
-            return DefWindowProcW(hwnd, msg, wp, lp);  // on menu → ImGui handles it
-        // Outside menu (or menu closed) → forward to CS2 window
+    // ── Forward non-menu mouse events to CS2 ─────────────────────
+    if (g_menu_open && msg >= WM_MOUSEFIRST && msg <= WM_MOUSELAST) {
         HWND gameWnd = process::get_game_window();
         if (gameWnd && IsWindow(gameWnd))
             PostMessageW(gameWnd, msg, wp, lp);
