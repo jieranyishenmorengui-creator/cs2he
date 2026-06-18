@@ -92,7 +92,9 @@ static LRESULT CALLBACK wnd_proc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp) {
         return 0;
     case WM_KEYDOWN:
         if (wp == VK_INSERT && g_menu_open) {
-            menu::toggle();  // immediate, no message pump delay
+            g_keyState[VK_INSERT] = 1;
+            g_keyPrev[VK_INSERT]  = 1;  // suppress GetAsyncKeyState re-detect
+            menu::toggle();
             return 0;
         }
         g_keyState[wp] = 1;
