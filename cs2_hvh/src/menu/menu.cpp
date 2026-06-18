@@ -213,7 +213,16 @@ static void tab_config() {
     ImGui::TextDisabled("Config: config.json");
 }
 
+// ── Menu window rect (for hit-test passthrough) ─────────────────
+static float g_menuX = 0, g_menuY = 0, g_menuW = 0, g_menuH = 0;
+
 // ── Public API ──────────────────────────────────────────────────
+
+bool is_point_over(float cx, float cy) {
+    if (!g_open) return false;
+    return cx >= g_menuX && cx <= g_menuX + g_menuW &&
+           cy >= g_menuY && cy <= g_menuY + g_menuH;
+}
 
 void render() {
     if (!g_open || !overlay::is_ready()) return;
@@ -228,6 +237,13 @@ void render() {
     ImGui::Begin("CS2 HvH", nullptr,
                  ImGuiWindowFlags_NoResize |
                  ImGuiWindowFlags_NoCollapse);
+
+    // Save menu rect for hit-test (used by overlay WM_NCHITTEST)
+    {
+        ImVec2 p = ImGui::GetWindowPos();
+        ImVec2 s = ImGui::GetWindowSize();
+        g_menuX = p.x; g_menuY = p.y; g_menuW = s.x; g_menuH = s.y;
+    }
 
     if (ImGui::BeginTabBar("##tabs", ImGuiTabBarFlags_None)) {
         if (ImGui::BeginTabItem("Aimbot")) {

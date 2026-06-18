@@ -17,4 +17,8 @@ void toggle();
 // Render the menu overlay
 void render();
 
+// Hit-test: is a client-area point over the ImGui menu window?
+// Used by overlay to decide mouse passthrough.
+bool is_point_over(float cx, float cy);
+
 } // namespace cs2::menu

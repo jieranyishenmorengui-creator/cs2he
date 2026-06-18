@@ -1,11 +1,13 @@
 #include "overlay.h"
 #include "process.h"
+#include "../menu/menu.h"
 #include "../utils/debug_log.h"
 #include "../imgui/imgui.h"
 #include "../imgui/imgui_impl_dx11.h"
 #include "../imgui/imgui_impl_win32.h"
 #include <dwmapi.h>
 #include <dxgi1_3.h>
+#include <windowsx.h>
 #include <dcomp.h>
 #include <cstdio>
 
@@ -41,21 +43,24 @@ static IDCompositionVisual*  g_dcompVisual = nullptr;
 
 void set_menu_open(bool open) {
     g_menu_open = open;
-    if (g_overlayWnd) {
-        LONG style = GetWindowLongW(g_overlayWnd, GWL_EXSTYLE);
-        if (open)
-            style &= ~WS_EX_TRANSPARENT;
-        else
-            style |= WS_EX_TRANSPARENT;
-        SetWindowLongW(g_overlayWnd, GWL_EXSTYLE, style);
-        SetWindowPos(g_overlayWnd, nullptr, 0, 0, 0, 0,
-                     SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
-    }
+    // WS_EX_TRANSPARENT stays ON always — WM_NCHITTEST decides per-click
+    // whether to intercept (over menu) or passthrough (over game).
 }
 
 bool is_menu_open() { return g_menu_open; }
 
 static LRESULT CALLBACK wnd_proc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp) {
+    // ── Hit-test: intercept mouse only when over the ImGui menu ──
+    if (msg == WM_NCHITTEST && g_menu_open) {
+        POINT pt{ GET_X_LPARAM(lp), GET_Y_LPARAM(lp) };
+        ScreenToClient(g_overlayWnd, &pt);
+        // Only capture clicks inside the ImGui menu window
+        if (!menu::is_point_over((float)pt.x, (float)pt.y))
+            return HTTRANSPARENT;  // outside menu → click passes to game
+        // Inside menu → fall through to ImGui handler below
+        // Inside menu → fall through to ImGui handler below
+    }
+
     if (g_menu_open && ImGui_ImplWin32_WndProcHandler(hwnd, msg, wp, lp))
         return 1;
 
