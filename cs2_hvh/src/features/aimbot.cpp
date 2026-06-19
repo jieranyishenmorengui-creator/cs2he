@@ -3,6 +3,8 @@
 #include "../core/offsets.h"
 #include "../core/overlay.h"
 #include <cmath>
+#include <chrono>
+#include <random>
 
 namespace cs2::aimbot {
 
@@ -31,9 +33,8 @@ static Vector3 get_bone_pos(uintptr_t pawn, int bone_idx) {
     uintptr_t bone_array = read<uintptr_t>(model_state_addr + NetVars::m_pBones);
     if (!IsRemotePtrValid(bone_array)) return {};
 
-    // Each bone is a Matrix3x4 (48 bytes), not a flat Vector3
-    Matrix3x4 bone_mat = read<Matrix3x4>(bone_array + bone_idx * sizeof(Matrix3x4));
-    return bone_mat.get_position();
+    // Each bone is Vec3 at stride 0x20 (32 bytes), matching cs2-dumper
+    return read<Vector3>(bone_array + bone_idx * 0x20);
 }
 
 static Vector3 get_view_angles(uintptr_t player_controller) {
@@ -191,6 +192,66 @@ void run(const AimbotConfig& cfg) {
             }
         }
     }
+}
+
+// ═════════════════════════════════════════════════════════════════════
+//  Triggerbot — auto-fire when crosshair is on an enemy
+// ═════════════════════════════════════════════════════════════════════
+void triggerbot(const TriggerbotConfig& cfg) {
+    using namespace ::cs2::memory;
+    using namespace ::cs2::offsets;
+
+    if (!cfg.enabled) return;
+
+    // Hold key check (0 = always on)
+    if (cfg.key && !overlay::is_key_down(cfg.key)) return;
+
+    // Local player
+    uintptr_t local_ctrl = read<uintptr_t>(g_offsets.dwLocalPlayerController);
+    if (!local_ctrl) return;
+    uintptr_t local_pawn = get_entity_from_handle(read<uint32_t>(local_ctrl + NetVars::m_hPawn));
+    if (!local_pawn) return;
+
+    // Read crosshair entity index (m_iIDEntIndex)
+    int ent_idx = read<int32_t>(local_pawn + NetVars::m_iIDEntIndex);
+    if (ent_idx <= 0 || ent_idx > 63) return;
+
+    // Resolve target
+    uintptr_t controller = get_entity_from_index(ent_idx);
+    if (!controller) return;
+
+    uintptr_t pawn = get_entity_from_handle(read<uint32_t>(controller + NetVars::m_hPawn));
+    if (!pawn || pawn == local_pawn) return;
+
+    // Health & team check
+    int health = read<int32_t>(pawn + NetVars::m_iHealth);
+    if (health <= 0 || health > 100) return;
+    if (cfg.team_check) {
+        uint8_t local_team = read<uint8_t>(local_pawn + NetVars::m_iTeamNum);
+        uint8_t team = read<uint8_t>(pawn + NetVars::m_iTeamNum);
+        if (team == local_team) return;
+    }
+
+    // Random delay between min/max
+    static std::mt19937 rng((uint32_t)std::chrono::steady_clock::now().time_since_epoch().count());
+    static std::uniform_int_distribution<int> dist(cfg.delay_min, cfg.delay_max);
+    static auto last_shot = std::chrono::steady_clock::now();
+    auto now = std::chrono::steady_clock::now();
+    int delay = dist(rng);  // regen every check — fine for small ranges
+
+    if (std::chrono::duration_cast<std::chrono::milliseconds>(now - last_shot).count() < delay)
+        return;
+
+    // Simulate mouse click
+    INPUT ip = {};
+    ip.type = INPUT_MOUSE;
+    ip.mi.dwFlags = MOUSEEVENTF_LEFTDOWN;
+    SendInput(1, &ip, sizeof(INPUT));
+    Sleep(1);
+    ip.mi.dwFlags = MOUSEEVENTF_LEFTUP;
+    SendInput(1, &ip, sizeof(INPUT));
+
+    last_shot = now;
 }
 
 } // namespace cs2::aimbot

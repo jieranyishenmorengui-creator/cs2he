@@ -19,6 +19,7 @@ struct Config {
 
     // Feature configs
     aimbot::AimbotConfig aimbot;
+    aimbot::TriggerbotConfig triggerbot;
     esp::ESPConfig esp;
     crosshair::CrosshairConfig crosshair;
     misc::MiscConfig misc;

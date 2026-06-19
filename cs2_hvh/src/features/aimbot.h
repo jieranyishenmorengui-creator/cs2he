@@ -21,7 +21,18 @@ struct AimbotConfig {
     float rcs_scale = 0.5f;
 };
 
+struct TriggerbotConfig {
+    bool enabled = false;
+    int key = 0;             // hold key (0 = always on when enabled)
+    int delay_min = 10;      // min delay between shots (ms)
+    int delay_max = 25;      // max delay between shots (ms)
+    bool team_check = true;
+};
+
 // Update aimbot (called every frame from game thread)
 void run(const AimbotConfig& cfg);
+
+// Triggerbot (called from game thread, auto-fires when crosshair on enemy)
+void triggerbot(const TriggerbotConfig& cfg);
 
 } // namespace cs2::aimbot

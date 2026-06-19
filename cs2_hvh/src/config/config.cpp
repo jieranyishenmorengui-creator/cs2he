@@ -161,6 +161,13 @@ bool Config::load(const std::string& path) {
     crosshair.type = json_get_int(json, "CrosshairType", 0);
     crosshair.size = json_get_float(json, "CrosshairSize", 10.0f);
 
+    // Triggerbot
+    triggerbot.enabled = json_get_bool(json, "TrigEnable", false);
+    triggerbot.key = json_get_int(json, "TrigKey", 0);
+    triggerbot.delay_min = json_get_int(json, "TrigDelayMin", 10);
+    triggerbot.delay_max = json_get_int(json, "TrigDelayMax", 25);
+    triggerbot.team_check = json_get_bool(json, "TrigTeamCheck", true);
+
     // Misc
     misc.max_fps = json_get_int(json, "MaxFramerate", 144);
 
@@ -275,6 +282,18 @@ bool Config::save(const std::string& path) {
     write_json_float(f, "CrosshairSize", crosshair.size);
     fprintf(f, ",\n");
 
+    // Triggerbot
+    write_json_bool(f, "TrigEnable", triggerbot.enabled);
+    fprintf(f, ",\n");
+    write_json_int(f, "TrigKey", triggerbot.key);
+    fprintf(f, ",\n");
+    write_json_int(f, "TrigDelayMin", triggerbot.delay_min);
+    fprintf(f, ",\n");
+    write_json_int(f, "TrigDelayMax", triggerbot.delay_max);
+    fprintf(f, ",\n");
+    write_json_bool(f, "TrigTeamCheck", triggerbot.team_check);
+    fprintf(f, ",\n");
+
     // Misc
     write_json_int(f, "MaxFramerate", misc.max_fps);
     fprintf(f, "\n");
@@ -293,6 +312,7 @@ void Config::set_defaults() {
     crosshair_toggle_key = 0;
 
     aimbot = aimbot::AimbotConfig();
+    triggerbot = aimbot::TriggerbotConfig();
     esp = esp::ESPConfig();
     crosshair = crosshair::CrosshairConfig();
     misc = misc::MiscConfig();

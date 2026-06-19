@@ -194,6 +194,16 @@ static void tab_crosshair() {
     ImGui::ColorEdit4("Color", (float*)&cfg.color, ImGuiColorEditFlags_NoInputs);
 }
 
+static void tab_triggerbot() {
+    auto& cfg = config::get().triggerbot;
+
+    ImGui::Checkbox("Enable Triggerbot", &cfg.enabled);
+    key_bind_widget("Active Key", &cfg.key, 20);
+    ImGui::SliderInt("Delay Min", &cfg.delay_min, 0, 200);
+    ImGui::SliderInt("Delay Max", &cfg.delay_max, 0, 200);
+    ImGui::Checkbox("Team Check", &cfg.team_check);
+}
+
 static void tab_misc() {
     auto& cfg = config::get().misc;
 
@@ -267,6 +277,12 @@ void render() {
         if (ImGui::BeginTabItem("Crosshair")) {
             if (ImGui::BeginChild("##crosshair", ImVec2(0, 0), false))
                 tab_crosshair();
+            ImGui::EndChild();
+            ImGui::EndTabItem();
+        }
+        if (ImGui::BeginTabItem("Triggerbot")) {
+            if (ImGui::BeginChild("##trig", ImVec2(0, 0), false))
+                tab_triggerbot();
             ImGui::EndChild();
             ImGui::EndTabItem();
         }

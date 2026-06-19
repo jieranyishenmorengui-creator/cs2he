@@ -98,6 +98,7 @@ static void game_thread() {
 
         auto& cfg = config::get();
         aimbot::run(cfg.aimbot);
+        aimbot::triggerbot(cfg.triggerbot);
 
         // Read atomic key events set by render thread
         if (g_panic_key.exchange(false)) {
