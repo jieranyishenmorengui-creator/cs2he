@@ -246,16 +246,14 @@ void triggerbot(const TriggerbotConfig& cfg) {
     constexpr uint64_t IN_ATTACK = 1ULL << 0;
 
     if (valid_target) {
-        // Fire — hold IN_ATTACK continuously while on target
-        write<uint64_t>(movement + NetVars::m_nButtons, IN_ATTACK);
-        write<uint64_t>(movement + 0x78, IN_ATTACK);  // queued change mask
-        write<uint64_t>(movement + 0x70, IN_ATTACK);  // queued down mask
+        // Brute-force: write IN_ATTACK to every plausible button field
+        // within CInButtonState + queued masks (0x50-0x88)
+        for (int off = 0; off <= 0x38; off += 8)
+            write<uint64_t>(movement + NetVars::m_nButtons + off, IN_ATTACK);
         g_trigger_firing = true;
     } else if (g_trigger_firing) {
-        // Target lost — release buttons
-        write<uint64_t>(movement + NetVars::m_nButtons, 0ULL);
-        write<uint64_t>(movement + 0x78, 0ULL);
-        write<uint64_t>(movement + 0x70, 0ULL);
+        for (int off = 0; off <= 0x38; off += 8)
+            write<uint64_t>(movement + NetVars::m_nButtons + off, 0ULL);
         g_trigger_firing = false;
     }
 }
