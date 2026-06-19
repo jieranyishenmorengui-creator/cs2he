@@ -239,21 +239,19 @@ void triggerbot(const TriggerbotConfig& cfg) {
         }
     }
 
-    // Movement services for writing button state
-    uintptr_t movement = read<uintptr_t>(local_pawn + NetVars::m_pMovementServices);
-    if (!movement) { g_trigger_firing = false; return; }
-
-    constexpr uint64_t IN_ATTACK = 1ULL << 0;
-
     if (valid_target) {
-        // Brute-force: write IN_ATTACK to every plausible button field
-        // within CInButtonState + queued masks (0x50-0x88)
-        for (int off = 0; off <= 0x38; off += 8)
-            write<uint64_t>(movement + NetVars::m_nButtons + off, IN_ATTACK);
+        // Write to client.dll + buttons::attack (cs2-dumper offset)
+        // Value 65537 = 0x10001 = IN_ATTACK + frame-press flag
+        // Also clear buttons::attack2 to avoid interference
+        if (g_offsets.clientBase) {
+            write<int>(g_offsets.clientBase + 0x2065A90, 65537);   // buttons::attack
+            write<int>(g_offsets.clientBase + 0x2065B20, 0);       // buttons::attack2
+        }
         g_trigger_firing = true;
     } else if (g_trigger_firing) {
-        for (int off = 0; off <= 0x38; off += 8)
-            write<uint64_t>(movement + NetVars::m_nButtons + off, 0ULL);
+        if (g_offsets.clientBase) {
+            write<int>(g_offsets.clientBase + 0x2065A90, 0);
+        }
         g_trigger_firing = false;
     }
 }
