@@ -360,6 +360,9 @@ void run(const ESPConfig& cfg) {
             }
         }
 
+        // Head circle
+        draw_circle(head.x, head.y, w / 6.0f, col, 15, 1.0f);
+
         if (cfg.show_line)
             draw_line((float)sw * 0.5f, (float)sh, foot.x, foot.y, col, 1.5f);
 
