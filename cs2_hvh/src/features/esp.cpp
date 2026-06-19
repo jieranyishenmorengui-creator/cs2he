@@ -31,27 +31,30 @@ struct ESPEntity {
     bool bones_valid;
 };
 
-// ── Bone connections (BoneIndex enum) ───────────────────────────────
+// ── Bone connections (matching IMXNOOBX/cs2-external-esp) ────────
 static const int BONE_CONNECTIONS[][2] = {
-    {BoneIndex::HEAD, BoneIndex::NECK},
-    {BoneIndex::NECK, BoneIndex::SPINE_0},
-    {BoneIndex::SPINE_0, BoneIndex::SPINE_1},
-    {BoneIndex::SPINE_1, BoneIndex::SPINE_2},
-    {BoneIndex::SPINE_2, BoneIndex::PELVIS},
-    {BoneIndex::SPINE_0, BoneIndex::CLAVICLE_L},
-    {BoneIndex::CLAVICLE_L, BoneIndex::ARM_UPPER_L},
-    {BoneIndex::ARM_UPPER_L, BoneIndex::ARM_LOWER_L},
-    {BoneIndex::ARM_LOWER_L, BoneIndex::HAND_L},
-    {BoneIndex::SPINE_0, BoneIndex::CLAVICLE_R},
-    {BoneIndex::CLAVICLE_R, BoneIndex::ARM_UPPER_R},
-    {BoneIndex::ARM_UPPER_R, BoneIndex::ARM_LOWER_R},
-    {BoneIndex::ARM_LOWER_R, BoneIndex::HAND_R},
-    {BoneIndex::PELVIS, BoneIndex::LEG_UPPER_L},
-    {BoneIndex::LEG_UPPER_L, BoneIndex::LEG_LOWER_L},
-    {BoneIndex::LEG_LOWER_L, BoneIndex::ANKLE_L},
-    {BoneIndex::PELVIS, BoneIndex::LEG_UPPER_R},
-    {BoneIndex::LEG_UPPER_R, BoneIndex::LEG_LOWER_R},
-    {BoneIndex::LEG_LOWER_R, BoneIndex::ANKLE_R},
+    // Spine (pelvis → spine_1 → spine_2 → chest → neck → head)
+    {BoneIndex::PELVIS,    BoneIndex::SPINE_1},
+    {BoneIndex::SPINE_1,   BoneIndex::SPINE_2},
+    {BoneIndex::SPINE_2,   BoneIndex::CHEST},
+    {BoneIndex::CHEST,     BoneIndex::NECK},
+    {BoneIndex::NECK,      BoneIndex::HEAD},
+    // Left arm (from neck)
+    {BoneIndex::NECK,      BoneIndex::SHOULDER_L},
+    {BoneIndex::SHOULDER_L,BoneIndex::ELBOW_L},
+    {BoneIndex::ELBOW_L,   BoneIndex::HAND_L},
+    // Right arm (from neck)
+    {BoneIndex::NECK,      BoneIndex::SHOULDER_R},
+    {BoneIndex::SHOULDER_R,BoneIndex::ELBOW_R},
+    {BoneIndex::ELBOW_R,   BoneIndex::HAND_R},
+    // Left leg (from pelvis)
+    {BoneIndex::PELVIS,    BoneIndex::HIP_L},
+    {BoneIndex::HIP_L,     BoneIndex::KNEE_L},
+    {BoneIndex::KNEE_L,    BoneIndex::FOOT_HEEL_L},
+    // Right leg (from pelvis)
+    {BoneIndex::PELVIS,    BoneIndex::HIP_R},
+    {BoneIndex::HIP_R,     BoneIndex::KNEE_R},
+    {BoneIndex::KNEE_R,    BoneIndex::FOOT_HEEL_R},
 };
 static constexpr int NUM_BONE_CONNS = sizeof(BONE_CONNECTIONS) / sizeof(BONE_CONNECTIONS[0]);
 
@@ -186,16 +189,31 @@ void run(const ESPConfig& cfg) {
         Vector3 origin;
         if (!read(pawn + NetVars::m_vOldOrigin, &origin, 12)) continue;
 
-        // Head: actual bone position (world-space only)
-        Vector3 headPos(origin.x, origin.y, origin.z + 72.0f); // fallback
+        // ── Read bone positions (Vector3 at stride 0x20) ─────────
+        // Reference: IMXNOOBX reads bone_data { Vec3 pos; uint8_t pad[0x14] } *30
+        // Each entry is 32 bytes, position is the first Vector3.
+        Vector3 headPos(origin.x, origin.y, origin.z + 72.0f);
         bool headFromBone = false;
+        int boneCount = 0;
+        Vector3 boneWorld[BoneIndex::MAX_BONES]{};
+
         if (sceneNode) {
-            uintptr_t model_state = sceneNode + NetVars::m_modelState;
-            uintptr_t boneArray = read<uintptr_t>(model_state + NetVars::m_pBones);
-            if (boneArray) {
-                Matrix3x4 headMat = read<Matrix3x4>(boneArray + BoneIndex::HEAD * 0x20);
-                Vector3 bp = headMat.get_position();
-                if (bp.length() > 1.0f) { headPos = bp; headFromBone = true; }
+            uintptr_t ms = sceneNode + NetVars::m_modelState;
+            uintptr_t ba = read<uintptr_t>(ms + NetVars::m_pBones);
+            if (ba) {
+                // Read 30 bones * 32 bytes each in one batch
+                uint8_t raw[30 * 0x20];
+                if (read(ba, raw, sizeof(raw))) {
+                    boneCount = 30;
+                    for (int b = 0; b < 30; ++b) {
+                        float* pf = (float*)(raw + b * 0x20);
+                        boneWorld[b] = Vector3(pf[0], pf[1], pf[2]);
+                    }
+                    if (boneWorld[BoneIndex::HEAD].length() > 1.0f) {
+                        headPos = boneWorld[BoneIndex::HEAD];
+                        headFromBone = true;
+                    }
+                }
             }
         }
 
@@ -214,23 +232,6 @@ void run(const ESPConfig& cfg) {
         std::string weaponName;
         if (cfg.show_weapon)
             weaponName = get_weapon_name_cached(pawn, entListBase);
-
-        // ── Skeleton: read all bone matrices in bulk ───────────
-        int boneCount = 0;
-        Vector3 boneWorld[BoneIndex::MAX_BONES]{};
-
-        if (cfg.show_skeleton && sceneNode) {
-            uintptr_t ms = sceneNode + NetVars::m_modelState;
-            uintptr_t ba = read<uintptr_t>(ms + NetVars::m_pBones);
-            if (ba) {
-                Matrix3x4 allBones[BoneIndex::MAX_BONES];
-                if (read(ba, allBones, sizeof(allBones))) {
-                    boneCount = BoneIndex::MAX_BONES;
-                    for (int b = 0; b < BoneIndex::MAX_BONES; ++b)
-                        boneWorld[b] = allBones[b].get_position();
-                }
-            }
-        }
 
         rawList.push_back(RawEntity{
             pawn, origin, headPos, health, team, dist,

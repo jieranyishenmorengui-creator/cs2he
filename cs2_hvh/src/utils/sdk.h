@@ -88,27 +88,27 @@ struct Color {
 };
 
 // ============== CS2 Bone Index Enum ==============
+// Reference: https://github.com/IMXNOOBX/cs2-external-esp
 enum BoneIndex : int {
     PELVIS       = 1,
-    SPINE_2      = 3,
-    SPINE_1      = 4,
-    SPINE_0      = 5,
+    SPINE_0      = 2,
+    SPINE_1      = 3,
+    SPINE_2      = 4,
     NECK         = 6,
     HEAD         = 7,
-    CLAVICLE_L   = 8,
-    ARM_UPPER_L  = 9,
-    ARM_LOWER_L  = 10,
+    SHOULDER_L   = 9,
+    ELBOW_L      = 10,
     HAND_L       = 11,
-    CLAVICLE_R   = 12,
-    ARM_UPPER_R  = 13,
-    ARM_LOWER_R  = 14,
+    SHOULDER_R   = 13,
+    ELBOW_R      = 14,
     HAND_R       = 15,
-    LEG_UPPER_L  = 17,
-    LEG_LOWER_L  = 18,
-    ANKLE_L      = 19,
-    LEG_UPPER_R  = 20,
-    LEG_LOWER_R  = 21,
-    ANKLE_R      = 22,
+    HIP_L        = 17,
+    KNEE_L       = 18,
+    FOOT_HEEL_L  = 19,
+    HIP_R        = 20,
+    KNEE_R       = 21,
+    FOOT_HEEL_R  = 22,
+    CHEST        = 23,
     MAX_BONES    = 32,
 };
 
