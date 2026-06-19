@@ -198,62 +198,66 @@ void run(const AimbotConfig& cfg) {
 }
 
 // ═════════════════════════════════════════════════════════════════════
-//  Triggerbot — auto-fire when crosshair is on an enemy
+//  Triggerbot — hold-fire when crosshair is on an enemy
 // ═════════════════════════════════════════════════════════════════════
+static bool g_trigger_firing = false;  // persistent firing state
+
 void triggerbot(const TriggerbotConfig& cfg) {
     using namespace ::cs2::memory;
     using namespace ::cs2::offsets;
 
-    if (!cfg.enabled) return;
+    if (!cfg.enabled) { g_trigger_firing = false; return; }
 
     // Hold key check (0 = always on)
-    if (cfg.key && !overlay::is_key_down(cfg.key)) return;
+    if (cfg.key && !overlay::is_key_down(cfg.key)) { g_trigger_firing = false; return; }
 
     // Local player
     uintptr_t local_ctrl = read<uintptr_t>(g_offsets.dwLocalPlayerController);
-    if (!local_ctrl) return;
+    if (!local_ctrl) { g_trigger_firing = false; return; }
     uintptr_t local_pawn = get_entity_from_handle(read<uint32_t>(local_ctrl + NetVars::m_hPawn));
-    if (!local_pawn) return;
+    if (!local_pawn) { g_trigger_firing = false; return; }
 
-    // Read crosshair entity index (m_iIDEntIndex)
+    // Read crosshair entity index
     int ent_idx = read<int32_t>(local_pawn + NetVars::m_iIDEntIndex);
-    if (ent_idx <= 0 || ent_idx > 63) return;
-
-    // Resolve target
-    uintptr_t controller = get_entity_from_index(ent_idx);
-    if (!controller) return;
-
-    uintptr_t pawn = get_entity_from_handle(read<uint32_t>(controller + NetVars::m_hPawn));
-    if (!pawn || pawn == local_pawn) return;
-
-    // Health & team check
-    int health = read<int32_t>(pawn + NetVars::m_iHealth);
-    if (health <= 0 || health > 100) return;
-    if (cfg.team_check) {
-        uint8_t local_team = read<uint8_t>(local_pawn + NetVars::m_iTeamNum);
-        uint8_t team = read<uint8_t>(pawn + NetVars::m_iTeamNum);
-        if (team == local_team) return;
+    bool valid_target = false;
+    if (ent_idx > 0 && ent_idx <= 63) {
+        uintptr_t controller = get_entity_from_index(ent_idx);
+        if (controller) {
+            uintptr_t pawn = get_entity_from_handle(read<uint32_t>(controller + NetVars::m_hPawn));
+            if (pawn && pawn != local_pawn) {
+                int health = read<int32_t>(pawn + NetVars::m_iHealth);
+                if (health > 0 && health <= 100) {
+                    if (!cfg.team_check) {
+                        valid_target = true;
+                    } else {
+                        uint8_t lt = read<uint8_t>(local_pawn + NetVars::m_iTeamNum);
+                        uint8_t t  = read<uint8_t>(pawn + NetVars::m_iTeamNum);
+                        if (t != lt) valid_target = true;
+                    }
+                }
+            }
+        }
     }
 
-    // Delay
-    static auto last_shot = std::chrono::steady_clock::now();
-    auto now = std::chrono::steady_clock::now();
-    int elapsed = (int)std::chrono::duration_cast<std::chrono::milliseconds>(now - last_shot).count();
-    if (elapsed < cfg.delay_min) return;
-
-    // Fire via movement services button state
-    // CS2 CInButtonState: write IN_ATTACK both to current state and queued masks
+    // Movement services for writing button state
     uintptr_t movement = read<uintptr_t>(local_pawn + NetVars::m_pMovementServices);
-    if (!movement) return;
+    if (!movement) { g_trigger_firing = false; return; }
 
     constexpr uint64_t IN_ATTACK = 1ULL << 0;
-    // Write to current button state (CInButtonState at 0x50, first uint64)
-    write<uint64_t>(movement + NetVars::m_nButtons, IN_ATTACK);
-    // Also set queued change/down masks so CS2 registers a new press
-    write<uint64_t>(movement + 0x78, IN_ATTACK);  // m_nQueuedButtonChangeMask
-    write<uint64_t>(movement + 0x70, IN_ATTACK);  // m_nQueuedButtonDownMask
 
-    last_shot = now;
+    if (valid_target) {
+        // Fire — hold IN_ATTACK continuously while on target
+        write<uint64_t>(movement + NetVars::m_nButtons, IN_ATTACK);
+        write<uint64_t>(movement + 0x78, IN_ATTACK);  // queued change mask
+        write<uint64_t>(movement + 0x70, IN_ATTACK);  // queued down mask
+        g_trigger_firing = true;
+    } else if (g_trigger_firing) {
+        // Target lost — release buttons
+        write<uint64_t>(movement + NetVars::m_nButtons, 0ULL);
+        write<uint64_t>(movement + 0x78, 0ULL);
+        write<uint64_t>(movement + 0x70, 0ULL);
+        g_trigger_firing = false;
+    }
 }
 
 } // namespace cs2::aimbot
