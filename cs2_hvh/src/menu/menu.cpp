@@ -164,12 +164,18 @@ static void tab_visuals() {
     ImGui::SliderFloat("Global Alpha", &cfg.global_alpha, 0.0f, 1.0f, "%.2f");
     ImGui::SliderFloat("Smooth Factor", &cfg.smooth_factor, 0.0f, 0.9f, "%.2f");
 
+    ImGui::Checkbox("Head Circle", &cfg.show_head_circle);
+    ImGui::SliderFloat("HC Thick", &cfg.head_circle_thickness, 0.5f, 5.0f, "%.1f");
+    ImGui::SliderFloat("Skel Thick", &cfg.skeleton_thickness, 0.5f, 5.0f, "%.1f");
+
     ImGui::Separator();
     ImGui::TextUnformatted("Colors");
-    ImGui::ColorEdit4("Team",      (float*)&cfg.team_color,   ImGuiColorEditFlags_NoInputs);
-    ImGui::ColorEdit4("Enemy",     (float*)&cfg.enemy_color,  ImGuiColorEditFlags_NoInputs);
-    ImGui::ColorEdit4("Aim Target", (float*)&cfg.aim_target_color, ImGuiColorEditFlags_NoInputs);
-    ImGui::ColorEdit4("Shadow",    (float*)&cfg.shadow_color, ImGuiColorEditFlags_NoInputs);
+    ImGui::ColorEdit4("Team",       (float*)&cfg.team_color,        ImGuiColorEditFlags_NoInputs);
+    ImGui::ColorEdit4("Enemy",      (float*)&cfg.enemy_color,       ImGuiColorEditFlags_NoInputs);
+    ImGui::ColorEdit4("Aim Target", (float*)&cfg.aim_target_color,  ImGuiColorEditFlags_NoInputs);
+    ImGui::ColorEdit4("Shadow",     (float*)&cfg.shadow_color,      ImGuiColorEditFlags_NoInputs);
+    ImGui::ColorEdit4("Head Circ",  (float*)&cfg.head_circle_color, ImGuiColorEditFlags_NoInputs);
+    ImGui::ColorEdit4("Skeleton",   (float*)&cfg.skeleton_color,    ImGuiColorEditFlags_NoInputs);
 }
 
 static void tab_crosshair() {

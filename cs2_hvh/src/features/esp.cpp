@@ -360,8 +360,9 @@ void run(const ESPConfig& cfg) {
             }
         }
 
-        // Head circle
-        draw_circle(head.x, head.y, w / 6.0f, col, 15, 1.0f);
+        // Head circle (toggleable)
+        if (cfg.show_head_circle)
+            draw_circle(head.x, head.y, w / 6.0f, cfg.head_circle_color, 15, cfg.head_circle_thickness);
 
         if (cfg.show_line)
             draw_line((float)sw * 0.5f, (float)sh, foot.x, foot.y, col, 1.5f);
@@ -396,9 +397,11 @@ void run(const ESPConfig& cfg) {
                 int b0 = BONE_CONNECTIONS[bc][0];
                 int b1 = BONE_CONNECTIONS[bc][1];
                 if (b0 >= BoneIndex::MAX_BONES || b1 >= BoneIndex::MAX_BONES) continue;
+                Color skelCol = cfg.skeleton_color;
+                skelCol.a *= cfg.global_alpha;
                 draw_line((float)ent.bone_positions[b0 * 2], (float)ent.bone_positions[b0 * 2 + 1],
                           (float)ent.bone_positions[b1 * 2], (float)ent.bone_positions[b1 * 2 + 1],
-                          Color(1, 1, 1, 0.6f * cfg.global_alpha), 1.0f);
+                          skelCol, cfg.skeleton_thickness);
             }
         }
     }

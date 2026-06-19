@@ -20,6 +20,13 @@ struct ESPConfig {
     float shadow_alpha = 0.5f;
     float smooth_factor = 0.0f;   // 0=无平滑, >0=插值强度
 
+    bool show_head_circle = true;
+    float head_circle_thickness = 1.5f;
+    Color head_circle_color = Color(1, 1, 1, 1.0f);
+
+    float skeleton_thickness = 1.5f;
+    Color skeleton_color = Color(1, 1, 1, 0.6f);
+
     Color team_color     = Color(0.2f, 0.8f, 1.0f, 1.0f);
     Color enemy_color    = Color(1.0f, 0.3f, 0.2f, 1.0f);
     Color aim_target_color = Color(1.0f, 1.0f, 0.0f, 1.0f);
