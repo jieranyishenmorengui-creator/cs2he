@@ -299,25 +299,28 @@ void run(const ESPConfig& cfg) {
         ent.name          = std::move(raw.name);
         ent.weapon_name   = std::move(raw.weapon_name);
 
-        // ── W2S all bones + compute bounding box ─────────────
-        // Reference: FullyExternalCS2 uses ALL bone positions to
-        // compute the entity bounding box for perfect fit.
+        // ── W2S skeleton bones + compute bounding box ────────
+        // Reference: FullyExternalCS2 uses only bone-connected positions.
+        // Indices: 0,2,16,23-31 are not part of the player skeleton.
+        static const int kBoneIndices[] = {
+            1, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
+            17, 18, 19, 20, 21, 22
+        };
         Vector2 boxMin = {FLT_MAX, FLT_MAX};
         Vector2 boxMax = {FLT_MIN, FLT_MIN};
         ent.bones_valid = false;
 
-        for (int b = 0; b < raw.boneCount; ++b) {
+        for (int bi = 0; bi < (int)(sizeof(kBoneIndices)/sizeof(kBoneIndices[0])); ++bi) {
+            int b = kBoneIndices[bi];
             if (!raw.boneValid[b]) continue;
             Vector2 sp;
             if (!world_to_screen(raw.boneWorld[b], sp, vm, sw, sh)) continue;
 
-            // Bounding box (all bones)
             if (sp.x < boxMin.x) boxMin.x = sp.x;
             if (sp.y < boxMin.y) boxMin.y = sp.y;
             if (sp.x > boxMax.x) boxMax.x = sp.x;
             if (sp.y > boxMax.y) boxMax.y = sp.y;
 
-            // Store for skeleton (always, so same data skeleton/box)
             ent.bone_positions[b * 2 + 0] = (int)sp.x;
             ent.bone_positions[b * 2 + 1] = (int)sp.y;
             ent.bones_valid = true;
