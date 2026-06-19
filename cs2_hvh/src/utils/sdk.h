@@ -130,7 +130,7 @@ struct NetVars {
     static constexpr uint32_t m_fFlags          = 0x3F8;
 
     // CSkeletonInstance (extends CGameSceneNode)
-    static constexpr uint32_t m_modelState      = 0x190;  // embedded CModelState struct
+    static constexpr uint32_t m_modelState      = 0x150;  // embedded CModelState struct (cs2-dumper)
 
     // CModelState::m_pBones — pointer to bone Matrix3x4 array (non-schema, dynamic)
     static constexpr uint32_t m_pBones          = 0x80;   // within CModelState
