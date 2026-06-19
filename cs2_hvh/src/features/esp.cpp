@@ -289,19 +289,31 @@ void run(const ESPConfig& cfg) {
         ent.name          = std::move(raw.name);
         ent.weapon_name   = std::move(raw.weapon_name);
 
-        // W2S skeleton bones
+        // W2S skeleton bones (+ sanity check to avoid twitching)
+        // Initialize all bone positions to -1 (invalid sentinel)
+        memset(ent.bone_positions, -1, sizeof(ent.bone_positions));
         ent.bones_valid = false;
+        int valid_bones = 0;
+
         if (raw.boneCount > 0) {
-            ent.bones_valid = true;
             for (int b = 0; b < raw.boneCount; ++b) {
                 Vector3& bp = raw.boneWorld[b];
+                // Skip zero-length bones
                 if (bp.length() < 0.001f) continue;
+                // Reject bones > 500 units from origin (avoids twitch spikes)
+                if ((bp - raw.origin).length() > 500.0f) continue;
                 Vector2 sp;
                 if (world_to_screen(bp, sp, vm, sw, sh)) {
+                    // Reject off-screen projections (more than 2× screen size away)
+                    if (sp.x < -sw * 2 || sp.x > sw * 3 ||
+                        sp.y < -sh * 2 || sp.y > sh * 3) continue;
                     ent.bone_positions[b * 2 + 0] = (int)sp.x;
                     ent.bone_positions[b * 2 + 1] = (int)sp.y;
+                    valid_bones++;
                 }
             }
+            if (valid_bones > 0)
+                ent.bones_valid = true;
         }
 
         entities.push_back(ent);
@@ -397,10 +409,15 @@ void run(const ESPConfig& cfg) {
                 int b0 = BONE_CONNECTIONS[bc][0];
                 int b1 = BONE_CONNECTIONS[bc][1];
                 if (b0 >= BoneIndex::MAX_BONES || b1 >= BoneIndex::MAX_BONES) continue;
+                // Skip if either bone position is invalid (sentinel -1)
+                int x0 = ent.bone_positions[b0 * 2];
+                int y0 = ent.bone_positions[b0 * 2 + 1];
+                int x1 = ent.bone_positions[b1 * 2];
+                int y1 = ent.bone_positions[b1 * 2 + 1];
+                if (x0 < 0 || y0 < 0 || x1 < 0 || y1 < 0) continue;
                 Color skelCol = cfg.skeleton_color;
                 skelCol.a *= cfg.global_alpha;
-                draw_line((float)ent.bone_positions[b0 * 2], (float)ent.bone_positions[b0 * 2 + 1],
-                          (float)ent.bone_positions[b1 * 2], (float)ent.bone_positions[b1 * 2 + 1],
+                draw_line((float)x0, (float)y0, (float)x1, (float)y1,
                           skelCol, cfg.skeleton_thickness);
             }
         }
