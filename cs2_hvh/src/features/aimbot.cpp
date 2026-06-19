@@ -241,15 +241,17 @@ void triggerbot(const TriggerbotConfig& cfg) {
     int elapsed = (int)std::chrono::duration_cast<std::chrono::milliseconds>(now - last_shot).count();
     if (elapsed < cfg.delay_min) return;
 
-    // Set IN_ATTACK via m_nButtons (CInButtonState) in movement services
-    // CS2 reads button state from here every tick
+    // Fire via movement services button state
+    // CS2 CInButtonState: write IN_ATTACK both to current state and queued masks
     uintptr_t movement = read<uintptr_t>(local_pawn + NetVars::m_pMovementServices);
     if (!movement) return;
 
-    constexpr uint32_t IN_ATTACK = 1 << 0;
-    uint32_t buttons = read<uint32_t>(movement + NetVars::m_nButtons);
-    buttons |= IN_ATTACK;
-    write<uint32_t>(movement + NetVars::m_nButtons, buttons);
+    constexpr uint64_t IN_ATTACK = 1ULL << 0;
+    // Write to current button state (CInButtonState at 0x50, first uint64)
+    write<uint64_t>(movement + NetVars::m_nButtons, IN_ATTACK);
+    // Also set queued change/down masks so CS2 registers a new press
+    write<uint64_t>(movement + 0x78, IN_ATTACK);  // m_nQueuedButtonChangeMask
+    write<uint64_t>(movement + 0x70, IN_ATTACK);  // m_nQueuedButtonDownMask
 
     last_shot = now;
 }
