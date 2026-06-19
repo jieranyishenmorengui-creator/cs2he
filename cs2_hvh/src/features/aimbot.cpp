@@ -177,18 +177,21 @@ void run(const AimbotConfig& cfg) {
     if (new_angle.x < -89.0f) new_angle.x = -89.0f;
     new_angle.z = 0.0f;
 
-    // Write view angles
-    write<Vector3>(local_pawn + NetVars::m_angEyeAngles, new_angle);
+    // Write view angles via dwViewAngles pointer (CS2 reads from here)
+    uintptr_t angles_ptr = read<uintptr_t>(g_offsets.dwViewAngles);
+    if (angles_ptr) {
+        write<Vector3>(angles_ptr, new_angle);
 
-    // RCS - read current punch and counteract via AimPunchServices
-    if (cfg.recoil_control) {
-        uintptr_t aimpunch_svc = read<uintptr_t>(local_pawn + NetVars::m_pAimPunchServices);
-        if (aimpunch_svc) {
-            Vector3 aim_punch = read<Vector3>(aimpunch_svc + NetVars::m_aimPunchAngle);
-            if (aim_punch.length() > 0.01f) {
-                Vector3 punch_correction = aim_punch * cfg.rcs_scale;
-                Vector3 rcs_angle = new_angle - punch_correction;
-                write<Vector3>(local_pawn + NetVars::m_angEyeAngles, rcs_angle);
+        // RCS — compensate aim punch
+        if (cfg.recoil_control) {
+            uintptr_t aimpunch_svc = read<uintptr_t>(local_pawn + NetVars::m_pAimPunchServices);
+            if (aimpunch_svc) {
+                Vector3 aim_punch = read<Vector3>(aimpunch_svc + NetVars::m_aimPunchAngle);
+                if (aim_punch.length() > 0.01f) {
+                    Vector3 punch_correction = aim_punch * cfg.rcs_scale;
+                    Vector3 rcs_angle = new_angle - punch_correction;
+                    write<Vector3>(angles_ptr, rcs_angle);
+                }
             }
         }
     }
@@ -232,24 +235,21 @@ void triggerbot(const TriggerbotConfig& cfg) {
         if (team == local_team) return;
     }
 
-    // Random delay between min/max
-    static std::mt19937 rng((uint32_t)std::chrono::steady_clock::now().time_since_epoch().count());
-    static std::uniform_int_distribution<int> dist(cfg.delay_min, cfg.delay_max);
+    // Delay
     static auto last_shot = std::chrono::steady_clock::now();
     auto now = std::chrono::steady_clock::now();
-    int delay = dist(rng);  // regen every check — fine for small ranges
+    int elapsed = (int)std::chrono::duration_cast<std::chrono::milliseconds>(now - last_shot).count();
+    if (elapsed < cfg.delay_min) return;
 
-    if (std::chrono::duration_cast<std::chrono::milliseconds>(now - last_shot).count() < delay)
-        return;
+    // Set IN_ATTACK via m_nButtons (CInButtonState) in movement services
+    // CS2 reads button state from here every tick
+    uintptr_t movement = read<uintptr_t>(local_pawn + NetVars::m_pMovementServices);
+    if (!movement) return;
 
-    // Simulate mouse click
-    INPUT ip = {};
-    ip.type = INPUT_MOUSE;
-    ip.mi.dwFlags = MOUSEEVENTF_LEFTDOWN;
-    SendInput(1, &ip, sizeof(INPUT));
-    Sleep(1);
-    ip.mi.dwFlags = MOUSEEVENTF_LEFTUP;
-    SendInput(1, &ip, sizeof(INPUT));
+    constexpr uint32_t IN_ATTACK = 1 << 0;
+    uint32_t buttons = read<uint32_t>(movement + NetVars::m_nButtons);
+    buttons |= IN_ATTACK;
+    write<uint32_t>(movement + NetVars::m_nButtons, buttons);
 
     last_shot = now;
 }
