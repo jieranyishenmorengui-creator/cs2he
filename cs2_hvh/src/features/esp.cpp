@@ -10,6 +10,7 @@
 #include <algorithm>
 #include <unordered_map>
 #include <cwchar>
+#include <cfloat>
 
 namespace cs2::esp {
 
@@ -21,10 +22,12 @@ struct ESPEntity {
     Vector3 head_pos;
     Vector2 screen_origin;
     Vector2 screen_head;
+    Vector2 boxMin, boxMax;  // bone-based bounding box
     int health;
     int team;
     float distance;
     bool valid;
+    bool hasBoneBox;        // true if bounding box from bones is valid
     std::string name;
     std::string weapon_name;
     int bone_positions[BoneIndex::MAX_BONES * 2];
@@ -109,12 +112,13 @@ struct RawEntity {
     std::string name;
     std::string weapon_name;
 
-    // Cached head bone (used if skeleton is off)
     bool      headFromBone;
 
-    // Skeleton: world-space bone positions (extracted in phase 1)
-    int       boneCount;
+    // World-space bone positions for ALL 32 bones
+    // Bones are stored as Vector3 at stride 0x20 (32 bytes each)
     Vector3   boneWorld[BoneIndex::MAX_BONES];
+    bool      boneValid[BoneIndex::MAX_BONES];
+    int       boneCount;
 };
 
 // ═════════════════════════════════════════════════════════════════════
@@ -189,13 +193,33 @@ void run(const ESPConfig& cfg) {
         // Head: actual bone position (world-space only)
         Vector3 headPos(origin.x, origin.y, origin.z + 72.0f); // fallback
         bool headFromBone = false;
+
+        // ── Read all 32 bone positions (Vector3 at stride 0x20) ──
+        // Each bone entry is 32 bytes total, first 12 = Vector3 position.
+        // Reference: FullyExternalCS2 reads as Vector3 at stride 32.
+        int boneCount = 0;
+        Vector3 boneWorld[BoneIndex::MAX_BONES]{};
+        bool boneValid[BoneIndex::MAX_BONES]{};
+
         if (sceneNode) {
-            uintptr_t model_state = sceneNode + NetVars::m_modelState;
-            uintptr_t boneArray = read<uintptr_t>(model_state + NetVars::m_pBones);
-            if (boneArray) {
-                Matrix3x4 headMat = read<Matrix3x4>(boneArray + BoneIndex::HEAD * 0x20);
-                Vector3 bp = headMat.get_position();
-                if (bp.length() > 1.0f) { headPos = bp; headFromBone = true; }
+            uintptr_t ms = sceneNode + NetVars::m_modelState;
+            uintptr_t ba = read<uintptr_t>(ms + NetVars::m_pBones);
+            if (ba) {
+                // Bulk-read all 32 bone entries (32 bytes each)
+                uint8_t boneRaw[0x20 * BoneIndex::MAX_BONES];
+                if (read(ba, boneRaw, sizeof(boneRaw))) {
+                    boneCount = BoneIndex::MAX_BONES;
+                    for (int b = 0; b < BoneIndex::MAX_BONES; ++b) {
+                        float* pf = (float*)(boneRaw + b * 0x20);
+                        boneWorld[b] = Vector3(pf[0], pf[1], pf[2]);
+                        boneValid[b] = boneWorld[b].length() > 0.001f;
+                    }
+                    // Use actual head bone for head position
+                    if (boneValid[BoneIndex::HEAD]) {
+                        headPos = boneWorld[BoneIndex::HEAD];
+                        headFromBone = true;
+                    }
+                }
             }
         }
 
@@ -215,30 +239,16 @@ void run(const ESPConfig& cfg) {
         if (cfg.show_weapon)
             weaponName = get_weapon_name_cached(pawn, entListBase);
 
-        // ── Skeleton: read all bone matrices in bulk ───────────
-        int boneCount = 0;
-        Vector3 boneWorld[BoneIndex::MAX_BONES]{};
-
-        if (cfg.show_skeleton && sceneNode) {
-            uintptr_t ms = sceneNode + NetVars::m_modelState;
-            uintptr_t ba = read<uintptr_t>(ms + NetVars::m_pBones);
-            if (ba) {
-                Matrix3x4 allBones[BoneIndex::MAX_BONES];
-                if (read(ba, allBones, sizeof(allBones))) {
-                    boneCount = BoneIndex::MAX_BONES;
-                    for (int b = 0; b < BoneIndex::MAX_BONES; ++b)
-                        boneWorld[b] = allBones[b].get_position();
-                }
-            }
-        }
-
         rawList.push_back(RawEntity{
             pawn, origin, headPos, health, team, dist,
             std::move(entName), std::move(weaponName),
-            headFromBone, boneCount, {}
+            headFromBone, {}, {}, 0
         });
-        if (boneCount > 0)
+        if (boneCount > 0) {
             memcpy(rawList.back().boneWorld, boneWorld, sizeof(Vector3) * boneCount);
+            memcpy(rawList.back().boneValid, boneValid, sizeof(bool) * boneCount);
+            rawList.back().boneCount = boneCount;
+        }
     }
 
     // ═════════════════════════════════════════════════════════════
@@ -285,22 +295,38 @@ void run(const ESPConfig& cfg) {
         ent.team          = raw.team;
         ent.distance      = raw.distance;
         ent.valid         = true;
+        ent.hasBoneBox    = false;
         ent.name          = std::move(raw.name);
         ent.weapon_name   = std::move(raw.weapon_name);
 
-        // W2S skeleton bones
+        // ── W2S all bones + compute bounding box ─────────────
+        // Reference: FullyExternalCS2 uses ALL bone positions to
+        // compute the entity bounding box for perfect fit.
+        Vector2 boxMin = {FLT_MAX, FLT_MAX};
+        Vector2 boxMax = {FLT_MIN, FLT_MIN};
         ent.bones_valid = false;
-        if (raw.boneCount > 0) {
+
+        for (int b = 0; b < raw.boneCount; ++b) {
+            if (!raw.boneValid[b]) continue;
+            Vector2 sp;
+            if (!world_to_screen(raw.boneWorld[b], sp, vm, sw, sh)) continue;
+
+            // Bounding box (all bones)
+            if (sp.x < boxMin.x) boxMin.x = sp.x;
+            if (sp.y < boxMin.y) boxMin.y = sp.y;
+            if (sp.x > boxMax.x) boxMax.x = sp.x;
+            if (sp.y > boxMax.y) boxMax.y = sp.y;
+
+            // Store for skeleton (always, so same data skeleton/box)
+            ent.bone_positions[b * 2 + 0] = (int)sp.x;
+            ent.bone_positions[b * 2 + 1] = (int)sp.y;
             ent.bones_valid = true;
-            for (int b = 0; b < raw.boneCount; ++b) {
-                Vector3& bp = raw.boneWorld[b];
-                if (bp.length() < 0.001f) continue;
-                Vector2 sp;
-                if (world_to_screen(bp, sp, vm, sw, sh)) {
-                    ent.bone_positions[b * 2 + 0] = (int)sp.x;
-                    ent.bone_positions[b * 2 + 1] = (int)sp.y;
-                }
-            }
+        }
+
+        if (ent.bones_valid) {
+            ent.boxMin    = boxMin;
+            ent.boxMax    = boxMax;
+            ent.hasBoneBox = true;
         }
 
         entities.push_back(ent);
@@ -325,15 +351,26 @@ void run(const ESPConfig& cfg) {
         [](auto& a, auto& b) { return a.distance > b.distance; });
 
     // ═════════════════════════════════════════════════════════════
-    //  DRAW
+    //  DRAW — uses bone-based bounding box for perfect model fit
     // ═════════════════════════════════════════════════════════════
     for (auto& ent : entities) {
         auto& foot = ent.screen_origin;
-        auto& head = ent.screen_head;
 
-        float h  = foot.y - head.y;
-        float w  = std::max(h * 0.5f, 1.0f);
-        float x  = head.x - w * 0.5f;
+        // Box from bones (accurate, adjusts for crouch/jump)
+        float x, y, w, h;
+        if (ent.hasBoneBox) {
+            x = ent.boxMin.x;
+            y = ent.boxMin.y;
+            w = ent.boxMax.x - x;
+            h = ent.boxMax.y - y;
+        } else {
+            // Fallback: old origin + head approximation
+            auto& hd = ent.screen_head;
+            h = foot.y - hd.y;
+            w = std::max(h * 0.5f, 1.0f);
+            x = hd.x - w * 0.5f;
+            y = hd.y;
+        }
 
         Color col = ent.team == local_team ? cfg.team_color : cfg.enemy_color;
         col.a *= cfg.global_alpha;
@@ -344,17 +381,17 @@ void run(const ESPConfig& cfg) {
             switch (cfg.box_type) {
             case 0:
                 if (cfg.filled)
-                    draw_filled_rect(x, head.y, w, h, Color(col.r, col.g, col.b, 0.15f * cfg.global_alpha));
-                draw_rect(x - 1, head.y - 1, w + 2, h + 2, shadow);
-                draw_rect(x, head.y, w, h, col);
+                    draw_filled_rect(x, y, w, h, Color(col.r, col.g, col.b, 0.15f * cfg.global_alpha));
+                draw_rect(x - 1, y - 1, w + 2, h + 2, shadow);
+                draw_rect(x, y, w, h, col);
                 break;
             case 1:
-                draw_corner_box(x, head.y, w, h, col);
+                draw_corner_box(x, y, w, h, col);
                 break;
             case 2:
-                draw_rect(x - 1, head.y - 1, w + 2, h + 2, shadow);
-                draw_rect(x + 1, head.y + 1, w - 2, h - 2, shadow);
-                draw_rect(x, head.y, w, h, col);
+                draw_rect(x - 1, y - 1, w + 2, h + 2, shadow);
+                draw_rect(x + 1, y + 1, w - 2, h - 2, shadow);
+                draw_rect(x, y, w, h, col);
                 break;
             }
         }
@@ -363,12 +400,12 @@ void run(const ESPConfig& cfg) {
             draw_line((float)sw * 0.5f, (float)sh, foot.x, foot.y, col, 1.5f);
 
         if (cfg.show_health)
-            draw_health_bar(x, head.y, 4, h, ent.health);
+            draw_health_bar(x, y, 4, h, ent.health);
 
         if (cfg.show_name && !ent.name.empty()) {
             std::wstring wname(ent.name.begin(), ent.name.end());
             float tw = get_text_width(wname, 0.7f);
-            draw_text_shadow(x + w * 0.5f - tw * 0.5f, head.y - 16,
+            draw_text_shadow(x + w * 0.5f - tw * 0.5f, y - 16,
                              wname, Color(1, 1, 1, 0.9f * cfg.global_alpha), 0.7f);
         }
 
