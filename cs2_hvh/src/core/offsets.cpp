@@ -17,31 +17,32 @@ struct SigEntry {
     int rip_offset;     // offset from pattern match to the RIP-relative displacement
     int instr_size;     // instruction size for RIP resolution (default 7)
     uintptr_t Offsets::*field;
+    uintptr_t fallback_rva; // cs2-dumper RVA if pattern scan fails
 };
 
 static const SigEntry SIG_TABLE[] = {
     // dwGlobalVars — "48 89 15 ?? ?? ?? ?? 48 89 42"
-    { "dwGlobalVars",             "48 89 15 ?? ?? ?? ?? 48 89 42", 3, 7, &Offsets::dwGlobalVars },
+    { "dwGlobalVars",             "48 89 15 ?? ?? ?? ?? 48 89 42", 3, 7, &Offsets::dwGlobalVars, 0 },
     // dwEntityList — "48 89 35 ?? ?? ?? ?? 48 85 f6"
-    { "dwEntityList",             "48 89 35 ?? ?? ?? ?? 48 85 f6", 3, 7, &Offsets::dwEntityList },
+    { "dwEntityList",             "48 89 35 ?? ?? ?? ?? 48 85 f6", 3, 7, &Offsets::dwEntityList, 0x24E76A0 },
     // dwLocalPlayerController — "48 8b 05 ?? ?? ?? ?? 41 89 be"
-    { "dwLocalPlayerController",  "48 8b 05 ?? ?? ?? ?? 41 89 be", 3, 7, &Offsets::dwLocalPlayerController },
+    { "dwLocalPlayerController",  "48 8b 05 ?? ?? ?? ?? 41 89 be", 3, 7, &Offsets::dwLocalPlayerController, 0x2320720 },
     // dwLocalPlayerPawn — "48 8d 05 ?? ?? ?? ?? 48 8b d9 48 85 c0"
-    { "dwLocalPlayerPawn",        "48 8d 05 ?? ?? ?? ?? 48 8b d9 48 85 c0", 3, 7, &Offsets::dwLocalPlayerPawn },
+    { "dwLocalPlayerPawn",        "48 8d 05 ?? ?? ?? ?? 48 8b d9 48 85 c0", 3, 7, &Offsets::dwLocalPlayerPawn, 0x2341698 },
     // dwViewMatrix — "48 8d 0d ?? ?? ?? ?? 48 c1 e0 06"
-    { "dwViewMatrix",             "48 8d 0d ?? ?? ?? ?? 48 c1 e0 06", 3, 7, &Offsets::dwViewMatrix },
+    { "dwViewMatrix",             "48 8d 0d ?? ?? ?? ?? 48 c1 e0 06", 3, 7, &Offsets::dwViewMatrix, 0x2346B30 },
     // dwViewAngles — "48 8d 0d ?? ?? ?? ?? 48 8b 03 48 89 45"
-    { "dwViewAngles",             "48 8d 0d ?? ?? ?? ?? 48 8b 03 48 89 45", 3, 7, &Offsets::dwViewAngles },
+    { "dwViewAngles",             "48 8d 0d ?? ?? ?? ?? 48 8b 03 48 89 45", 3, 7, &Offsets::dwViewAngles, 0x23568C8 },
     // dwGameEntitySystem — "48 8d 0d ?? ?? ?? ?? 48 c1 e0 06 48 03 c0"
-    { "dwGameEntitySystem",       "48 8d 0d ?? ?? ?? ?? 48 c1 e0 06 48 03 c0", 3, 7, &Offsets::dwGameEntitySystem },
+    { "dwGameEntitySystem",       "48 8d 0d ?? ?? ?? ?? 48 c1 e0 06 48 03 c0", 3, 7, &Offsets::dwGameEntitySystem, 0 },
     // dwPlantedC4 — "48 8b 15 ?? ?? ?? ?? 41 ff c0"
-    { "dwPlantedC4",              "48 8b 15 ?? ?? ?? ?? 41 ff c0", 3, 7, &Offsets::dwPlantedC4 },
+    { "dwPlantedC4",              "48 8b 15 ?? ?? ?? ?? 41 ff c0", 3, 7, &Offsets::dwPlantedC4, 0 },
     // dwCSGOInput — "48 8d 0d ?? ?? ?? ?? 48 8b f8 e8"
-    { "dwCSGOInput",              "48 8d 0d ?? ?? ?? ?? 48 8b f8 e8", 3, 7, &Offsets::dwCSGOInput },
+    { "dwCSGOInput",              "48 8d 0d ?? ?? ?? ?? 48 8b f8 e8", 3, 7, &Offsets::dwCSGOInput, 0 },
     // dwBuildNumber — "48 8b 0d ?? ?? ?? ?? 48 8b 01 ff 50"
-    { "dwBuildNumber",            "48 8b 0d ?? ?? ?? ?? 48 8b 01 ff 50", 3, 7, &Offsets::dwBuildNumber },
+    { "dwBuildNumber",            "48 8b 0d ?? ?? ?? ?? 48 8b 01 ff 50", 3, 7, &Offsets::dwBuildNumber, 0 },
     // dwGameRules — "48 8b 05 ?? ?? ?? ?? 48 85 c0 74 ?? 8b 88"
-    { "dwGameRules",              "48 8b 05 ?? ?? ?? ?? 48 85 c0 74 ?? 8b 88", 3, 7, &Offsets::dwGameRules },
+    { "dwGameRules",              "48 8b 05 ?? ?? ?? ?? 48 85 c0 74 ?? 8b 88", 3, 7, &Offsets::dwGameRules, 0 },
 };
 
 static constexpr int SIG_COUNT = sizeof(SIG_TABLE) / sizeof(SIG_TABLE[0]);
@@ -123,6 +124,13 @@ bool scan_offsets() {
             g_offsets.*(sig.field) = resolved;
 
             printf("[+] %-28s : 0x%llX (pattern at +0x%llX)\n", sig.name, resolved, rva);
+            ++found;
+        } else if (sig.fallback_rva != 0) {
+            // Fallback: 使用 cs2-dumper 硬编码 RVA
+            uintptr_t resolved = g_moduleBase + sig.fallback_rva;
+            g_offsets.*(sig.field) = resolved;
+            printf("[*] %-28s : 0x%llX (cs2-dumper FALLBACK RVA 0x%llX)\n",
+                   sig.name, resolved, sig.fallback_rva);
             ++found;
         } else {
             printf("[-] %-28s : NOT FOUND (pattern may be outdated)\n", sig.name);

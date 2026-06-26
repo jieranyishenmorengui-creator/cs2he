@@ -99,15 +99,23 @@ static void tab_aimbot() {
     ImGui::Checkbox("Enable Aimbot", &cfg.enabled);
     key_bind_widget("Toggle Aimbot", &cfg_all.aimbot_toggle_key, 11);
 
+    ImGui::SeparatorText("Controls");
     key_bind_widget("Aim Key 1", &cfg.key0, 0);
     key_bind_widget("Aim Key 2", &cfg.key1, 1);
 
     const char* key_modes[] = { "Hold", "Toggle", "Always" };
     ImGui::Combo("Key Mode", &cfg.key_mode, key_modes, 3);
 
-    const char* aim_modes[] = { "Crosshair", "Distance", "FOV" };
-    ImGui::Combo("Aim Mode", &cfg.mode, aim_modes, 3);
+    ImGui::SeparatorText("Input Method");
+    const char* input_methods[] = { "Write Angles (reliable)", "SendInput Mouse (FutaZone)" };
+    ImGui::Combo("Aim Input", &cfg.input_method, input_methods, 2);
+    if (cfg.input_method == 0) {
+        ImGui::TextDisabled("写 dwViewAngles — 不受 m_rawinput 影响");
+    } else {
+        ImGui::TextDisabled("模拟鼠标移动 — m_rawinput 1 时可能被忽略");
+    }
 
+    ImGui::SeparatorText("Targeting");
     const char* bones[] = { "Pelvis", "Spine", "Neck", "Head" };
     int bone_idx = (cfg.target_bone == 1) ? 0 : (cfg.target_bone == 3) ? 1
                   : (cfg.target_bone == 6) ? 2 : 3;
@@ -116,22 +124,30 @@ static void tab_aimbot() {
         cfg.target_bone = map[bone_idx];
     }
 
-    ImGui::SliderFloat("Aim FOV", &cfg.fov, 0.0f, 30.0f, "%.1f deg");
-    ImGui::SliderFloat("Smooth", &cfg.smooth, 0.0f, 20.0f, "%.1f");
+    ImGui::SliderFloat("FOV (pixels)", &cfg.fov, 10.0f, 800.0f, "%.0f px");
+    ImGui::SliderFloat("Smoothness", &cfg.smoothness, 0.5f, 20.0f, "%.1f");
     ImGui::SliderFloat("Max Distance", &cfg.max_distance, 0.0f, 500.0f, "%.0f m");
 
     ImGui::Separator();
     ImGui::Checkbox("Visible Check", &cfg.visible_check);
     ImGui::Checkbox("Team Check", &cfg.team_check);
-    ImGui::Checkbox("Show FOV Circle", &cfg.show_fov);
-    ImGui::Checkbox("Rainbow FOV", &cfg.rainbow_fov);
-    ImGui::Checkbox("Recoil Control", &cfg.recoil_control);
+    ImGui::Checkbox("Disable When Flashed", &cfg.disable_when_flashed);
 
+    ImGui::Separator();
+    ImGui::Checkbox("RCS Recoil Control (压枪)", &cfg.recoil_control);
     if (cfg.recoil_control) {
         ImGui::Indent();
         ImGui::SliderFloat("RCS Scale", &cfg.rcs_scale, 0.0f, 1.0f, "%.2f");
         ImGui::Unindent();
     }
+
+    ImGui::SeparatorText("Aim Mode (FutaZone)");
+    const char* aim_modes_list[] = { "Linear", "FastThenSlow", "SlowThenFast", "Overshoot", "Random" };
+    ImGui::Combo("Aim Pattern", &cfg.aim_mode, aim_modes_list, 5);
+
+    ImGui::Checkbox("Randomize Speed", &cfg.randomize_speed);
+    ImGui::SliderInt("Phase Duration", &cfg.speed_change_duration, 100, 2000, "%d ms");
+    ImGui::SliderFloat("Overshoot Scale", &cfg.overshoot_scale, 1.0f, 2.0f, "%.1f");
 }
 
 static void tab_visuals() {
@@ -202,6 +218,10 @@ static void tab_triggerbot() {
     ImGui::SliderInt("Delay Min", &cfg.delay_min, 0, 200);
     ImGui::SliderInt("Delay Max", &cfg.delay_max, 0, 200);
     ImGui::Checkbox("Team Check", &cfg.team_check);
+    ImGui::SliderFloat("Max Velocity", &cfg.max_velocity, 0.0f, 50.0f, "%.0f u/s");
+
+    ImGui::Separator();
+    ImGui::TextDisabled("FutaZone scheme: m_iIDEntIndex + SendInput click");
 }
 
 static void tab_misc() {

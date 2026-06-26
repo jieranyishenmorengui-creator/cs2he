@@ -18,6 +18,8 @@ struct Vector2 {
 
     Vector2 operator-(const Vector2& o) const { return {x - o.x, y - o.y}; }
     Vector2 operator+(const Vector2& o) const { return {x + o.x, y + o.y}; }
+    Vector2 operator*(float s) const { return {x * s, y * s}; }
+    Vector2 operator/(float s) const { return {x / s, y / s}; }
     float length() const { return sqrtf(x * x + y * y); }
 };
 
@@ -128,6 +130,8 @@ struct NetVars {
     static constexpr uint32_t m_lifeState       = 0x354;  // uint8
     static constexpr uint32_t m_iTeamNum        = 0x3EB;  // uint8
     static constexpr uint32_t m_fFlags          = 0x3F8;
+    static constexpr uint32_t m_vecAbsVelocity  = 0x3FC;
+    static constexpr uint32_t m_vecVelocity     = 0x430;  // CNetworkVelocityVector
 
     // CSkeletonInstance (extends CGameSceneNode)
     static constexpr uint32_t m_modelState      = 0x150;  // embedded CModelState struct (cs2-dumper)
@@ -146,8 +150,8 @@ struct NetVars {
 
     // C_CSPlayerPawn (extends C_CSPlayerPawnBase)
     static constexpr uint32_t m_pAimPunchServices  = 0x1490;
-    static constexpr uint32_t m_angEyeAngles       = 0x3300;
-    static constexpr uint32_t m_iIDEntIndex        = 0x33DC;
+    static constexpr uint32_t m_angEyeAngles       = 0x3320;  // QAngle ← 最新 dump
+    static constexpr uint32_t m_iIDEntIndex        = 0x33FC;  // CEntityIndex ← 最新 dump
 
     // Component: CPlayer_MovementServices
     static constexpr uint32_t m_nButtons         = 0x50;   // CInButtonState (read as uint32)

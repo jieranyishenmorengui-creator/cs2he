@@ -117,18 +117,24 @@ bool Config::load(const std::string& path) {
 
     // Aimbot
     aimbot.enabled = json_get_bool(json, "AimBotEnable", false);
-    aimbot.key0 = json_get_int(json, "AimKey0", VK_LBUTTON);
+    aimbot.key0 = json_get_int(json, "AimKey0", VK_SHIFT);
     aimbot.key1 = json_get_int(json, "AimKey1", 0);
-    aimbot.mode = json_get_int(json, "AimMode", 0);
     aimbot.key_mode = json_get_int(json, "AimKeyMode", 0);
     aimbot.target_bone = json_get_int(json, "AimTargetBone", 7);
-    aimbot.fov = json_get_float(json, "AimFOV", 5.0f);
-    aimbot.smooth = json_get_float(json, "AimSmooth", 2.0f);
+    aimbot.fov = json_get_float(json, "AimFOV_Pixels", 250.0f);
+    aimbot.smoothness = json_get_float(json, "AimSmoothness", 3.0f);
     aimbot.max_distance = json_get_float(json, "AimMaxDistance", 0.0f);
-    aimbot.show_fov = json_get_bool(json, "bShowFOV", true);
-    aimbot.rainbow_fov = json_get_bool(json, "bRainbowFOV", false);
-    aimbot.recoil_control = json_get_bool(json, "bRCS", false);
-    aimbot.rcs_scale = json_get_float(json, "R_SCALE", 0.5f);
+    aimbot.visible_check = json_get_bool(json, "AimVisibleCheck", true);
+    aimbot.team_check = json_get_bool(json, "AimTeamCheck", true);
+    aimbot.disable_when_flashed = json_get_bool(json, "AimDisableFlashed", false);
+    aimbot.flash_threshold = json_get_float(json, "AimFlashThreshold", 5.0f);
+    aimbot.input_method = json_get_int(json, "AimInputMethod", 0);
+    aimbot.recoil_control = json_get_bool(json, "AimRCS", false);
+    aimbot.rcs_scale = json_get_float(json, "AimRCS_Scale", 0.5f);
+    aimbot.aim_mode = json_get_int(json, "AimMode", 0);
+    aimbot.randomize_speed = json_get_bool(json, "AimRandomSpeed", false);
+    aimbot.speed_change_duration = json_get_int(json, "AimSpeedDuration", 500);
+    aimbot.overshoot_scale = json_get_float(json, "AimOvershootScale", 1.2f);
 
     // ESP
     esp.enabled = json_get_bool(json, "VisualEnable", true);
@@ -161,12 +167,13 @@ bool Config::load(const std::string& path) {
     crosshair.type = json_get_int(json, "CrosshairType", 0);
     crosshair.size = json_get_float(json, "CrosshairSize", 10.0f);
 
-    // Triggerbot
+    // Triggerbot (FutaZone 方案)
     triggerbot.enabled = json_get_bool(json, "TrigEnable", false);
-    triggerbot.key = json_get_int(json, "TrigKey", 0);
+    triggerbot.key = json_get_int(json, "TrigKey", VK_MENU);
     triggerbot.delay_min = json_get_int(json, "TrigDelayMin", 10);
     triggerbot.delay_max = json_get_int(json, "TrigDelayMax", 25);
     triggerbot.team_check = json_get_bool(json, "TrigTeamCheck", true);
+    triggerbot.max_velocity = json_get_float(json, "TrigMaxVelocity", 18.0f);
 
     // Misc
     misc.max_fps = json_get_int(json, "MaxFramerate", 144);
@@ -202,25 +209,37 @@ bool Config::save(const std::string& path) {
     fprintf(f, ",\n");
     write_json_int(f, "AimKey1", aimbot.key1);
     fprintf(f, ",\n");
-    write_json_int(f, "AimMode", aimbot.mode);
-    fprintf(f, ",\n");
     write_json_int(f, "AimKeyMode", aimbot.key_mode);
     fprintf(f, ",\n");
     write_json_int(f, "AimTargetBone", aimbot.target_bone);
     fprintf(f, ",\n");
-    write_json_float(f, "AimFOV", aimbot.fov);
+    write_json_float(f, "AimFOV_Pixels", aimbot.fov);
     fprintf(f, ",\n");
-    write_json_float(f, "AimSmooth", aimbot.smooth);
+    write_json_float(f, "AimSmoothness", aimbot.smoothness);
     fprintf(f, ",\n");
     write_json_float(f, "AimMaxDistance", aimbot.max_distance);
     fprintf(f, ",\n");
-    write_json_bool(f, "bShowFOV", aimbot.show_fov);
+    write_json_bool(f, "AimVisibleCheck", aimbot.visible_check);
     fprintf(f, ",\n");
-    write_json_bool(f, "bRainbowFOV", aimbot.rainbow_fov);
+    write_json_bool(f, "AimTeamCheck", aimbot.team_check);
     fprintf(f, ",\n");
-    write_json_bool(f, "bRCS", aimbot.recoil_control);
+    write_json_bool(f, "AimDisableFlashed", aimbot.disable_when_flashed);
     fprintf(f, ",\n");
-    write_json_float(f, "R_SCALE", aimbot.rcs_scale);
+    write_json_float(f, "AimFlashThreshold", aimbot.flash_threshold);
+    fprintf(f, ",\n");
+    write_json_int(f, "AimInputMethod", aimbot.input_method);
+    fprintf(f, ",\n");
+    write_json_bool(f, "AimRCS", aimbot.recoil_control);
+    fprintf(f, ",\n");
+    write_json_float(f, "AimRCS_Scale", aimbot.rcs_scale);
+    fprintf(f, ",\n");
+    write_json_int(f, "AimMode", aimbot.aim_mode);
+    fprintf(f, ",\n");
+    write_json_bool(f, "AimRandomSpeed", aimbot.randomize_speed);
+    fprintf(f, ",\n");
+    write_json_int(f, "AimSpeedDuration", aimbot.speed_change_duration);
+    fprintf(f, ",\n");
+    write_json_float(f, "AimOvershootScale", aimbot.overshoot_scale);
     fprintf(f, ",\n");
 
     // ESP
@@ -282,7 +301,7 @@ bool Config::save(const std::string& path) {
     write_json_float(f, "CrosshairSize", crosshair.size);
     fprintf(f, ",\n");
 
-    // Triggerbot
+    // Triggerbot (FutaZone 方案)
     write_json_bool(f, "TrigEnable", triggerbot.enabled);
     fprintf(f, ",\n");
     write_json_int(f, "TrigKey", triggerbot.key);
@@ -292,6 +311,8 @@ bool Config::save(const std::string& path) {
     write_json_int(f, "TrigDelayMax", triggerbot.delay_max);
     fprintf(f, ",\n");
     write_json_bool(f, "TrigTeamCheck", triggerbot.team_check);
+    fprintf(f, ",\n");
+    write_json_float(f, "TrigMaxVelocity", triggerbot.max_velocity);
     fprintf(f, ",\n");
 
     // Misc
