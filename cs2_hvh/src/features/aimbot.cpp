@@ -154,7 +154,6 @@ void run(const AimbotConfig& cfg) {
     uintptr_t elb = read<uintptr_t>(g_offsets.dwEntityList);
     uintptr_t best = 0;
     float best_score = 3.4e38f;
-    float best_health = 255.f;
 
     for (int i = 1; i < 64; ++i) {
         uintptr_t ch = read<uintptr_t>(elb + 8 * (i >> 9) + 0x10);
@@ -201,8 +200,8 @@ void run(const AimbotConfig& cfg) {
         else
             score = fd + wd * 0.01f;        // FOV优先 + 距离微调
 
-        if (score < best_score && (cfg.aim_priority != 2 || hp < (int)best_health || score < best_score)) {
-            best = p; best_score = score; best_health = (float)hp;
+        if (score < best_score) {
+            best = p; best_score = score;
         }
     }
 
@@ -325,37 +324,31 @@ void triggerbot(const TriggerbotConfig& cfg) {
         }
     } else {
         // 模式1: FOV角度检测
-        Vector3 va = read<Vector3>(lp + NetVars::m_angEyeAngles);
-        Vector3 eye = read<Vector3>(lp + NetVars::m_vOldOrigin)
-                    + read<Vector3>(lp + NetVars::m_vecViewOffset);
-        uintptr_t elb = read<uintptr_t>(g_offsets.dwEntityList);
-
-        for (int i = 1; i < 64 && !valid; ++i) {
-            uintptr_t ch = read<uintptr_t>(elb + 8*(i>>9) + 0x10);
-            if (!IsRemotePtrValid(ch)) continue;
-            uintptr_t c = read<uintptr_t>(ch + 112*(i&0x1FF));
-            if (!IsRemotePtrValid(c) || c == ctrl) continue;
-
-            uint32_t ph = read<uint32_t>(c + NetVars::m_hPawn);
-            if (!ph) continue;
-            ch = read<uintptr_t>(elb + 8*((ph&0x7FFF)>>9) + 0x10);
-            if (!IsRemotePtrValid(ch)) continue;
-            uintptr_t p = read<uintptr_t>(ch + 112*(ph&0x7FFF&0x1FF));
-            if (!IsRemotePtrValid(p) || p == lp) continue;
-
-            int hp = read<int32_t>(p + NetVars::m_iHealth);
-            if (hp <= 0) continue;
-            if (read<uint8_t>(p + NetVars::m_lifeState) != 0) continue;
-            if (cfg.team_check && read<uint8_t>(p + NetVars::m_iTeamNum) == lt) continue;
-
-            uintptr_t sn = read<uintptr_t>(p + NetVars::m_pGameSceneNode);
-            if (IsRemotePtrValid(sn) && read<bool>(sn+0x103)) continue;
-
-            Vector3 bp = get_bone_pos(p, 7); // 头部
-            if (bp.length() < 0.1f) bp = read<Vector3>(p+NetVars::m_vOldOrigin)
-                + read<Vector3>(p+NetVars::m_vecViewOffset);
-            Vector3 aa = calc_angle_safe(eye, bp);
-            if (fov_angle(va, aa) <= cfg.fov_threshold) { valid = true; break; }
+        // 先用 m_iIDEntIndex 快速预筛 → 只对一个实体做FOV验证
+        int ei = read<int32_t>(lp + NetVars::m_iIDEntIndex);
+        if (ei > 0 && ei <= 63) {
+            uintptr_t tc = get_entity_from_index(ei);
+            if (IsRemotePtrValid(tc) && tc != ctrl) {
+                uint32_t th = read<uint32_t>(tc + NetVars::m_hPawn);
+                if (th) {
+                    uintptr_t p = get_entity_from_handle(th);
+                    if (IsRemotePtrValid(p) && p != lp &&
+                        read<uint8_t>(p + NetVars::m_lifeState) == 0 &&
+                        read<int32_t>(p + NetVars::m_iHealth) > 0) {
+                        if (!cfg.team_check || read<uint8_t>(p + NetVars::m_iTeamNum) != lt) {
+                            // FOV验证
+                            Vector3 eye = read<Vector3>(lp + NetVars::m_vOldOrigin)
+                                        + read<Vector3>(lp + NetVars::m_vecViewOffset);
+                            Vector3 bp = get_bone_pos(p, 7);
+                            if (bp.length() < 0.1f) bp = read<Vector3>(p+NetVars::m_vOldOrigin)
+                                + read<Vector3>(p+NetVars::m_vecViewOffset);
+                            Vector3 aa = calc_angle_safe(eye, bp);
+                            Vector3 va = read<Vector3>(lp + NetVars::m_angEyeAngles);
+                            if (fov_angle(va, aa) <= cfg.fov_threshold) valid = true;
+                        }
+                    }
+                }
+            }
         }
     }
 
