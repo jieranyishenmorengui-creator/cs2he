@@ -12,45 +12,40 @@ using namespace ::cs2::memory;
 using namespace ::cs2::offsets;
 
 // ═══════════════════════════════════════════════════════════════
-//  读骨骼: FutaZone 方式 — 只试 m_modelState+0x80
-//  批量读30骨, 位置在每骨entry offset 0 (Vector3, stride 0x20)
+//  读骨骼: 批量读30骨×32字节, 位置在entry offset 0
 // ═══════════════════════════════════════════════════════════════
 
 static Vector3 get_bone_pos(uintptr_t pawn, int bone_idx) {
     uintptr_t sn = read<uintptr_t>(pawn + NetVars::m_pGameSceneNode);
     if (!IsRemotePtrValid(sn)) return {};
-
-    // FutaZone: ReadPointer(gameSceneNode, m_modelState + 0x80)
     uintptr_t ba = read<uintptr_t>(sn + NetVars::m_modelState + 0x80);
     if (!IsRemotePtrValid(ba)) return {};
-
-    // 批量读30骨 × 32字节, 位置在offset 0
     uint8_t raw[30 * 0x20];
     if (!read(ba, raw, sizeof(raw))) return {};
-
     float* pf = (float*)(raw + bone_idx * 0x20);
     return Vector3(pf[0], pf[1], pf[2]);
 }
 
-// calc_angle — 标准公式, 加防NaN
 static Vector3 calc_angle_safe(const Vector3& src, const Vector3& dst) {
     Vector3 d = dst - src;
     float len = d.length();
     if (len < 0.01f) return {};
     float clp = std::clamp(d.z / len, -1.f, 1.f);
-    return {
-        -asinf(clp) * 57.2957795131f,
-        atan2f(d.y, d.x) * 57.2957795131f,
-        0.f
-    };
+    return { -asinf(clp) * 57.2957795131f, atan2f(d.y, d.x) * 57.2957795131f, 0.f };
 }
 
 // ═══════════════════════════════════════════════════════════════
-//  Aimbot — 写角度 (Write Angles)
+//  Aimbot
 // ═══════════════════════════════════════════════════════════════
 
+// 击杀冷却状态
+static uintptr_t          g_last_target_pawn = 0;
+static int                g_last_target_hp   = 0;
+static std::chrono::steady_clock::time_point g_kill_time;
+static bool               g_kill_cooldown    = false;
+
 void run(const AimbotConfig& cfg) {
-    if (!cfg.enabled) return;
+    if (!cfg.enabled) { g_last_target_pawn = 0; g_kill_cooldown = false; return; }
 
     // ── 按键 ──────────────────────────────────────────────────
     bool key_down = false;
@@ -62,7 +57,15 @@ void run(const AimbotConfig& cfg) {
         if (overlay::was_key_pressed(cfg.key0) || (cfg.key1 && overlay::was_key_pressed(cfg.key1))) tog = !tog;
         key_down = tog;
     }
-    if (!key_down) return;
+    if (!key_down) { g_last_target_pawn = 0; g_kill_cooldown = false; return; }
+
+    // ── 击杀冷却 ──────────────────────────────────────────────
+    if (cfg.kill_delay_ms > 0 && g_kill_cooldown) {
+        auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(
+            std::chrono::steady_clock::now() - g_kill_time).count();
+        if (elapsed < (uint64_t)cfg.kill_delay_ms) return;
+        g_kill_cooldown = false;
+    }
 
     // ── Local ─────────────────────────────────────────────────
     uintptr_t ctrl = read<uintptr_t>(g_offsets.dwLocalPlayerController);
@@ -77,9 +80,9 @@ void run(const AimbotConfig& cfg) {
     ViewMatrix vm = read<ViewMatrix>(g_offsets.dwViewMatrix);
     int sw = overlay::get_width(), sh = overlay::get_height();
 
-    // ── 找最佳目标 ────────────────────────────────────────────
+    // ── 遍历找目标 ────────────────────────────────────────────
     uintptr_t best = 0;
-    float     best_dist = 3.4e38f;
+    float     best_score = 3.4e38f;  // 越小越优先
 
     for (int i = 1; i < 64; ++i) {
         uintptr_t c = get_entity_from_index(i);
@@ -97,34 +100,50 @@ void run(const AimbotConfig& cfg) {
         if (IsRemotePtrValid(sn) && read<bool>(sn + 0x103)) continue;
 
         Vector3 origin = read<Vector3>(p + NetVars::m_vOldOrigin);
-        if (cfg.max_distance > 0.f && eye.dist_to(origin) > cfg.max_distance) continue;
+        float world_dist = eye.dist_to(origin);
+        if (cfg.max_distance > 0.f && world_dist > cfg.max_distance) continue;
 
-        // 骨骼位置 / fallback eye pos
+        // 骨骼/fallback
         Vector3 bp = get_bone_pos(p, cfg.target_bone);
-        if (bp.length() < 0.1f)
-            bp = origin + read<Vector3>(p + NetVars::m_vecViewOffset);
+        if (bp.length() < 0.1f) bp = origin + read<Vector3>(p + NetVars::m_vecViewOffset);
 
         Vector2 sp;
         if (!world_to_screen(bp, sp, vm, sw, sh)) continue;
-        float d = (sp - Vector2(sw*0.5f, sh*0.5f)).length();
-        if (d > cfg.fov) continue;
-        if (d < best_dist) { best = p; best_dist = d; }
-    }
-    if (!best) return;
+        float fov_dist = (sp - Vector2(sw*0.5f, sh*0.5f)).length();
+        if (fov_dist > cfg.fov) continue;
 
-    // ── 重新获取目标骨骼 (因为 best 刚确定) ─────────────────
+        // 评分: 0=FOV优先  1=距离优先
+        float score = (cfg.aim_priority == 1) ? world_dist : fov_dist;
+        if (score < best_score) {
+            best_score = score;
+            best = p;
+        }
+    }
+    if (!best) { g_last_target_pawn = 0; return; }
+
+    // ── 击杀检测 + 冷却触发 ──────────────────────────────────
+    int cur_hp = read<int32_t>(best + NetVars::m_iHealth);
+    if (g_last_target_pawn == best && g_last_target_hp > 0 && cur_hp <= 0) {
+        g_kill_time = std::chrono::steady_clock::now();
+        g_kill_cooldown = true;
+        g_last_target_pawn = 0;
+        return;
+    }
+    g_last_target_pawn = best;
+    g_last_target_hp = cur_hp;
+
+    // ── 目标骨骼位置 ──────────────────────────────────────────
     Vector3 target_origin = read<Vector3>(best + NetVars::m_vOldOrigin);
     Vector3 target_pos = get_bone_pos(best, cfg.target_bone);
     if (target_pos.length() < 0.1f)
         target_pos = target_origin + read<Vector3>(best + NetVars::m_vecViewOffset);
 
-    // ── 计算角度 ──────────────────────────────────────────────
+    // ── 提前量 ──────────────────────────────────────────────────
     Vector3 aim_pos = target_pos;
     Vector3 aim_eye = eye;
-
     if (cfg.lead_time > 0.f) {
         Vector3 tvel = read<Vector3>(best + NetVars::m_vecVelocity);
-        Vector3 lvel = read<Vector3>(lp  + NetVars::m_vecVelocity);
+        Vector3 lvel = read<Vector3>(lp + NetVars::m_vecVelocity);
         if ((tvel - lvel).length() > 10.f) {
             float lt = std::min(cfg.lead_time, 0.15f);
             aim_pos = target_pos + tvel * lt;
@@ -132,6 +151,7 @@ void run(const AimbotConfig& cfg) {
         }
     }
 
+    // ── 计算角度 ──────────────────────────────────────────────
     Vector3 aim = calc_angle_safe(aim_eye, aim_pos);
     if (aim.length() < 0.01f) return;
 
@@ -140,23 +160,22 @@ void run(const AimbotConfig& cfg) {
         uintptr_t as = read<uintptr_t>(lp + NetVars::m_pAimPunchServices);
         if (IsRemotePtrValid(as)) {
             Vector3 punch = read<Vector3>(as + 0x50);
-            float pl = punch.length();
-            if (pl > 0.01f && pl < 90.f) {
+            if (punch.length() > 0.01f && punch.length() < 90.f) {
                 aim.x -= punch.x * cfg.rcs_scale;
                 aim.y -= punch.y * cfg.rcs_scale;
             }
         }
     }
 
-    // ── 当前视角 → 差值 → 平滑 → 写入 ──────────────────────
+    // ── 差值 → 平滑 → 写入 ──────────────────────────────────
     Vector3 cur = read<Vector3>(lp + NetVars::m_angEyeAngles);
     Vector3 delta = aim - cur;
-
-    // normalize yaw
     while (delta.y > 180.f) delta.y -= 360.f;
     while (delta.y < -180.f) delta.y += 360.f;
 
-    // 平滑
+    // 死区: 角度差太小就不调了, 防止准星抖动
+    if (fabsf(delta.x) < 0.05f && fabsf(delta.y) < 0.05f) return;
+
     if (cfg.smoothness > 0.1f) {
         float f = 1.0f / cfg.smoothness;
         delta.x *= f;
@@ -164,17 +183,12 @@ void run(const AimbotConfig& cfg) {
     }
 
     Vector3 out = cur + delta;
-    // 钳位 pitch
     out.x = std::clamp(out.x, -89.f, 89.f);
-    // normalize yaw
     while (out.y > 180.f) out.y -= 360.f;
     while (out.y < -180.f) out.y += 360.f;
     out.z = 0.f;
 
-    // 写入
-    if (g_offsets.dwViewAngles) {
-        write<Vector3>(g_offsets.dwViewAngles, out);
-    }
+    if (g_offsets.dwViewAngles) write<Vector3>(g_offsets.dwViewAngles, out);
     uintptr_t ptr = read<uintptr_t>(g_offsets.dwViewAngles);
     if (ptr && ptr != g_offsets.dwViewAngles && IsRemotePtrValid(ptr))
         write<Vector3>(ptr, out);
@@ -241,7 +255,6 @@ void triggerbot(const TriggerbotConfig& cfg) {
     }
     if (elapsed < delay) { was_firing = true; return; }
 
-    // 三路开火
     uintptr_t ms = read<uintptr_t>(lp + NetVars::m_pMovementServices);
     if (IsRemotePtrValid(ms)) {
         uint32_t btns = read<uint32_t>(ms + NetVars::m_nButtons);

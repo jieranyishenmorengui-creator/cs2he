@@ -43,6 +43,12 @@ struct AimbotConfig {
     bool randomize_speed = false;
     int speed_change_duration = 500;
     float overshoot_scale = 1.2f;
+
+    // 目标优先级: 0=FOV(准星最近)  1=距离(最近目标)
+    int aim_priority = 0;
+
+    // 击杀冷却: 杀死一个后等待多少ms再锁下一个
+    int kill_delay_ms = 0;
 };
 
 struct TriggerbotConfig {

@@ -128,7 +128,12 @@ static void tab_aimbot() {
     ImGui::SliderFloat("Smoothness", &cfg.smoothness, 0.5f, 20.0f, "%.1f");
     ImGui::SliderFloat("Max Distance", &cfg.max_distance, 0.0f, 500.0f, "%.0f m");
 
+    ImGui::SeparatorText("Target Priority");
+    const char* prio[] = { "FOV (closest to crosshair)", "Distance (closest target)" };
+    ImGui::Combo("Priority", &cfg.aim_priority, prio, 2);
+
     ImGui::Separator();
+    ImGui::SliderInt("Kill Cooldown (ms)", &cfg.kill_delay_ms, 0, 3000, "%d ms");
     ImGui::SliderFloat("Velocity Lead (0=off)", &cfg.lead_time, 0.0f, 0.15f, "%.3f s");
     ImGui::Checkbox("Visible Check", &cfg.visible_check);
     ImGui::Checkbox("Team Check", &cfg.team_check);

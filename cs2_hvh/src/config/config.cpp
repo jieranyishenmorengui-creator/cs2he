@@ -129,6 +129,8 @@ bool Config::load(const std::string& path) {
     aimbot.disable_when_flashed = json_get_bool(json, "AimDisableFlashed", false);
     aimbot.flash_threshold = json_get_float(json, "AimFlashThreshold", 5.0f);
     aimbot.lead_time = json_get_float(json, "AimLeadTime", 0.0f);
+    aimbot.aim_priority = json_get_int(json, "AimPriority", 0);
+    aimbot.kill_delay_ms = json_get_int(json, "AimKillDelay", 0);
     aimbot.input_method = json_get_int(json, "AimInputMethod", 0);
     aimbot.recoil_control = json_get_bool(json, "AimRCS", false);
     aimbot.rcs_scale = json_get_float(json, "AimRCS_Scale", 0.5f);
@@ -229,6 +231,10 @@ bool Config::save(const std::string& path) {
     write_json_float(f, "AimFlashThreshold", aimbot.flash_threshold);
     fprintf(f, ",\n");
     write_json_float(f, "AimLeadTime", aimbot.lead_time);
+    fprintf(f, ",\n");
+    write_json_int(f, "AimPriority", aimbot.aim_priority);
+    fprintf(f, ",\n");
+    write_json_int(f, "AimKillDelay", aimbot.kill_delay_ms);
     fprintf(f, ",\n");
     write_json_int(f, "AimInputMethod", aimbot.input_method);
     fprintf(f, ",\n");
