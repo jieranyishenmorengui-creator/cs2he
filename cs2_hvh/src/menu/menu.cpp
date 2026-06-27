@@ -129,13 +129,19 @@ static void tab_aimbot() {
     ImGui::SliderFloat("Max Distance", &cfg.max_distance, 0.0f, 500.0f, "%.0f m");
 
     ImGui::SeparatorText("Target Priority");
-    const char* prio[] = { "FOV (closest to crosshair)", "Distance (closest target)" };
-    ImGui::Combo("Priority", &cfg.aim_priority, prio, 2);
+    const char* prio[] = { "FOV (crosshair)", "Distance (closest)", "Health (finish low HP)" };
+    ImGui::Combo("Priority", &cfg.aim_priority, prio, 3);
 
     ImGui::Separator();
     ImGui::SliderInt("Kill Cooldown (ms)", &cfg.kill_delay_ms, 0, 3000, "%d ms");
     ImGui::SliderFloat("Velocity Lead (0=off)", &cfg.lead_time, 0.0f, 0.15f, "%.3f s");
     ImGui::Checkbox("Visible Check", &cfg.visible_check);
+
+    ImGui::SeparatorText("Head Offset (side-facing fix)");
+    ImGui::Checkbox("Enable Head Offset", &cfg.head_offset_enabled);
+    ImGui::SliderFloat("Offset Amount", &cfg.head_offset_amount, 2.0f, 20.0f, "%.1f");
+    ImGui::SliderFloat("Angle Min", &cfg.head_offset_angle_min, 30.0f, 90.0f, "%.0f deg");
+    ImGui::SliderFloat("Angle Max", &cfg.head_offset_angle_max, 90.0f, 150.0f, "%.0f deg");
     ImGui::Checkbox("Team Check", &cfg.team_check);
     ImGui::Checkbox("Disable When Flashed", &cfg.disable_when_flashed);
 
@@ -221,13 +227,16 @@ static void tab_triggerbot() {
 
     ImGui::Checkbox("Enable Triggerbot", &cfg.enabled);
     key_bind_widget("Active Key", &cfg.key, 20);
+
+    const char* tmodes[] = { "m_iIDEntIndex", "FOV Angle (precise)" };
+    ImGui::Combo("Detection Mode", &cfg.mode, tmodes, 2);
+    if (cfg.mode == 1)
+        ImGui::SliderFloat("FOV Threshold", &cfg.fov_threshold, 0.5f, 10.0f, "%.1f deg");
+
     ImGui::SliderInt("Delay Min", &cfg.delay_min, 0, 200);
     ImGui::SliderInt("Delay Max", &cfg.delay_max, 0, 200);
     ImGui::Checkbox("Team Check", &cfg.team_check);
     ImGui::SliderFloat("Max Velocity", &cfg.max_velocity, 0.0f, 50.0f, "%.0f u/s");
-
-    ImGui::Separator();
-    ImGui::TextDisabled("FutaZone scheme: m_iIDEntIndex + SendInput click");
 }
 
 static void tab_misc() {

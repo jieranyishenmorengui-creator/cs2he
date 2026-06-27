@@ -44,11 +44,17 @@ struct AimbotConfig {
     int speed_change_duration = 500;
     float overshoot_scale = 1.2f;
 
-    // 目标优先级: 0=FOV(准星最近)  1=距离(最近目标)
+    // 目标优先级: 0=FOV(准星最近)  1=距离(最近)  2=血量(补枪)
     int aim_priority = 0;
 
-    // 击杀冷却: 杀死一个后等待多少ms再锁下一个
+    // 击杀冷却
     int kill_delay_ms = 223;
+
+    // 侧身头部补偿: 敌人侧身时头骨不在正上方
+    bool head_offset_enabled = false;
+    float head_offset_amount = 8.0f;      // 补偿量 (单位)
+    float head_offset_angle_min = 45.0f;  // 开始补偿的最小角度
+    float head_offset_angle_max = 135.0f; // 最大角度
 };
 
 struct TriggerbotConfig {
@@ -58,6 +64,9 @@ struct TriggerbotConfig {
     int delay_max = 25;
     bool team_check = false;
     float max_velocity = 18.0f;
+    // 检测模式: 0=m_iIDEntIndex  1=FOV(角度, 更精确)
+    int mode = 0;
+    float fov_threshold = 1.5f;      // FOV模式触发阈值(度)
 };
 
 void run(const AimbotConfig& cfg);

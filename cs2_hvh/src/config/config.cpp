@@ -138,6 +138,10 @@ bool Config::load(const std::string& path) {
     aimbot.randomize_speed = json_get_bool(json, "AimRandomSpeed", false);
     aimbot.speed_change_duration = json_get_int(json, "AimSpeedDuration", 500);
     aimbot.overshoot_scale = json_get_float(json, "AimOvershootScale", 1.2f);
+    aimbot.head_offset_enabled = json_get_bool(json, "AimHeadOffset", false);
+    aimbot.head_offset_amount = json_get_float(json, "AimHeadOffsetAmt", 8.0f);
+    aimbot.head_offset_angle_min = json_get_float(json, "AimHeadOffMinAng", 45.0f);
+    aimbot.head_offset_angle_max = json_get_float(json, "AimHeadOffMaxAng", 135.0f);
 
     // ESP
     esp.enabled = json_get_bool(json, "VisualEnable", true);
@@ -177,6 +181,8 @@ bool Config::load(const std::string& path) {
     triggerbot.delay_max = json_get_int(json, "TrigDelayMax", 25);
     triggerbot.team_check = json_get_bool(json, "TrigTeamCheck", false);
     triggerbot.max_velocity = json_get_float(json, "TrigMaxVelocity", 18.0f);
+    triggerbot.mode = json_get_int(json, "TrigMode", 0);
+    triggerbot.fov_threshold = json_get_float(json, "TrigFovThresh", 1.5f);
 
     // Misc
     misc.max_fps = json_get_int(json, "MaxFramerate", 144);
@@ -250,6 +256,14 @@ bool Config::save(const std::string& path) {
     fprintf(f, ",\n");
     write_json_float(f, "AimOvershootScale", aimbot.overshoot_scale);
     fprintf(f, ",\n");
+    write_json_bool(f, "AimHeadOffset", aimbot.head_offset_enabled);
+    fprintf(f, ",\n");
+    write_json_float(f, "AimHeadOffsetAmt", aimbot.head_offset_amount);
+    fprintf(f, ",\n");
+    write_json_float(f, "AimHeadOffMinAng", aimbot.head_offset_angle_min);
+    fprintf(f, ",\n");
+    write_json_float(f, "AimHeadOffMaxAng", aimbot.head_offset_angle_max);
+    fprintf(f, ",\n");
 
     // ESP
     write_json_bool(f, "VisualEnable", esp.enabled);
@@ -310,7 +324,7 @@ bool Config::save(const std::string& path) {
     write_json_float(f, "CrosshairSize", crosshair.size);
     fprintf(f, ",\n");
 
-    // Triggerbot (FutaZone 方案)
+    // Triggerbot
     write_json_bool(f, "TrigEnable", triggerbot.enabled);
     fprintf(f, ",\n");
     write_json_int(f, "TrigKey", triggerbot.key);
@@ -322,6 +336,10 @@ bool Config::save(const std::string& path) {
     write_json_bool(f, "TrigTeamCheck", triggerbot.team_check);
     fprintf(f, ",\n");
     write_json_float(f, "TrigMaxVelocity", triggerbot.max_velocity);
+    fprintf(f, ",\n");
+    write_json_int(f, "TrigMode", triggerbot.mode);
+    fprintf(f, ",\n");
+    write_json_float(f, "TrigFovThresh", triggerbot.fov_threshold);
     fprintf(f, ",\n");
 
     // Misc
