@@ -152,6 +152,9 @@ struct NetVars {
     static constexpr uint32_t m_pAimPunchServices  = 0x1490;
     static constexpr uint32_t m_angEyeAngles       = 0x3320;  // QAngle ← 最新 dump
     static constexpr uint32_t m_iIDEntIndex        = 0x33FC;  // CEntityIndex ← 最新 dump
+    static constexpr uint32_t m_entitySpottedState = 0x1CC8;
+    static constexpr uint32_t m_bSpotted          = 0x8;     // EntitySpottedState_t
+    static constexpr uint32_t m_flFlashDuration   = 0x1400;  // C_CSPlayerPawnBase
 
     // Component: CPlayer_MovementServices
     static constexpr uint32_t m_nButtons         = 0x50;   // CInButtonState (read as uint32)

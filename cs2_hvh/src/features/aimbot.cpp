@@ -5,15 +5,16 @@
 #include <cmath>
 #include <chrono>
 #include <random>
+#include <unordered_map>
 
 namespace cs2::aimbot {
 
 using namespace ::cs2::memory;
 using namespace ::cs2::offsets;
 
-// ═══════════════════════════════════════════════════════════════
-//  读骨骼: 批量读30骨×32字节, 位置在entry offset 0
-// ═══════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════
+//  读骨骼
+// ══════════════════════════════════════════════════════════════
 
 static Vector3 get_bone_pos(uintptr_t pawn, int bone_idx) {
     uintptr_t sn = read<uintptr_t>(pawn + NetVars::m_pGameSceneNode);
@@ -34,20 +35,62 @@ static Vector3 calc_angle_safe(const Vector3& src, const Vector3& dst) {
     return { -asinf(clp) * 57.2957795131f, atan2f(d.y, d.x) * 57.2957795131f, 0.f };
 }
 
-// ═══════════════════════════════════════════════════════════════
-//  Aimbot
-// ═══════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════
+//  EMA 位置平滑 (和 ESP 框同算法)
+// ══════════════════════════════════════════════════════════════
 
-// 击杀冷却状态
+// 平滑因子: 和 ESP 同步, 从 cfg.smoothness 映射
+// smooth_factor 越大越平滑越跟的紧
+static float ema_alpha(float smoothness) {
+    // smoothness 1-10 映射到 alpha 0-1
+    // 1.0 → alpha 0.65 (快)   10.0 → alpha 0.15 (慢)
+    if (smoothness <= 1.f) return 0.65f;
+    if (smoothness >= 10.f) return 0.15f;
+    return 0.65f - (smoothness - 1.f) / 9.f * 0.5f;
+}
+
+static std::unordered_map<uintptr_t, Vector3> s_target_pos_cache;
+
+static Vector3 ema_smooth_target(uintptr_t pawn, const Vector3& cur_pos, float smoothness) {
+    auto it = s_target_pos_cache.find(pawn);
+    if (it == s_target_pos_cache.end()) {
+        s_target_pos_cache[pawn] = cur_pos;
+        return cur_pos;  // 新目标: 不延迟, 第一帧直接用
+    }
+    float alpha = ema_alpha(smoothness);
+    Vector3 smoothed = it->second + (cur_pos - it->second) * alpha;
+    s_target_pos_cache[pawn] = smoothed;
+    return smoothed;
+}
+
+// 清理死实体的缓存 (每次遍历后)
+static void prune_ema_cache() {
+    for (auto it = s_target_pos_cache.begin(); it != s_target_pos_cache.end();) {
+        int hp = read<int32_t>(it->first + NetVars::m_iHealth);
+        if (hp <= 0 || hp > 200) it = s_target_pos_cache.erase(it);
+        else ++it;
+    }
+}
+
+// ══════════════════════════════════════════════════════════════
+//  Aimbot
+// ══════════════════════════════════════════════════════════════
+
 static uintptr_t          g_last_target_pawn = 0;
 static int                g_last_target_hp   = 0;
 static std::chrono::steady_clock::time_point g_kill_time;
 static bool               g_kill_cooldown    = false;
+static int                g_prune_counter    = 0;
 
 void run(const AimbotConfig& cfg) {
-    if (!cfg.enabled) { g_last_target_pawn = 0; g_kill_cooldown = false; return; }
+    if (!cfg.enabled) {
+        g_last_target_pawn = 0;
+        g_kill_cooldown = false;
+        s_target_pos_cache.clear();
+        return;
+    }
 
-    // ── 按键 ──────────────────────────────────────────────────
+    // ── 按键 ─────────────────────────────────────────────────
     bool key_down = false;
     if (cfg.key_mode == 2) key_down = true;
     else if (cfg.key_mode == 0)
@@ -59,15 +102,15 @@ void run(const AimbotConfig& cfg) {
     }
     if (!key_down) { g_last_target_pawn = 0; g_kill_cooldown = false; return; }
 
-    // ── 击杀冷却 ──────────────────────────────────────────────
+    // ── 击杀冷却 ─────────────────────────────────────────────
     if (cfg.kill_delay_ms > 0 && g_kill_cooldown) {
-        auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(
+        auto e = std::chrono::duration_cast<std::chrono::milliseconds>(
             std::chrono::steady_clock::now() - g_kill_time).count();
-        if (elapsed < (uint64_t)cfg.kill_delay_ms) return;
+        if (e < (uint64_t)cfg.kill_delay_ms) return;
         g_kill_cooldown = false;
     }
 
-    // ── Local ─────────────────────────────────────────────────
+    // ── Local ────────────────────────────────────────────────
     uintptr_t ctrl = read<uintptr_t>(g_offsets.dwLocalPlayerController);
     if (!IsRemotePtrValid(ctrl)) return;
     uintptr_t lp = get_entity_from_handle(read<uint32_t>(ctrl + NetVars::m_hPawn));
@@ -80,9 +123,15 @@ void run(const AimbotConfig& cfg) {
     ViewMatrix vm = read<ViewMatrix>(g_offsets.dwViewMatrix);
     int sw = overlay::get_width(), sh = overlay::get_height();
 
-    // ── 遍历找目标 ────────────────────────────────────────────
+    // ── 闪白检测 ─────────────────────────────────────────────
+    if (cfg.disable_when_flashed) {
+        float flash = read<float>(lp + NetVars::m_flFlashDuration);
+        if (flash > cfg.flash_threshold) return;
+    }
+
+    // ── 遍历找目标 (加权评分: FOV + 距离×0.01) ──────────────
     uintptr_t best = 0;
-    float     best_score = 3.4e38f;  // 越小越优先
+    float     best_score = 3.4e38f;
 
     for (int i = 1; i < 64; ++i) {
         uintptr_t c = get_entity_from_index(i);
@@ -96,76 +145,67 @@ void run(const AimbotConfig& cfg) {
         if (read<uint8_t>(p + NetVars::m_lifeState) != 0) continue;
         if (cfg.team_check && read<uint8_t>(p + NetVars::m_iTeamNum) == local_team) continue;
 
+        // Dormant
         uintptr_t sn = read<uintptr_t>(p + NetVars::m_pGameSceneNode);
         if (IsRemotePtrValid(sn) && read<bool>(sn + 0x103)) continue;
+
+        // 可见性检查 (m_bSpotted)
+        if (cfg.visible_check) {
+            bool spotted = read<bool>(p + NetVars::m_entitySpottedState + NetVars::m_bSpotted);
+            if (!spotted) continue;
+        }
 
         Vector3 origin = read<Vector3>(p + NetVars::m_vOldOrigin);
         float world_dist = eye.dist_to(origin);
         if (cfg.max_distance > 0.f && world_dist > cfg.max_distance) continue;
 
-        // 骨骼/fallback
-        Vector3 bp = get_bone_pos(p, cfg.target_bone);
-        if (bp.length() < 0.1f) bp = origin + read<Vector3>(p + NetVars::m_vecViewOffset);
+        // 骨骼/fallback → EMA 平滑 (和 ESP 框同算法)
+        Vector3 raw_bp = get_bone_pos(p, cfg.target_bone);
+        if (raw_bp.length() < 0.1f)
+            raw_bp = origin + read<Vector3>(p + NetVars::m_vecViewOffset);
+        Vector3 bp = ema_smooth_target(p, raw_bp, cfg.smoothness);
 
+        // W2S
         Vector2 sp;
         if (!world_to_screen(bp, sp, vm, sw, sh)) continue;
         float fov_dist = (sp - Vector2(sw*0.5f, sh*0.5f)).length();
         if (fov_dist > cfg.fov) continue;
 
-        // 评分: 0=FOV优先  1=距离优先
-        float score = (cfg.aim_priority == 1) ? world_dist : fov_dist;
-        if (score < best_score) {
-            best_score = score;
-            best = p;
-        }
+        // ── 加权评分: FOV主导 + 距离微量修正 ───────────────
+        float score = fov_dist + world_dist * 0.01f;
+        if (score < best_score) { best = p; best_score = score; }
     }
-    // ── 击杀检测 + 冷却触发 ──────────────────────────────────
-    // 三种情况:
-    //   1. best=0(目标消失) → 直接检查旧pawn血量
-    //   2. best变了 → 检查旧pawn是否死了
-    //   3. best没变 → 检查血量跳0
-    auto trigger_kill_cooldown = [&]() {
-        g_kill_time = std::chrono::steady_clock::now();
+
+    // 定期清理缓存
+    if (++g_prune_counter > 30) { g_prune_counter = 0; prune_ema_cache(); }
+
+    if (!best) { g_last_target_pawn = 0; return; }
+
+    // ── 击杀检测 ─────────────────────────────────────────────
+    auto trigger_cooldown = [&]() {
         g_kill_cooldown = true;
+        g_kill_time = std::chrono::steady_clock::now();
         g_last_target_pawn = 0;
-        g_last_target_hp = 0;
     };
-
-    if (!best) {
-        if (g_last_target_pawn && g_last_target_hp > 0) {
-            int hp = read<int32_t>(g_last_target_pawn + NetVars::m_iHealth);
-            if (hp <= 0) trigger_kill_cooldown();
-        }
-        g_last_target_pawn = 0;
-        g_last_target_hp = 0;
-        return;
-    }
-
     int cur_hp = read<int32_t>(best + NetVars::m_iHealth);
     if (g_last_target_pawn == best) {
-        // 同一个目标 → 检测血量跳0
-        if (g_last_target_hp > 0 && cur_hp <= 0) {
-            trigger_kill_cooldown();
-            return;
-        }
+        if (g_last_target_hp > 0 && cur_hp <= 0) { trigger_cooldown(); return; }
     } else if (g_last_target_pawn && g_last_target_hp > 0) {
-        // 切目标了 → 检查旧目标是否死亡
         int old_hp = read<int32_t>(g_last_target_pawn + NetVars::m_iHealth);
-        if (old_hp <= 0) {
-            trigger_kill_cooldown();
-            return;
-        }
+        if (old_hp <= 0) { trigger_cooldown(); return; }
     }
     g_last_target_pawn = best;
     g_last_target_hp = cur_hp;
+    if (cur_hp <= 0) return;
 
-    // ── 目标骨骼位置 ──────────────────────────────────────────
+    // ── 目标骨骼 (EMA 已平滑) ──────────────────────────────
     Vector3 target_origin = read<Vector3>(best + NetVars::m_vOldOrigin);
-    Vector3 target_pos = get_bone_pos(best, cfg.target_bone);
-    if (target_pos.length() < 0.1f)
-        target_pos = target_origin + read<Vector3>(best + NetVars::m_vecViewOffset);
+    Vector3 raw_pos = get_bone_pos(best, cfg.target_bone);
+    if (raw_pos.length() < 0.1f)
+        raw_pos = target_origin + read<Vector3>(best + NetVars::m_vecViewOffset);
+    Vector3 target_pos = ema_smooth_target(best, raw_pos, cfg.smoothness);
 
-    // ── 提前量 ──────────────────────────────────────────────────
+    // ── 提前量 ────────────────────────────────────────────────
     Vector3 aim_pos = target_pos;
     Vector3 aim_eye = eye;
     if (cfg.lead_time > 0.f) {
@@ -178,11 +218,11 @@ void run(const AimbotConfig& cfg) {
         }
     }
 
-    // ── 计算角度 ──────────────────────────────────────────────
+    // ── 计算角度 ────────────────────────────────────────────
     Vector3 aim = calc_angle_safe(aim_eye, aim_pos);
     if (aim.length() < 0.01f) return;
 
-    // ── RCS ───────────────────────────────────────────────────
+    // ── RCS ──────────────────────────────────────────────────
     if (cfg.recoil_control) {
         uintptr_t as = read<uintptr_t>(lp + NetVars::m_pAimPunchServices);
         if (IsRemotePtrValid(as)) {
@@ -194,13 +234,13 @@ void run(const AimbotConfig& cfg) {
         }
     }
 
-    // ── 差值 → 平滑 → 写入 ──────────────────────────────────
+    // ── 差值 → 平滑 → 写入 ────────────────────────────────
     Vector3 cur = read<Vector3>(lp + NetVars::m_angEyeAngles);
     Vector3 delta = aim - cur;
     while (delta.y > 180.f) delta.y -= 360.f;
     while (delta.y < -180.f) delta.y += 360.f;
 
-    // 死区: 角度差太小就不调了, 防止准星抖动
+    // 死区
     if (fabsf(delta.x) < 0.05f && fabsf(delta.y) < 0.05f) return;
 
     if (cfg.smoothness > 0.1f) {
@@ -221,9 +261,9 @@ void run(const AimbotConfig& cfg) {
         write<Vector3>(ptr, out);
 }
 
-// ═══════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════
 //  Triggerbot
-// ═══════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════
 
 static constexpr uintptr_t B_ATTACK  = 0x2065A90;
 static constexpr uintptr_t B_ATTACK2 = 0x2065B20;
@@ -260,10 +300,8 @@ void triggerbot(const TriggerbotConfig& cfg) {
 
     if (!valid) {
         if (was_firing && g_offsets.clientBase) write<int>(g_offsets.clientBase + B_ATTACK, 0);
-        was_firing = false;
-        return;
+        was_firing = false; return;
     }
-
     if (cfg.max_velocity > 0.f) {
         Vector3 vel = read<Vector3>(lp + NetVars::m_vecVelocity);
         if (vel.length2d() > cfg.max_velocity) {
@@ -273,32 +311,23 @@ void triggerbot(const TriggerbotConfig& cfg) {
     }
 
     auto now = std::chrono::steady_clock::now();
-    auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(now - g_last_shot).count();
+    auto e = std::chrono::duration_cast<std::chrono::milliseconds>(now - g_last_shot).count();
     int delay = cfg.delay_min;
     if (cfg.delay_max > cfg.delay_min) {
         static std::mt19937 rng((unsigned)now.time_since_epoch().count());
         std::uniform_int_distribution<int> d(cfg.delay_min, cfg.delay_max);
         delay = d(rng);
     }
-    if (elapsed < delay) { was_firing = true; return; }
+    if (e < delay) { was_firing = true; return; }
 
     uintptr_t ms = read<uintptr_t>(lp + NetVars::m_pMovementServices);
-    if (IsRemotePtrValid(ms)) {
-        uint32_t btns = read<uint32_t>(ms + NetVars::m_nButtons);
-        btns |= (1 << 0);
-        write<uint32_t>(ms + NetVars::m_nButtons, btns);
-    }
-    if (g_offsets.clientBase) {
-        write<int>(g_offsets.clientBase + B_ATTACK, 65537);
-        write<int>(g_offsets.clientBase + B_ATTACK2, 0);
-    }
+    if (IsRemotePtrValid(ms)) { uint32_t b = read<uint32_t>(ms+NetVars::m_nButtons); b|=(1<<0); write<uint32_t>(ms+NetVars::m_nButtons, b); }
+    if (g_offsets.clientBase) { write<int>(g_offsets.clientBase + B_ATTACK, 65537); write<int>(g_offsets.clientBase + B_ATTACK2, 0); }
     INPUT click[2] = {};
     click[0].type = INPUT_MOUSE; click[0].mi.dwFlags = MOUSEEVENTF_LEFTDOWN;
     click[1].type = INPUT_MOUSE; click[1].mi.dwFlags = MOUSEEVENTF_LEFTUP;
     ::SendInput(2, click, sizeof(INPUT));
-
-    g_last_shot = now;
-    was_firing = true;
+    g_last_shot = now; was_firing = true;
 }
 
 } // namespace cs2::aimbot
