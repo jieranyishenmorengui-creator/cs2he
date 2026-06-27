@@ -210,6 +210,26 @@ void run(const AimbotConfig& cfg) {
         if (h <= 0 || h > 200) it = s_target_cache.erase(it); else ++it;
     }}
 
+    // 滞回: 上帧目标还在且分差<15%, 不换
+    if (g_last && g_last != best) {
+        int old_hp = read<int32_t>(g_last + NetVars::m_iHealth);
+        if (old_hp > 0 && read<uint8_t>(g_last + NetVars::m_lifeState) == 0) {
+            Vector3 old_o = read<Vector3>(g_last + NetVars::m_vOldOrigin);
+            Vector3 old_bp = get_bone_pos(g_last, cfg.target_bone);
+            if (old_bp.length() < 0.1f) old_bp = old_o + read<Vector3>(g_last + NetVars::m_vecViewOffset);
+            Vector2 old_sp;
+            if (world_to_screen(old_bp, old_sp, vm, sw, sh)) {
+                float old_fd = (old_sp - Vector2(sw*0.5f, sh*0.5f)).length();
+                float old_wd = eye.dist_to(old_o);
+                float old_score;
+                if (cfg.aim_priority == 1) old_score = old_wd;
+                else if (cfg.aim_priority == 2) old_score = (float)old_hp + old_wd * 0.001f;
+                else old_score = old_fd + old_wd * 0.01f;
+                if (old_score <= best_score * 1.15f) best = g_last;
+            }
+        }
+    }
+
     if (!best) { g_last = 0; return; }
 
     // 击杀检测
@@ -323,7 +343,7 @@ void triggerbot(const TriggerbotConfig& cfg) {
             }
         }
     } else {
-        // 模式1: FOV角度检测 — 全扫描但只用origin粗筛省骨读
+        // 模式1: FOV角度检测
         Vector3 va = read<Vector3>(lp + NetVars::m_angEyeAngles);
         Vector3 eye = read<Vector3>(lp + NetVars::m_vOldOrigin)
                     + read<Vector3>(lp + NetVars::m_vecViewOffset);
@@ -346,15 +366,12 @@ void triggerbot(const TriggerbotConfig& cfg) {
             if (read<uint8_t>(p + NetVars::m_lifeState) != 0) continue;
             if (cfg.team_check && read<uint8_t>(p + NetVars::m_iTeamNum) == lt) continue;
 
-            // 粗筛: 用origin算角度, 超过阈值5倍就跳过 (省骨读)
-            Vector3 o = read<Vector3>(p + NetVars::m_vOldOrigin)
-                      + read<Vector3>(p + NetVars::m_vecViewOffset);
-            Vector3 ra = calc_angle_safe(eye, o);
-            if (fov_angle(va, ra) > cfg.fov_threshold * 5.f) continue;
+            uintptr_t sn = read<uintptr_t>(p + NetVars::m_pGameSceneNode);
+            if (IsRemotePtrValid(sn) && read<bool>(sn+0x103)) continue;
 
-            // 精确: 读骨再算
             Vector3 bp = get_bone_pos(p, 7);
-            if (bp.length() < 0.1f) bp = o;
+            if (bp.length() < 0.1f)
+                bp = read<Vector3>(p+NetVars::m_vOldOrigin) + read<Vector3>(p+NetVars::m_vecViewOffset);
             Vector3 aa = calc_angle_safe(eye, bp);
             if (fov_angle(va, aa) <= cfg.fov_threshold) valid = true;
         }
