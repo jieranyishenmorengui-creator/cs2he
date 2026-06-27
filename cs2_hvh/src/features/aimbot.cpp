@@ -100,7 +100,12 @@ void run(const AimbotConfig& cfg) {
         if (overlay::was_key_pressed(cfg.key0) || (cfg.key1 && overlay::was_key_pressed(cfg.key1))) tog = !tog;
         key_down = tog;
     }
-    if (!key_down) { g_last_target_pawn = 0; g_kill_cooldown = false; return; }
+    if (!key_down) {
+        g_last_target_pawn = 0;
+        g_kill_cooldown = false;
+        s_target_pos_cache.clear();  // 松键清缓存, 下次按键第一帧直接锁
+        return;
+    }
 
     // ── 击杀冷却 ─────────────────────────────────────────────
     if (cfg.kill_delay_ms > 0 && g_kill_cooldown) {
