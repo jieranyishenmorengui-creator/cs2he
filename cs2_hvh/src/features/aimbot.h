@@ -23,7 +23,7 @@ struct AimbotConfig {
     float smoothness = 1.0f;      // 平滑度 (越小越快)
     float max_distance = 0.0f;
 
-    bool visible_check = true;
+    bool visible_check = false;  // 默认关: m_bSpotted有1-2秒延迟
     bool team_check = true;
     bool disable_when_flashed = true;
     float flash_threshold = 5.0f;

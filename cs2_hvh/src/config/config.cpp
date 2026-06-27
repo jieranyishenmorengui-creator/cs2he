@@ -124,7 +124,7 @@ bool Config::load(const std::string& path) {
     aimbot.fov = json_get_float(json, "AimFOV_Pixels", 268.0f);
     aimbot.smoothness = json_get_float(json, "AimSmoothness", 1.0f);
     aimbot.max_distance = json_get_float(json, "AimMaxDistance", 0.0f);
-    aimbot.visible_check = json_get_bool(json, "AimVisibleCheck", true);
+    aimbot.visible_check = json_get_bool(json, "AimVisibleCheck", false);
     aimbot.team_check = json_get_bool(json, "AimTeamCheck", true);
     aimbot.disable_when_flashed = json_get_bool(json, "AimDisableFlashed", true);
     aimbot.flash_threshold = json_get_float(json, "AimFlashThreshold", 5.0f);
