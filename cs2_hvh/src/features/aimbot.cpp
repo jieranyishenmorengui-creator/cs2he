@@ -114,19 +114,32 @@ static void aim_write_angles(const AimbotConfig& cfg,
         }
     }
 
-    Vector3 delta = angle_diff(aim_angle, view_angles);
+    // ── 平滑: 目标切换时快拉, 大角度快速接近, 小角度标准修正 ─
+    static uintptr_t s_last_target = 0;
+    static int       s_frames = 0;
 
-    // ── 平滑 ──────────────────────────────────────────────────
-    // 动态平滑: 角度差大时用低平滑快速接近, 接近时用高平滑精确修正
-    float fov_err = delta.length();
-    float smooth_factor = cfg.smoothness;
-    if (fov_err > 5.0f) {
-        // 远距离: 快速拉近 (用一半平滑值)
-        smooth_factor = std::max(0.5f, cfg.smoothness * 0.5f);
-    } else if (fov_err < 1.0f) {
-        // 近距离: 精细微调 (用双倍平滑值)
-        smooth_factor = std::max(1.0f, cfg.smoothness * 2.0f);
+    if (target_pawn != s_last_target) {
+        s_last_target = target_pawn;
+        s_frames = 0;
     }
+    s_frames++;
+
+    Vector3 delta = angle_diff(aim_angle, view_angles);
+    float angle_err = delta.length();
+
+    float smooth_factor = cfg.smoothness;
+    if (s_frames < 3) {
+        // 切目标: 前三帧几乎瞬拉 (防左右乱晃)
+        smooth_factor = 0.2f;
+    } else if (angle_err > 3.0f) {
+        // 大角度差: 快速接近
+        smooth_factor = std::max(0.3f, cfg.smoothness * 0.3f);
+    } else if (angle_err < 0.5f) {
+        // 小角度: 标准平滑 (不再加倍)
+        smooth_factor = cfg.smoothness;
+    }
+    // 中间区域: 默认 smoothness
+
     delta.x /= smooth_factor;
     delta.y /= smooth_factor;
 
