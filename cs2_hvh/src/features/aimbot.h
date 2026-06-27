@@ -13,30 +13,30 @@ enum class AimMode : int {
 };
 
 struct AimbotConfig {
-    bool enabled = false;
-    int key0 = VK_SHIFT;          // 激活键
+    bool enabled = true;
+    int key0 = VK_RBUTTON;        // 激活键 (鼠标右键)
     int key1 = 0;
     int key_mode = 0;             // 0=按住, 1=切换, 2=始终
 
     int target_bone = 7;          // 7=头部
-    float fov = 250.0f;           // 屏幕 FOV (像素)
-    float smoothness = 1.5f;      // 平滑度 (默认1.5, 越小越快)
+    float fov = 268.0f;           // 屏幕 FOV (像素)
+    float smoothness = 1.0f;      // 平滑度 (越小越快)
     float max_distance = 0.0f;
 
     bool visible_check = true;
     bool team_check = true;
-    bool disable_when_flashed = false;
+    bool disable_when_flashed = true;
     float flash_threshold = 5.0f;
 
     // 速度提前量 (0=关闭, >0=提前秒数)
-    float lead_time = 0.0f;
+    float lead_time = 0.051f;
 
     // 输入方式
     int input_method = 0;         // 0=写角度  1=SendInput
 
     // 压枪 RCS
-    bool recoil_control = false;
-    float rcs_scale = 0.5f;
+    bool recoil_control = true;
+    float rcs_scale = 0.73f;
 
     // FutaZone 高级瞄准模式
     int aim_mode = 0;
@@ -48,15 +48,15 @@ struct AimbotConfig {
     int aim_priority = 0;
 
     // 击杀冷却: 杀死一个后等待多少ms再锁下一个
-    int kill_delay_ms = 0;
+    int kill_delay_ms = 223;
 };
 
 struct TriggerbotConfig {
     bool enabled = false;
-    int key = VK_MENU;               // ALT
+    int key = 0x4C;                  // L键 (76)
     int delay_min = 10;
     int delay_max = 25;
-    bool team_check = true;
+    bool team_check = false;
     float max_velocity = 18.0f;
 };
 
