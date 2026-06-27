@@ -135,49 +135,49 @@ void run(const AimbotConfig& cfg) {
         if (flash > 0.1f && flash < 200.f && flash > cfg.flash_threshold) return;
     }
 
-    // ── 遍历找目标 (加权评分: FOV + 距离×0.01) ──────────────
+    // ── 遍历找目标 ──────────────────────────────────────────
+    // 缓存一次 dwEntityList, 避免每次 get_entity_from_index 重复读
+    uintptr_t entListBase = read<uintptr_t>(g_offsets.dwEntityList);
     uintptr_t best = 0;
     float     best_score = 3.4e38f;
 
     for (int i = 1; i < 64; ++i) {
-        uintptr_t c = get_entity_from_index(i);
+        // 内联实体解析 (省 RPM)
+        uintptr_t chunk = read<uintptr_t>(entListBase + 8 * (i >> 9) + 0x10);
+        if (!IsRemotePtrValid(chunk)) continue;
+        uintptr_t c = read<uintptr_t>(chunk + 112 * (i & 0x1FF));
         if (!IsRemotePtrValid(c) || c == ctrl) continue;
+
         uint32_t ph = read<uint32_t>(c + NetVars::m_hPawn);
         if (!ph) continue;
-        uintptr_t p = get_entity_from_handle(ph);
+        chunk = read<uintptr_t>(entListBase + 8 * ((ph & 0x7FFF) >> 9) + 0x10);
+        if (!IsRemotePtrValid(chunk)) continue;
+        uintptr_t p = read<uintptr_t>(chunk + 112 * (ph & 0x7FFF & 0x1FF));
         if (!IsRemotePtrValid(p) || p == lp) continue;
 
+        // 快速过滤: 只读一次 health (如果<=0直接跳过)
         if (read<int32_t>(p + NetVars::m_iHealth) <= 0) continue;
         if (read<uint8_t>(p + NetVars::m_lifeState) != 0) continue;
         if (cfg.team_check && read<uint8_t>(p + NetVars::m_iTeamNum) == local_team) continue;
 
-        // Dormant
         uintptr_t sn = read<uintptr_t>(p + NetVars::m_pGameSceneNode);
         if (IsRemotePtrValid(sn) && read<bool>(sn + 0x103)) continue;
-
-        // 可见性检查 (m_bSpotted)
-        if (cfg.visible_check) {
-            bool spotted = read<bool>(p + NetVars::m_entitySpottedState + NetVars::m_bSpotted);
-            if (!spotted) continue;
-        }
+        if (cfg.visible_check && !read<bool>(p + NetVars::m_entitySpottedState + NetVars::m_bSpotted)) continue;
 
         Vector3 origin = read<Vector3>(p + NetVars::m_vOldOrigin);
         float world_dist = eye.dist_to(origin);
         if (cfg.max_distance > 0.f && world_dist > cfg.max_distance) continue;
 
-        // 骨骼/fallback → EMA 平滑 (和 ESP 框同算法)
-        Vector3 raw_bp = get_bone_pos(p, cfg.target_bone);
-        if (raw_bp.length() < 0.1f)
-            raw_bp = origin + read<Vector3>(p + NetVars::m_vecViewOffset);
-        Vector3 bp = ema_smooth_target(p, raw_bp, cfg.smoothness);
+        // 骨骼 (W2S用, 不EMA — 省开销)
+        Vector3 bp = get_bone_pos(p, cfg.target_bone);
+        if (bp.length() < 0.1f) bp = origin + read<Vector3>(p + NetVars::m_vecViewOffset);
 
-        // W2S
         Vector2 sp;
         if (!world_to_screen(bp, sp, vm, sw, sh)) continue;
         float fov_dist = (sp - Vector2(sw*0.5f, sh*0.5f)).length();
         if (fov_dist > cfg.fov) continue;
 
-        // ── 加权评分: FOV主导 + 距离微量修正 ───────────────
+        // 加权评分: FOV主导 + 距离微量修正
         float score = fov_dist + world_dist * 0.01f;
         if (score < best_score) { best = p; best_score = score; }
     }
@@ -204,12 +204,13 @@ void run(const AimbotConfig& cfg) {
     g_last_target_hp = cur_hp;
     if (cur_hp <= 0) return;
 
-    // ── 目标骨骼 (EMA 已平滑) ──────────────────────────────
+    // ── 目标骨骼 (EMA平滑, 只对最终目标做) ──────────────────
     Vector3 target_origin = read<Vector3>(best + NetVars::m_vOldOrigin);
     Vector3 raw_pos = get_bone_pos(best, cfg.target_bone);
     if (raw_pos.length() < 0.1f)
         raw_pos = target_origin + read<Vector3>(best + NetVars::m_vecViewOffset);
     Vector3 target_pos = ema_smooth_target(best, raw_pos, cfg.smoothness);
+    // EMA已收敛到当前位置, 直接用于角度计算
 
     // ── 提前量 ────────────────────────────────────────────────
     Vector3 aim_pos = target_pos;
