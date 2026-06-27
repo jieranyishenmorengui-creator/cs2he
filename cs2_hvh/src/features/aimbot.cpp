@@ -16,36 +16,38 @@ using namespace ::cs2::offsets;
 //  工具函数
 // ═══════════════════════════════════════════════════════════════
 
-// 读骨骼: 尝试多组 m_pBones 偏移 + 多个骨内偏移 (应对布局变化)
-// Origin 标准 = entityOrigin + vecViewOffset (眼睛位置 ≈ 头)
+// 读骨骼: 多骨联合验证 — 只接受头>骨盆+靠近眼睛的合理位置
 static Vector3 get_bone_pos(uintptr_t pawn, int bone_idx, const Vector3* origin_hint = nullptr) {
     uintptr_t scene_node = read<uintptr_t>(pawn + NetVars::m_pGameSceneNode);
     if (!IsRemotePtrValid(scene_node)) return {};
 
     uintptr_t ms_addr = scene_node + NetVars::m_modelState;
-
-    // m_pBones 尝试偏移 (非 schema, 随版本变)
     static const int BONE_PTR_OFFS[] = { 0x80, 0x70, 0x90, 0x60, 0xA0 };
-    // 每个骨内部的 position 偏移 (可能位置在 0 或 16 处)
     static const int POS_OFFS[] = { 0, 16 };
+    // 期望的眼部高度 (用于验证)
+    Vector3 eye_expected;
+    if (origin_hint) eye_expected = *origin_hint + Vector3(0, 0, 64.f);
 
     for (int boff : BONE_PTR_OFFS) {
         uintptr_t cand = read<uintptr_t>(ms_addr + boff);
         if (!IsRemotePtrValid(cand)) continue;
 
         for (int poff : POS_OFFS) {
-            Vector3 test = read<Vector3>(cand + bone_idx * 0x20 + poff);
-            if (test.length() < 0.1f) continue;
-            // 如果给了 origin_hint, 验证距离合理性
+            Vector3 bone0 = read<Vector3>(cand + 1 * 0x20 + poff); // pelvis
+            Vector3 bone7 = read<Vector3>(cand + 7 * 0x20 + poff); // head
+            if (bone0.length() < 0.1f || bone7.length() < 0.1f) continue;
+
+            // 联合验证: 头必须在骨盆上方至少20单位
+            if (bone7.z <= bone0.z + 20.f) continue;
+
+            // 如果给了 origin_hint, 检查头离眼睛位置不远
             if (origin_hint) {
-                float d = test.dist_to(*origin_hint);
-                // 头骨应在人物附近: 10-200 单位
-                if (d >= 10.f && d <= 200.f) {
-                    return test;
-                }
-            } else {
-                return test;
+                float d = bone7.dist_to(eye_expected);
+                if (d < 5.f || d > 100.f) continue; // 离眼睛5-100单位才合理
             }
+
+            // 通过全部验证 → 返回请求的骨骼
+            return read<Vector3>(cand + bone_idx * 0x20 + poff);
         }
     }
     return {};
@@ -145,14 +147,20 @@ static void aim_write_angles(const AimbotConfig& cfg,
 
     Vector3 new_angle = view_angles + delta;
 
-    // 钳位
-    while (new_angle.y > 180.0f) new_angle.y -= 360.0f;
-    while (new_angle.y < -180.0f) new_angle.y += 360.0f;
+    // ── 钳位 + NaN/Inf 过滤 ─────────────────────────────────
+    if (std::isnan(new_angle.x) || std::isnan(new_angle.y) ||
+        std::isinf(new_angle.x) || std::isinf(new_angle.y)) return;
     if (new_angle.x > 89.0f) new_angle.x = 89.0f;
     if (new_angle.x < -89.0f) new_angle.x = -89.0f;
+    while (new_angle.y > 180.0f) new_angle.y -= 360.0f;
+    while (new_angle.y < -180.0f) new_angle.y += 360.0f;
     new_angle.z = 0.0f;
 
-    // 写视角 (直接写 + 间接写 都试)
+    // ── 额外安全检查: 如果角度变化太离谱, 丢弃这帧 ──────────
+    Vector3 total_delta = new_angle - view_angles;
+    if (std::abs(total_delta.x) > 45.f || std::abs(total_delta.y) > 90.f) return;
+
+    // ── 写视角 ──────────────────────────────────────────────
     if (g_offsets.dwViewAngles) {
         write<Vector3>(g_offsets.dwViewAngles, new_angle);
     }
