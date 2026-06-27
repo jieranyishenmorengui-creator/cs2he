@@ -16,35 +16,49 @@ using namespace ::cs2::offsets;
 //  工具函数
 // ═══════════════════════════════════════════════════════════════
 
+// 读骨骼: 尝试多组 m_pBones 偏移 + 多个骨内偏移 (应对布局变化)
+// Origin 标准 = entityOrigin + vecViewOffset (眼睛位置 ≈ 头)
 static Vector3 get_bone_pos(uintptr_t pawn, int bone_idx, const Vector3* origin_hint = nullptr) {
     uintptr_t scene_node = read<uintptr_t>(pawn + NetVars::m_pGameSceneNode);
     if (!IsRemotePtrValid(scene_node)) return {};
 
     uintptr_t ms_addr = scene_node + NetVars::m_modelState;
 
-    // 尝试多组骨指针偏移 (m_pBones 是非 schema 内部偏移, 不同版本可能不同)
-    static const int BONE_PTR_OFFSETS[] = { 0x80, 0x70, 0x90, 0x60, 0xA0 };
-    uintptr_t bone_array = 0;
+    // m_pBones 尝试偏移 (非 schema, 随版本变)
+    static const int BONE_PTR_OFFS[] = { 0x80, 0x70, 0x90, 0x60, 0xA0 };
+    // 每个骨内部的 position 偏移 (可能位置在 0 或 16 处)
+    static const int POS_OFFS[] = { 0, 16 };
 
-    for (int off : BONE_PTR_OFFSETS) {
-        uintptr_t candidate = read<uintptr_t>(ms_addr + off);
-        if (!IsRemotePtrValid(candidate)) continue;
-        // 试读一个骨, 检查是否合理
-        Vector3 test = read<Vector3>(candidate + bone_idx * 0x20);
-        if (origin_hint && test.length() > 0.1f) {
-            float dist = test.dist_to(*origin_hint);
-            if (dist > 10.f && dist < 150.f) { // 骨骼应离原点10-150单位
-                bone_array = candidate;
-                break;
+    for (int boff : BONE_PTR_OFFS) {
+        uintptr_t cand = read<uintptr_t>(ms_addr + boff);
+        if (!IsRemotePtrValid(cand)) continue;
+
+        for (int poff : POS_OFFS) {
+            Vector3 test = read<Vector3>(cand + bone_idx * 0x20 + poff);
+            if (test.length() < 0.1f) continue;
+            // 如果给了 origin_hint, 验证距离合理性
+            if (origin_hint) {
+                float d = test.dist_to(*origin_hint);
+                // 头骨应在人物附近: 10-200 单位
+                if (d >= 10.f && d <= 200.f) {
+                    return test;
+                }
+            } else {
+                return test;
             }
-        } else if (test.length() > 0.1f) {
-            bone_array = candidate;
-            break;
         }
     }
+    return {};
+}
 
-    if (!bone_array) return {};
-    return read<Vector3>(bone_array + bone_idx * 0x20);
+// 预测目标未来位置 (简单 velocity 提前量, 改善移动靶)
+static Vector3 predict_position(const Vector3& current, uintptr_t pawn, float lead_time = 0.1f) {
+    Vector3 vel = read<Vector3>(pawn + NetVars::m_vecVelocity);
+    float speed = vel.length();
+    if (speed > 5.0f) {
+        return current + vel * lead_time;
+    }
+    return current;
 }
 
 // calc_angle 加 NaN/除零保护
@@ -72,14 +86,17 @@ static void aim_write_angles(const AimbotConfig& cfg,
                               uintptr_t target_pawn,
                               int target_bone)
 {
-    // 读头部骨骼 (如果骨骼数组指针不对就 fallback 到 origin + viewOffset)
+    // ── 读骨骼位置 ────────────────────────────────────────────
     Vector3 to = read<Vector3>(target_pawn + NetVars::m_vOldOrigin);
     Vector3 head_pos = get_bone_pos(target_pawn, target_bone, &to);
     if (head_pos.length() < 0.001f) {
-        head_pos = read<Vector3>(target_pawn + NetVars::m_vOldOrigin)
-                 + read<Vector3>(target_pawn + NetVars::m_vecViewOffset);
+        head_pos = to + read<Vector3>(target_pawn + NetVars::m_vecViewOffset);
     }
 
+    // ── 移动靶预测 (提前量) ──────────────────────────────────
+    head_pos = predict_position(head_pos, target_pawn, 0.1f);
+
+    // ── 计算角度 ──────────────────────────────────────────────
     Vector3 view_angles = read<Vector3>(local_pawn + NetVars::m_angEyeAngles);
     Vector3 aim_angle = safe_calc_angle(local_eye_pos, head_pos);
     if (aim_angle.length() < 0.001f) return;
@@ -88,9 +105,9 @@ static void aim_write_angles(const AimbotConfig& cfg,
     if (cfg.recoil_control) {
         uintptr_t aimpunch_svc = read<uintptr_t>(local_pawn + NetVars::m_pAimPunchServices);
         if (IsRemotePtrValid(aimpunch_svc)) {
-            Vector3 punch = read<Vector3>(aimpunch_svc + 0x50); // CCSPlayer_AimPunchServices::m_aimPunchAngle
+            Vector3 punch = read<Vector3>(aimpunch_svc + 0x50);
             float plen = punch.length();
-            if (plen > 0.01f && plen < 90.f) { // 合法范围过滤
+            if (plen > 0.01f && plen < 90.f) {
                 aim_angle.x -= punch.x * cfg.rcs_scale;
                 aim_angle.y -= punch.y * cfg.rcs_scale;
             }
@@ -99,12 +116,19 @@ static void aim_write_angles(const AimbotConfig& cfg,
 
     Vector3 delta = angle_diff(aim_angle, view_angles);
 
-    // 平滑
-    if (cfg.smoothness > 0.1f) {
-        float f = 1.0f / cfg.smoothness;
-        delta.x *= f;
-        delta.y *= f;
+    // ── 平滑 ──────────────────────────────────────────────────
+    // 动态平滑: 角度差大时用低平滑快速接近, 接近时用高平滑精确修正
+    float fov_err = delta.length();
+    float smooth_factor = cfg.smoothness;
+    if (fov_err > 5.0f) {
+        // 远距离: 快速拉近 (用一半平滑值)
+        smooth_factor = std::max(0.5f, cfg.smoothness * 0.5f);
+    } else if (fov_err < 1.0f) {
+        // 近距离: 精细微调 (用双倍平滑值)
+        smooth_factor = std::max(1.0f, cfg.smoothness * 2.0f);
     }
+    delta.x /= smooth_factor;
+    delta.y /= smooth_factor;
 
     Vector3 new_angle = view_angles + delta;
 

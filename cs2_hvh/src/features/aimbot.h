@@ -20,7 +20,7 @@ struct AimbotConfig {
 
     int target_bone = 7;          // 7=头部
     float fov = 250.0f;           // 屏幕 FOV (像素)
-    float smoothness = 3.0f;      // 平滑度
+    float smoothness = 1.5f;      // 平滑度 (默认1.5, 越小越快)
     float max_distance = 0.0f;
 
     bool visible_check = true;
