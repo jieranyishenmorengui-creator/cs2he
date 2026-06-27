@@ -118,19 +118,20 @@ void run(const AimbotConfig& cfg) {
     if (target_pos.length() < 0.1f)
         target_pos = target_origin + read<Vector3>(best + NetVars::m_vecViewOffset);
 
-    // ── 移动靶提前量 (velocity 预测) ──────────────────────────
-    Vector3 target_vel = read<Vector3>(best + NetVars::m_vecVelocity);
-    float speed = target_vel.length();
-    if (speed > 10.f) {
-        float dist = eye.dist_to(target_pos);
-        // CS2步枪弹速 ≈ 30000 u/s, 算出子弹飞行时间
-        float bullet_speed = 30000.f;
-        float lead_time = std::min(dist / bullet_speed, 0.15f);
-        target_pos = target_pos + target_vel * lead_time;
+    // ── 计算角度 (含移动靶提前量) ────────────────────────────
+    Vector3 aim_eye = eye;
+    Vector3 aim_pos = target_pos;
+
+    Vector3 tvel = read<Vector3>(best + NetVars::m_vecVelocity);
+    Vector3 lvel = read<Vector3>(lp  + NetVars::m_vecVelocity);
+    float rel_speed = (tvel - lvel).length();
+    if (rel_speed > 10.f) {
+        float lead_time = std::min(eye.dist_to(target_pos) / 30000.f, 0.15f);
+        aim_pos = target_pos + tvel * lead_time;    // 目标移动
+        aim_eye = eye + lvel * lead_time;            // 自己移动
     }
 
-    // ── 计算角度 ──────────────────────────────────────────────
-    Vector3 aim = calc_angle_safe(eye, target_pos);
+    Vector3 aim = calc_angle_safe(aim_eye, aim_pos);
     if (aim.length() < 0.01f) return;
 
     // ── RCS ───────────────────────────────────────────────────
