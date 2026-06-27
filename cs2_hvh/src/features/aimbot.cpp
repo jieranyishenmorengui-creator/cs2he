@@ -126,7 +126,8 @@ void run(const AimbotConfig& cfg) {
     // ── 闪白检测 ─────────────────────────────────────────────
     if (cfg.disable_when_flashed) {
         float flash = read<float>(lp + NetVars::m_flFlashDuration);
-        if (flash > cfg.flash_threshold) return;
+        // 只有合理范围才拦截 (>0且<200, 防止offset错误读垃圾值)
+        if (flash > 0.1f && flash < 200.f && flash > cfg.flash_threshold) return;
     }
 
     // ── 遍历找目标 (加权评分: FOV + 距离×0.01) ──────────────
