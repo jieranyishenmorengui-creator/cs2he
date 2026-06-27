@@ -129,6 +129,7 @@ static void tab_aimbot() {
     ImGui::SliderFloat("Max Distance", &cfg.max_distance, 0.0f, 500.0f, "%.0f m");
 
     ImGui::Separator();
+    ImGui::SliderFloat("Velocity Lead (0=off)", &cfg.lead_time, 0.0f, 0.15f, "%.3f s");
     ImGui::Checkbox("Visible Check", &cfg.visible_check);
     ImGui::Checkbox("Team Check", &cfg.team_check);
     ImGui::Checkbox("Disable When Flashed", &cfg.disable_when_flashed);

@@ -28,6 +28,9 @@ struct AimbotConfig {
     bool disable_when_flashed = false;
     float flash_threshold = 5.0f;
 
+    // 速度提前量 (0=关闭, >0=提前秒数)
+    float lead_time = 0.0f;
+
     // 输入方式
     int input_method = 0;         // 0=写角度  1=SendInput
 
