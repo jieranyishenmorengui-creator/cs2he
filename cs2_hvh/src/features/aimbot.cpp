@@ -119,15 +119,42 @@ void run(const AimbotConfig& cfg) {
             best = p;
         }
     }
-    if (!best) { g_last_target_pawn = 0; return; }
-
     // ── 击杀检测 + 冷却触发 ──────────────────────────────────
-    int cur_hp = read<int32_t>(best + NetVars::m_iHealth);
-    if (g_last_target_pawn == best && g_last_target_hp > 0 && cur_hp <= 0) {
+    // 三种情况:
+    //   1. best=0(目标消失) → 直接检查旧pawn血量
+    //   2. best变了 → 检查旧pawn是否死了
+    //   3. best没变 → 检查血量跳0
+    auto trigger_kill_cooldown = [&]() {
         g_kill_time = std::chrono::steady_clock::now();
         g_kill_cooldown = true;
         g_last_target_pawn = 0;
+        g_last_target_hp = 0;
+    };
+
+    if (!best) {
+        if (g_last_target_pawn && g_last_target_hp > 0) {
+            int hp = read<int32_t>(g_last_target_pawn + NetVars::m_iHealth);
+            if (hp <= 0) trigger_kill_cooldown();
+        }
+        g_last_target_pawn = 0;
+        g_last_target_hp = 0;
         return;
+    }
+
+    int cur_hp = read<int32_t>(best + NetVars::m_iHealth);
+    if (g_last_target_pawn == best) {
+        // 同一个目标 → 检测血量跳0
+        if (g_last_target_hp > 0 && cur_hp <= 0) {
+            trigger_kill_cooldown();
+            return;
+        }
+    } else if (g_last_target_pawn && g_last_target_hp > 0) {
+        // 切目标了 → 检查旧目标是否死亡
+        int old_hp = read<int32_t>(g_last_target_pawn + NetVars::m_iHealth);
+        if (old_hp <= 0) {
+            trigger_kill_cooldown();
+            return;
+        }
     }
     g_last_target_pawn = best;
     g_last_target_hp = cur_hp;
