@@ -6,6 +6,7 @@
 #include <chrono>
 #include <random>
 #include <unordered_map>
+#include <vector>
 
 static constexpr float PIf = 3.14159265358979323846f;
 
@@ -103,6 +104,19 @@ static Vector3 ema_target(uintptr_t pawn, const Vector3& cur, float smoothness) 
 }
 
 // ═════════════════════════════════════════════════════════════
+//  扳机共享缓存: aimbot扫描时保存有效pawn列表, 扳机复用
+// ═════════════════════════════════════════════════════════════
+
+struct CachedEnemy {
+    uintptr_t pawn;
+    int health;
+    uint8_t team;
+};
+
+static std::vector<CachedEnemy> s_enemy_cache;
+static Vector3 s_cached_eye;
+
+// ═════════════════════════════════════════════════════════════
 //  Aimbot
 // ═════════════════════════════════════════════════════════════
 
@@ -154,6 +168,8 @@ void run(const AimbotConfig& cfg) {
     uintptr_t elb = read<uintptr_t>(g_offsets.dwEntityList);
     uintptr_t best = 0;
     float best_score = 3.4e38f;
+    s_enemy_cache.clear();
+    s_cached_eye = eye;
 
     for (int i = 1; i < 64; ++i) {
         uintptr_t ch = read<uintptr_t>(elb + 8 * (i >> 9) + 0x10);
@@ -172,6 +188,9 @@ void run(const AimbotConfig& cfg) {
         if (hp <= 0) continue;
         if (read<uint8_t>(p + NetVars::m_lifeState) != 0) continue;
         if (cfg.team_check && read<uint8_t>(p + NetVars::m_iTeamNum) == local_team) continue;
+
+        // 加入共享缓存 (扳机复用)
+        s_enemy_cache.push_back({p, hp, read<uint8_t>(p + NetVars::m_iTeamNum)});
 
         uintptr_t sn = read<uintptr_t>(p + NetVars::m_pGameSceneNode);
         if (IsRemotePtrValid(sn) && read<bool>(sn + 0x103)) continue;
@@ -343,37 +362,22 @@ void triggerbot(const TriggerbotConfig& cfg) {
             }
         }
     } else {
-        // 模式1: FOV角度检测
+        // 模式1: FOV角度检测 — 复用aimbot扫描的缓存 (无额外RPM)
+        if (s_enemy_cache.empty() || s_cached_eye.length() < 0.1f) return;
+
         Vector3 va = read<Vector3>(lp + NetVars::m_angEyeAngles);
-        Vector3 eye = read<Vector3>(lp + NetVars::m_vOldOrigin)
-                    + read<Vector3>(lp + NetVars::m_vecViewOffset);
-        uintptr_t elb = read<uintptr_t>(g_offsets.dwEntityList);
 
-        for (int i = 1; i < 64 && !valid; ++i) {
-            uintptr_t ch = read<uintptr_t>(elb + 8*(i>>9) + 0x10);
-            if (!IsRemotePtrValid(ch)) continue;
-            uintptr_t c = read<uintptr_t>(ch + 112*(i&0x1FF));
-            if (!IsRemotePtrValid(c) || c == ctrl) continue;
-
-            uint32_t ph = read<uint32_t>(c + NetVars::m_hPawn);
-            if (!ph) continue;
-            ch = read<uintptr_t>(elb + 8*((ph&0x7FFF)>>9) + 0x10);
-            if (!IsRemotePtrValid(ch)) continue;
-            uintptr_t p = read<uintptr_t>(ch + 112*(ph&0x7FFF&0x1FF));
-            if (!IsRemotePtrValid(p) || p == lp) continue;
-
+        for (const auto& en : s_enemy_cache) {
+            uintptr_t p = en.pawn;
+            if (p == lp) continue;
             if (read<int32_t>(p + NetVars::m_iHealth) <= 0) continue;
-            if (read<uint8_t>(p + NetVars::m_lifeState) != 0) continue;
             if (cfg.team_check && read<uint8_t>(p + NetVars::m_iTeamNum) == lt) continue;
-
-            uintptr_t sn = read<uintptr_t>(p + NetVars::m_pGameSceneNode);
-            if (IsRemotePtrValid(sn) && read<bool>(sn+0x103)) continue;
 
             Vector3 bp = get_bone_pos(p, 7);
             if (bp.length() < 0.1f)
                 bp = read<Vector3>(p+NetVars::m_vOldOrigin) + read<Vector3>(p+NetVars::m_vecViewOffset);
-            Vector3 aa = calc_angle_safe(eye, bp);
-            if (fov_angle(va, aa) <= cfg.fov_threshold) valid = true;
+            Vector3 aa = calc_angle_safe(s_cached_eye, bp);
+            if (fov_angle(va, aa) <= cfg.fov_threshold) { valid = true; break; }
         }
     }
 

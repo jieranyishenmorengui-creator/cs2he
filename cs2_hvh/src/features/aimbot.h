@@ -14,12 +14,12 @@ enum class AimMode : int {
 
 struct AimbotConfig {
     bool enabled = true;
-    int key0 = VK_RBUTTON;        // 激活键 (鼠标右键)
+    int key0 = 0x06;               // 鼠标侧键
     int key1 = 0;
     int key_mode = 0;             // 0=按住, 1=切换, 2=始终
 
     int target_bone = 7;          // 7=头部
-    float fov = 268.0f;           // 屏幕 FOV (像素)
+    float fov = 800.0f;           // 屏幕 FOV (像素)
     float smoothness = 1.0f;      // 平滑度 (越小越快)
     float max_distance = 0.0f;
 
@@ -36,7 +36,7 @@ struct AimbotConfig {
 
     // 压枪 RCS
     bool recoil_control = true;
-    float rcs_scale = 0.73f;
+    float rcs_scale = 0.54f;
 
     // FutaZone 高级瞄准模式
     int aim_mode = 0;
@@ -48,24 +48,24 @@ struct AimbotConfig {
     int aim_priority = 0;
 
     // 击杀冷却
-    int kill_delay_ms = 223;
+    int kill_delay_ms = 0;
 
     // 侧身头部补偿: 敌人侧身时头骨不在正上方
-    bool head_offset_enabled = false;
-    float head_offset_amount = 8.0f;      // 补偿量 (单位)
+    bool head_offset_enabled = true;
+    float head_offset_amount = 3.6f;      // 补偿量 (单位)
     float head_offset_angle_min = 45.0f;  // 开始补偿的最小角度
     float head_offset_angle_max = 135.0f; // 最大角度
 };
 
 struct TriggerbotConfig {
-    bool enabled = false;
+    bool enabled = true;
     int key = 0x4C;                  // L键 (76)
     int delay_min = 10;
     int delay_max = 25;
     bool team_check = false;
     float max_velocity = 18.0f;
     // 检测模式: 0=m_iIDEntIndex  1=FOV(角度, 更精确)
-    int mode = 0;
+    int mode = 1;                    // FOV角度检测
     float fov_threshold = 1.5f;      // FOV模式触发阈值(度)
 };
 

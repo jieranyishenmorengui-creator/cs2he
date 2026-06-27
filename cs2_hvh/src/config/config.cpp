@@ -117,11 +117,11 @@ bool Config::load(const std::string& path) {
 
     // Aimbot
     aimbot.enabled = json_get_bool(json, "AimBotEnable", true);
-    aimbot.key0 = json_get_int(json, "AimKey0", VK_RBUTTON);
+    aimbot.key0 = json_get_int(json, "AimKey0", 0x06);
     aimbot.key1 = json_get_int(json, "AimKey1", 0);
     aimbot.key_mode = json_get_int(json, "AimKeyMode", 0);
     aimbot.target_bone = json_get_int(json, "AimTargetBone", 7);
-    aimbot.fov = json_get_float(json, "AimFOV_Pixels", 268.0f);
+    aimbot.fov = json_get_float(json, "AimFOV_Pixels", 800.0f);
     aimbot.smoothness = json_get_float(json, "AimSmoothness", 1.0f);
     aimbot.max_distance = json_get_float(json, "AimMaxDistance", 0.0f);
     aimbot.visible_check = json_get_bool(json, "AimVisibleCheck", false);
@@ -130,16 +130,16 @@ bool Config::load(const std::string& path) {
     aimbot.flash_threshold = json_get_float(json, "AimFlashThreshold", 5.0f);
     aimbot.lead_time = json_get_float(json, "AimLeadTime", 0.051f);
     aimbot.aim_priority = json_get_int(json, "AimPriority", 0);
-    aimbot.kill_delay_ms = json_get_int(json, "AimKillDelay", 223);
+    aimbot.kill_delay_ms = json_get_int(json, "AimKillDelay", 0);
     aimbot.input_method = json_get_int(json, "AimInputMethod", 0);
     aimbot.recoil_control = json_get_bool(json, "AimRCS", true);
-    aimbot.rcs_scale = json_get_float(json, "AimRCS_Scale", 0.73f);
+    aimbot.rcs_scale = json_get_float(json, "AimRCS_Scale", 0.54f);
     aimbot.aim_mode = json_get_int(json, "AimMode", 0);
     aimbot.randomize_speed = json_get_bool(json, "AimRandomSpeed", false);
     aimbot.speed_change_duration = json_get_int(json, "AimSpeedDuration", 500);
     aimbot.overshoot_scale = json_get_float(json, "AimOvershootScale", 1.2f);
-    aimbot.head_offset_enabled = json_get_bool(json, "AimHeadOffset", false);
-    aimbot.head_offset_amount = json_get_float(json, "AimHeadOffsetAmt", 8.0f);
+    aimbot.head_offset_enabled = json_get_bool(json, "AimHeadOffset", true);
+    aimbot.head_offset_amount = json_get_float(json, "AimHeadOffsetAmt", 3.6f);
     aimbot.head_offset_angle_min = json_get_float(json, "AimHeadOffMinAng", 45.0f);
     aimbot.head_offset_angle_max = json_get_float(json, "AimHeadOffMaxAng", 135.0f);
 
@@ -175,13 +175,13 @@ bool Config::load(const std::string& path) {
     crosshair.size = json_get_float(json, "CrosshairSize", 10.0f);
 
     // Triggerbot
-    triggerbot.enabled = json_get_bool(json, "TrigEnable", false);
+    triggerbot.enabled = json_get_bool(json, "TrigEnable", true);
     triggerbot.key = json_get_int(json, "TrigKey", 0x4C);
     triggerbot.delay_min = json_get_int(json, "TrigDelayMin", 10);
     triggerbot.delay_max = json_get_int(json, "TrigDelayMax", 25);
     triggerbot.team_check = json_get_bool(json, "TrigTeamCheck", false);
     triggerbot.max_velocity = json_get_float(json, "TrigMaxVelocity", 18.0f);
-    triggerbot.mode = json_get_int(json, "TrigMode", 0);
+    triggerbot.mode = json_get_int(json, "TrigMode", 1);
     triggerbot.fov_threshold = json_get_float(json, "TrigFovThresh", 1.5f);
 
     // Misc
