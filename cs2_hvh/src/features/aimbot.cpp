@@ -43,6 +43,8 @@ static uintptr_t          g_last_target_pawn = 0;
 static int                g_last_target_hp   = 0;
 static std::chrono::steady_clock::time_point g_kill_time;
 static bool               g_kill_cooldown    = false;
+// 新目标首次帧标记 (用于快速索敌)
+static bool               g_new_target = false;
 
 void run(const AimbotConfig& cfg) {
     if (!cfg.enabled) { g_last_target_pawn = 0; g_kill_cooldown = false; return; }
@@ -156,6 +158,7 @@ void run(const AimbotConfig& cfg) {
             return;
         }
     }
+    g_new_target = (best != g_last_target_pawn);
     g_last_target_pawn = best;
     g_last_target_hp = cur_hp;
 
@@ -201,10 +204,15 @@ void run(const AimbotConfig& cfg) {
     while (delta.y < -180.f) delta.y += 360.f;
 
     // 死区: 角度差太小就不调了, 防止准星抖动
-    if (fabsf(delta.x) < 0.05f && fabsf(delta.y) < 0.05f) return;
+    if (!g_new_target && fabsf(delta.x) < 0.05f && fabsf(delta.y) < 0.05f) return;
 
-    if (cfg.smoothness > 0.1f) {
-        float f = 1.0f / cfg.smoothness;
+    // 新目标: 第一帧近乎瞬拉 (快速索敌)
+    // 跟枪: 标准平滑 (高更新率下自然平滑)
+    float eff_smooth = cfg.smoothness;
+    if (g_new_target) eff_smooth = 0.2f;
+
+    if (eff_smooth > 0.1f) {
+        float f = 1.0f / eff_smooth;
         delta.x *= f;
         delta.y *= f;
     }

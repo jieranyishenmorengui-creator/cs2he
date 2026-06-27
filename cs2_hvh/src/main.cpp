@@ -110,7 +110,7 @@ static void game_thread() {
             menu::toggle();
         }
 
-        Sleep(5);
+        Sleep(1);  // 高更新率 ~1000次/s, 跟枪更平滑
     }
 }
 
