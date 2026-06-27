@@ -323,32 +323,40 @@ void triggerbot(const TriggerbotConfig& cfg) {
             }
         }
     } else {
-        // 模式1: FOV角度检测
-        // 先用 m_iIDEntIndex 快速预筛 → 只对一个实体做FOV验证
-        int ei = read<int32_t>(lp + NetVars::m_iIDEntIndex);
-        if (ei > 0 && ei <= 63) {
-            uintptr_t tc = get_entity_from_index(ei);
-            if (IsRemotePtrValid(tc) && tc != ctrl) {
-                uint32_t th = read<uint32_t>(tc + NetVars::m_hPawn);
-                if (th) {
-                    uintptr_t p = get_entity_from_handle(th);
-                    if (IsRemotePtrValid(p) && p != lp &&
-                        read<uint8_t>(p + NetVars::m_lifeState) == 0 &&
-                        read<int32_t>(p + NetVars::m_iHealth) > 0) {
-                        if (!cfg.team_check || read<uint8_t>(p + NetVars::m_iTeamNum) != lt) {
-                            // FOV验证
-                            Vector3 eye = read<Vector3>(lp + NetVars::m_vOldOrigin)
-                                        + read<Vector3>(lp + NetVars::m_vecViewOffset);
-                            Vector3 bp = get_bone_pos(p, 7);
-                            if (bp.length() < 0.1f) bp = read<Vector3>(p+NetVars::m_vOldOrigin)
-                                + read<Vector3>(p+NetVars::m_vecViewOffset);
-                            Vector3 aa = calc_angle_safe(eye, bp);
-                            Vector3 va = read<Vector3>(lp + NetVars::m_angEyeAngles);
-                            if (fov_angle(va, aa) <= cfg.fov_threshold) valid = true;
-                        }
-                    }
-                }
-            }
+        // 模式1: FOV角度检测 — 全扫描但只用origin粗筛省骨读
+        Vector3 va = read<Vector3>(lp + NetVars::m_angEyeAngles);
+        Vector3 eye = read<Vector3>(lp + NetVars::m_vOldOrigin)
+                    + read<Vector3>(lp + NetVars::m_vecViewOffset);
+        uintptr_t elb = read<uintptr_t>(g_offsets.dwEntityList);
+
+        for (int i = 1; i < 64 && !valid; ++i) {
+            uintptr_t ch = read<uintptr_t>(elb + 8*(i>>9) + 0x10);
+            if (!IsRemotePtrValid(ch)) continue;
+            uintptr_t c = read<uintptr_t>(ch + 112*(i&0x1FF));
+            if (!IsRemotePtrValid(c) || c == ctrl) continue;
+
+            uint32_t ph = read<uint32_t>(c + NetVars::m_hPawn);
+            if (!ph) continue;
+            ch = read<uintptr_t>(elb + 8*((ph&0x7FFF)>>9) + 0x10);
+            if (!IsRemotePtrValid(ch)) continue;
+            uintptr_t p = read<uintptr_t>(ch + 112*(ph&0x7FFF&0x1FF));
+            if (!IsRemotePtrValid(p) || p == lp) continue;
+
+            if (read<int32_t>(p + NetVars::m_iHealth) <= 0) continue;
+            if (read<uint8_t>(p + NetVars::m_lifeState) != 0) continue;
+            if (cfg.team_check && read<uint8_t>(p + NetVars::m_iTeamNum) == lt) continue;
+
+            // 粗筛: 用origin算角度, 超过阈值5倍就跳过 (省骨读)
+            Vector3 o = read<Vector3>(p + NetVars::m_vOldOrigin)
+                      + read<Vector3>(p + NetVars::m_vecViewOffset);
+            Vector3 ra = calc_angle_safe(eye, o);
+            if (fov_angle(va, ra) > cfg.fov_threshold * 5.f) continue;
+
+            // 精确: 读骨再算
+            Vector3 bp = get_bone_pos(p, 7);
+            if (bp.length() < 0.1f) bp = o;
+            Vector3 aa = calc_angle_safe(eye, bp);
+            if (fov_angle(va, aa) <= cfg.fov_threshold) valid = true;
         }
     }
 
