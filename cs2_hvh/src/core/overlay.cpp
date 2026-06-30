@@ -263,6 +263,9 @@ static bool init_imgui() {
     // io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;  // ← disabled: steals Insert/home/end etc.
     io.IniFilename = nullptr;
 
+    // Default built-in font (no CJK — Chinese names → pinyin in esp.cpp)
+    io.Fonts->AddFontDefault();
+
     ImGui::StyleColorsDark();
 
     if (!ImGui_ImplWin32_Init(g_overlayWnd)) {

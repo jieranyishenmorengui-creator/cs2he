@@ -382,26 +382,43 @@ void run(const ESPConfig& cfg) {
         if (cfg.show_health)
             draw_health_bar(x, head.y, 4, h, ent.health);
 
-        if (cfg.show_name && !ent.name.empty()) {
-            std::wstring wname(ent.name.begin(), ent.name.end());
-            float tw = get_text_width(wname, 0.7f);
-            draw_text_shadow(x + w * 0.5f - tw * 0.5f, head.y - 16,
-                             wname, Color(1, 1, 1, 0.9f * cfg.global_alpha), 0.7f);
+        float ts = cfg.text_scale;
+
+        if (cfg.show_name) {
+            // Build label: old char-by-char path (proven)
+            std::wstring label;
+            if (!ent.name.empty()) {
+                label.assign(ent.name.begin(), ent.name.end());
+                // CJK chars → pinyin first letter
+                for (auto& c : label) {
+                    if (c >= 0x4E00 && c <= 0x9FFF)
+                        c = pinyin_head(c);
+                }
+            }
+            if (label.empty() || label.find_first_not_of(L" \t\n\r\0") == std::wstring::npos)
+                label = L"?";  // fallback: always show something
+            float tw = get_text_width(label, ts);
+            draw_text_shadow(x + w * 0.5f - tw * 0.5f, head.y - 18,
+                             label, Color(1, 1, 1, 0.95f * cfg.global_alpha), ts);
         }
 
         if (cfg.show_distance) {
             wchar_t buf[32];
             swprintf(buf, 32, L"%.0fm", ent.distance / 39.37f);
-            float tw = get_text_width(buf, 0.6f);
+            float tw = get_text_width(buf, ts);
             draw_text_shadow(x + w * 0.5f - tw * 0.5f, foot.y + 4,
-                             buf, Color(1, 1, 1, 0.8f * cfg.global_alpha), 0.6f);
+                             buf, Color(1, 1, 1, 0.85f * cfg.global_alpha), ts);
         }
 
-        if (cfg.show_weapon && !ent.weapon_name.empty()) {
-            std::wstring wname(ent.weapon_name.begin(), ent.weapon_name.end());
-            float tw = get_text_width(wname, 0.6f);
+        if (cfg.show_weapon) {
+            std::wstring wname;
+            if (!ent.weapon_name.empty())
+                wname.assign(ent.weapon_name.begin(), ent.weapon_name.end());
+            if (wname.empty())
+                wname = L"?";  // always show something
+            float tw = get_text_width(wname, ts);
             draw_text_shadow(x + w * 0.5f - tw * 0.5f, foot.y + 16,
-                             wname, Color(1, 1, 1, 0.8f * cfg.global_alpha), 0.6f);
+                             wname, Color(1, 1, 1, 0.85f * cfg.global_alpha), ts);
         }
 
         if (cfg.show_skeleton && ent.bones_valid) {

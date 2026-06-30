@@ -123,7 +123,6 @@ static void render_thread_logic() {
     using clock = std::chrono::high_resolution_clock;
     auto last_frame = clock::now();
 
-    int frame_count = 0;
     while (g_running) {
         if (!overlay::is_ready()) {
             Sleep(10);
@@ -157,14 +156,28 @@ static void render_thread_logic() {
         // All ImGui calls in the same thread
         overlay::begin_frame();
 
-        // Debug overlay
+        // FPS counter (updated each frame)
         {
+            using namespace std::chrono;
+            static int g_frame_count = 0;
+            static auto g_fps_timer = high_resolution_clock::now();
+            static int g_current_fps = 0;
+
+            g_frame_count++;
+            auto fps_now = high_resolution_clock::now();
+            float dt = duration<float>(fps_now - g_fps_timer).count();
+            if (dt >= 1.0f) {
+                g_current_fps = g_frame_count;
+                g_frame_count = 0;
+                g_fps_timer = fps_now;
+            }
+
             ImGui::SetNextWindowPos(ImVec2(10, 10), ImGuiCond_Once);
             ImGui::SetNextWindowBgAlpha(0.75f);
             ImGui::Begin("##dbg", nullptr,
                 ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse |
                 ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar);
-            ImGui::TextColored(ImVec4(0,1,0,1), "CS2 HvH Active");
+            ImGui::TextColored(ImVec4(0,1,0,1), "CS2 HvH Active  |  FPS: %d", g_current_fps);
             ImGui::Text("Menu: INSERT  |  Status: %s", g_init_status.load());
             ImGui::End();
         }
@@ -176,7 +189,6 @@ static void render_thread_logic() {
             g_menu_toggle = true;
 
         // Draw features
-        auto t_feature_start = clock::now();
         if (g_test_mode) {
             ImGui::GetForegroundDrawList()->AddRectFilled(
                 ImVec2(0, 0),
@@ -193,40 +205,8 @@ static void render_thread_logic() {
                 crosshair::run(cfg.crosshair);
             }
         }
-        double dt_feature = std::chrono::duration<double, std::milli>(clock::now() - t_feature_start).count();
 
-        auto t_menu_start = clock::now();
         menu::render();
-        double dt_menu = std::chrono::duration<double, std::milli>(clock::now() - t_menu_start).count();
-
-        // FPS counter + timing breakdown
-        {
-            using namespace cs2::renderer;
-            using namespace cs2::renderer;
-            static int g_frame_count = 0;
-            static auto g_fps_timer = std::chrono::high_resolution_clock::now();
-            static int g_current_fps = 0;
-
-            g_frame_count++;
-            auto fps_now = std::chrono::high_resolution_clock::now();
-            float dt = std::chrono::duration<float>(fps_now - g_fps_timer).count();
-            if (dt >= 1.0f) {
-                g_current_fps = g_frame_count;
-                g_frame_count = 0;
-                g_fps_timer = fps_now;
-            }
-
-            wchar_t fps_buf[64];
-            swprintf(fps_buf, 64, L"FPS: %d  |  ESP: %.1fms  Menu: %.1fms",
-                     g_current_fps, dt_feature, dt_menu);
-            draw_text_shadow(8, 8, fps_buf, Color(0, 1, 0, 1), 0.7f);
-
-            const char* status = g_init_status.load();
-            if (status && status[0]) {
-                std::wstring wstatus(status, status + strlen(status));
-                draw_text_shadow(8, 28, wstatus, Color(1, 1, 0, 1), 0.7f);
-            }
-        }
 
         overlay::end_frame();
 
@@ -250,8 +230,6 @@ static void render_thread_logic() {
             }
             last_frame = clock::now();
         }
-
-        frame_count++;
     }
 }
 

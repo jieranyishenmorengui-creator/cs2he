@@ -153,7 +153,8 @@ struct NetVars {
     static constexpr uint32_t m_angEyeAngles       = 0x3320;  // QAngle ← 最新 dump
     static constexpr uint32_t m_iIDEntIndex        = 0x33FC;  // CEntityIndex ← 最新 dump
     static constexpr uint32_t m_entitySpottedState = 0x1C38;  // C_CSPlayerPawn
-    static constexpr uint32_t m_bSpotted          = 0x8;      // EntitySpottedState_t
+    static constexpr uint32_t m_bSpotted          = 0x8;      // EntitySpottedState_t: bool (任何人spotted)
+    static constexpr uint32_t m_bSpottedByMask    = 0xC;      // EntitySpottedState_t: uint32 bitmask (bit N = controller slot N spotted)
     static constexpr uint32_t m_flFlashDuration   = 0x1400;   // C_CSPlayerPawnBase
 
     // Component: CPlayer_MovementServices

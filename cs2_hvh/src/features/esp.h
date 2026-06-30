@@ -15,6 +15,7 @@ struct ESPConfig {
     bool show_distance = true;
     bool show_name = true;
     bool show_weapon = false;
+    float text_scale = 1.0f;        // ESP文字大小 (1.0=16px, 1.5=24px)
     float max_distance = 200.0f;
     float global_alpha = 1.0f;
     float shadow_alpha = 0.5f;

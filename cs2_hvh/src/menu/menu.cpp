@@ -145,6 +145,14 @@ static void tab_aimbot() {
     ImGui::Checkbox("Team Check", &cfg.team_check);
     ImGui::Checkbox("Disable When Flashed", &cfg.disable_when_flashed);
 
+    ImGui::SeparatorText("Advanced");
+    ImGui::Checkbox("Hard Lock (锁定后不换目标)", &cfg.hard_lock);
+    ImGui::TextDisabled("  锁定后新敌人出现不切换，只有目标死亡才解锁");
+    if (cfg.visible_check) {
+        ImGui::SliderInt("Spotted Timeout (ms)", &cfg.spotted_timeout_ms, 300, 5000, "%d ms");
+        ImGui::TextDisabled("spotted后记忆时间，越长越宽松");
+    }
+
     ImGui::Separator();
     ImGui::Checkbox("RCS Recoil Control (压枪)", &cfg.recoil_control);
     if (cfg.recoil_control) {
@@ -188,6 +196,7 @@ static void tab_visuals() {
     ImGui::Checkbox("Show Weapon", &cfg.show_weapon);
 
     ImGui::Separator();
+    ImGui::SliderFloat("Text Scale", &cfg.text_scale, 0.5f, 2.0f, "%.1f");
     ImGui::SliderFloat("Max Distance", &cfg.max_distance, 0.0f, 500.0f, "%.0f m");
     ImGui::SliderFloat("Global Alpha", &cfg.global_alpha, 0.0f, 1.0f, "%.2f");
     ImGui::SliderFloat("Smooth Factor", &cfg.smooth_factor, 0.0f, 0.9f, "%.2f");

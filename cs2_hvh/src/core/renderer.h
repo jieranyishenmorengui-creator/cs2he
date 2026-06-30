@@ -20,6 +20,16 @@ void draw_text(float x, float y, const std::wstring& text, const Color& color, f
 // Convenience: draw text with centering
 void draw_text_shadow(float x, float y, const std::wstring& text, const Color& color, float scale = 1.0f);
 
+// UTF-8 <-> wstring conversion
+std::wstring u8_to_wstring(const std::string& u8);
+
+// Convert Chinese character to pinyin first letter (uppercase).
+// Non-Chinese characters pass through unchanged.
+wchar_t pinyin_head(wchar_t ch);
+
+// Convert entire UTF-8 name: Chinese chars → pinyin heads, ASCII stays.
+std::wstring name_to_label(const std::string& utf8_name);
+
 // Text size estimation
 float get_text_width(const std::wstring& text, float scale = 1.0f);
 float get_text_height(float scale = 1.0f);

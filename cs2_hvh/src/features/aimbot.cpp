@@ -103,7 +103,13 @@ static Vector3 ema_target(uintptr_t pawn, const Vector3& cur, float smoothness) 
 }
 
 // ═════════════════════════════════════════════════════════════
-//  扳机联动: aimbot设信号 → 扳机零延迟读取
+//  Spotted 超时缓存 — 解决 m_bSpotted 延迟不稳定
+// ═════════════════════════════════════════════════════════════
+
+static std::unordered_map<uintptr_t, std::chrono::steady_clock::time_point> s_spotted_cache;
+
+// ═════════════════════════════════════════════════════════════
+//  扳机联动信号
 // ═════════════════════════════════════════════════════════════
 
 static bool g_aimbot_has_target = false;     // aimbot锁定中
@@ -112,6 +118,9 @@ static float g_aimbot_fov_raw = 999.f;       // 平滑前角度差
 // ═════════════════════════════════════════════════════════════
 //  Aimbot
 // ═════════════════════════════════════════════════════════════
+
+static constexpr uintptr_t B_ATTACK  = 0x2065A90;
+static constexpr uintptr_t B_ATTACK2 = 0x2065B20;
 
 static uintptr_t g_last = 0;
 static int      g_last_hp = 0;
@@ -131,7 +140,7 @@ void run(const AimbotConfig& cfg) {
         if (overlay::was_key_pressed(cfg.key0) || (cfg.key1 && overlay::was_key_pressed(cfg.key1))) t = !t;
         key_down = t;
     }
-    if (!key_down) { g_last = 0; g_kcd = false; clear_ema(); return; }
+    if (!key_down) { g_last = 0; g_kcd = false; clear_ema(); g_aimbot_has_target = false; return; }
 
     if (cfg.kill_delay_ms > 0 && g_kcd) {
         auto e = std::chrono::duration_cast<std::chrono::milliseconds>(
@@ -183,7 +192,18 @@ void run(const AimbotConfig& cfg) {
 
         uintptr_t sn = read<uintptr_t>(p + NetVars::m_pGameSceneNode);
         if (IsRemotePtrValid(sn) && read<bool>(sn + 0x103)) continue;
-        if (cfg.visible_check && !read<bool>(p + NetVars::m_entitySpottedState + NetVars::m_bSpotted)) continue;
+        if (cfg.visible_check) {
+            // spotted 超时缓存: m_bSpotted 一旦为 true 就记录时间戳，
+            // 在 spotted_timeout_ms 窗口内认为可见，解决引擎检测延迟问题
+            auto t_now = std::chrono::steady_clock::now();
+            if (read<bool>(p + NetVars::m_entitySpottedState + NetVars::m_bSpotted))
+                s_spotted_cache[p] = t_now;
+            auto sit = s_spotted_cache.find(p);
+            if (sit == s_spotted_cache.end()) continue;
+            int ms_ago = (int)std::chrono::duration_cast<std::chrono::milliseconds>(
+                t_now - sit->second).count();
+            if (ms_ago > cfg.spotted_timeout_ms) continue;
+        }
 
         Vector3 o = read<Vector3>(p + NetVars::m_vOldOrigin);
         float wd = eye.dist_to(o);
@@ -213,27 +233,46 @@ void run(const AimbotConfig& cfg) {
         }
     }
 
-    if (++g_pc > 30) { g_pc = 0; for (auto it = s_target_cache.begin(); it != s_target_cache.end();) {
-        int h = read<int32_t>(it->first + NetVars::m_iHealth);
-        if (h <= 0 || h > 200) it = s_target_cache.erase(it); else ++it;
-    }}
+    if (++g_pc > 30) { g_pc = 0;
+        for (auto it = s_target_cache.begin(); it != s_target_cache.end();) {
+            int h = read<int32_t>(it->first + NetVars::m_iHealth);
+            if (h <= 0 || h > 200) it = s_target_cache.erase(it); else ++it;
+        }
+        // spotted 缓存也定期清理
+        auto now_gc = std::chrono::steady_clock::now();
+        for (auto it = s_spotted_cache.begin(); it != s_spotted_cache.end();) {
+            int ms = (int)std::chrono::duration_cast<std::chrono::milliseconds>(now_gc - it->second).count();
+            if (ms > 5000) it = s_spotted_cache.erase(it); else ++it;
+        }
+    }
 
-    // 滞回: 上帧目标还在且分差<15%, 不换
+    // ── 目标锁定 ─────────────────────────────────────────────
     if (g_last && g_last != best) {
         int old_hp = read<int32_t>(g_last + NetVars::m_iHealth);
-        if (old_hp > 0 && read<uint8_t>(g_last + NetVars::m_lifeState) == 0) {
-            Vector3 old_o = read<Vector3>(g_last + NetVars::m_vOldOrigin);
-            Vector3 old_bp = get_bone_pos(g_last, cfg.target_bone);
-            if (old_bp.length() < 0.1f) old_bp = old_o + read<Vector3>(g_last + NetVars::m_vecViewOffset);
-            Vector2 old_sp;
-            if (world_to_screen(old_bp, old_sp, vm, sw, sh)) {
-                float old_fd = (old_sp - Vector2(sw*0.5f, sh*0.5f)).length();
-                float old_wd = eye.dist_to(old_o);
-                float old_score;
-                if (cfg.aim_priority == 1) old_score = old_wd;
-                else if (cfg.aim_priority == 2) old_score = (float)old_hp + old_wd * 0.001f;
-                else old_score = old_fd + old_wd * 0.01f;
-                if (old_score <= best_score * 1.15f) best = g_last;
+        bool old_alive = old_hp > 0 && read<uint8_t>(g_last + NetVars::m_lifeState) == 0;
+        if (old_alive) {
+            uintptr_t old_sn = read<uintptr_t>(g_last + NetVars::m_pGameSceneNode);
+            bool old_dormant = IsRemotePtrValid(old_sn) && read<bool>(old_sn + 0x103);
+            if (!old_dormant) {
+                Vector3 old_o = read<Vector3>(g_last + NetVars::m_vOldOrigin);
+                Vector3 old_bp = get_bone_pos(g_last, cfg.target_bone);
+                if (old_bp.length() < 0.1f) old_bp = old_o + read<Vector3>(g_last + NetVars::m_vecViewOffset);
+                Vector2 old_sp;
+                if (world_to_screen(old_bp, old_sp, vm, sw, sh)) {
+                    float old_fd = (old_sp - Vector2(sw*0.5f, sh*0.5f)).length();
+                    if (cfg.hard_lock) {
+                        // 硬锁: 目标在 2x FOV 内就不换 (新敌人出生不打断)
+                        if (old_fd <= cfg.fov * 2.0f) best = g_last;
+                    } else {
+                        // 软滞回: 分差 <15% 不换
+                        float old_wd = eye.dist_to(old_o);
+                        float old_score;
+                        if (cfg.aim_priority == 1) old_score = old_wd;
+                        else if (cfg.aim_priority == 2) old_score = (float)old_hp + old_wd * 0.001f;
+                        else old_score = old_fd + old_wd * 0.01f;
+                        if (old_score <= best_score * 1.15f) best = g_last;
+                    }
+                }
             }
         }
     }
@@ -312,8 +351,6 @@ void run(const AimbotConfig& cfg) {
 //  mode=0: m_iIDEntIndex (原)   mode=1: FOV角度检测
 // ═════════════════════════════════════════════════════════════
 
-static constexpr uintptr_t B_ATTACK  = 0x2065A90;
-static constexpr uintptr_t B_ATTACK2 = 0x2065B20;
 static std::chrono::steady_clock::time_point g_last_shot;
 
 // FOV模式辅助
@@ -326,19 +363,30 @@ static float fov_angle(const Vector3& a, const Vector3& b) {
 
 void triggerbot(const TriggerbotConfig& cfg) {
     static bool wf = false;
-    if (!cfg.enabled) { wf = false; return; }
-    if (cfg.key && !overlay::is_key_down(cfg.key)) { wf = false; return; }
+    // 滞回状态: 目标短暂超出FOV阈值时不立即放弃，等宽限期过后再重置
+    static bool  s_armed       = false;
+    static bool  s_lost_track  = false;
+    static std::chrono::steady_clock::time_point s_lost_at;
+    static constexpr int GRACE_MS = 18; // FOV短暂超出的容忍窗口(ms)
+
+    auto now = std::chrono::steady_clock::now();
+
+    if (!cfg.enabled) { wf = false; s_armed = false; s_lost_track = false; return; }
+    if (cfg.key && !overlay::is_key_down(cfg.key)) {
+        if (wf && g_offsets.clientBase) write<int>(g_offsets.clientBase + B_ATTACK, 0);
+        wf = false; s_armed = false; s_lost_track = false; return;
+    }
 
     uintptr_t ctrl = read<uintptr_t>(g_offsets.dwLocalPlayerController);
-    if (!IsRemotePtrValid(ctrl)) { wf = false; return; }
+    if (!IsRemotePtrValid(ctrl)) { wf = false; s_armed = false; return; }
     uintptr_t lp = get_entity_from_handle(read<uint32_t>(ctrl + NetVars::m_hPawn));
-    if (!IsRemotePtrValid(lp)) { wf = false; return; }
+    if (!IsRemotePtrValid(lp)) { wf = false; s_armed = false; return; }
     uint8_t lt = read<uint8_t>(lp + NetVars::m_iTeamNum);
 
-    bool valid = false;
+    bool raw_valid = false;
 
     if (cfg.mode == 0) {
-        // 模式0: m_iIDEntIndex
+        // 模式0: m_iIDEntIndex (游戏自带射线检测，有约1帧延迟)
         int ei = read<int32_t>(lp + NetVars::m_iIDEntIndex);
         if (ei > 0 && ei <= 63) {
             uintptr_t tc = get_entity_from_index(ei);
@@ -350,13 +398,31 @@ void triggerbot(const TriggerbotConfig& cfg) {
                         read<uint8_t>(tp + NetVars::m_lifeState) == 0 &&
                         read<int32_t>(tp + NetVars::m_iHealth) > 0)
                         if (!cfg.team_check || read<uint8_t>(tp + NetVars::m_iTeamNum) != lt)
-                            valid = true;
+                            raw_valid = true;
                 }
             }
         }
     } else {
-        // 模式1: 联动自瞄 — aimbot算完角度时设信号, 零额外RPM
-        valid = g_aimbot_has_target && (g_aimbot_fov_raw <= cfg.fov_threshold);
+        // 模式1: 联动自瞄信号
+        raw_valid = g_aimbot_has_target && (g_aimbot_fov_raw <= cfg.fov_threshold);
+    }
+
+    // ── 滞回逻辑 ──────────────────────────────────────────────
+    bool valid = false;
+    if (raw_valid) {
+        s_armed = true;
+        s_lost_track = false;
+        valid = true;
+    } else if (s_armed) {
+        // 首次失效: 记录时间
+        if (!s_lost_track) { s_lost_track = true; s_lost_at = now; }
+        auto lost_ms = std::chrono::duration_cast<std::chrono::milliseconds>(now - s_lost_at).count();
+        if (lost_ms < GRACE_MS) {
+            valid = true;       // 宽限期内视为仍然有效, 不重置延迟计时
+        } else {
+            s_armed = false;    // 真正失去目标
+            s_lost_track = false;
+        }
     }
 
     if (!valid) {
@@ -372,7 +438,6 @@ void triggerbot(const TriggerbotConfig& cfg) {
         }
     }
 
-    auto now = std::chrono::steady_clock::now();
     auto el = std::chrono::duration_cast<std::chrono::milliseconds>(now - g_last_shot).count();
     int dly = cfg.delay_min;
     if (cfg.delay_max > cfg.delay_min) {
@@ -391,6 +456,7 @@ void triggerbot(const TriggerbotConfig& cfg) {
     clk[0].type = INPUT_MOUSE; clk[0].mi.dwFlags = MOUSEEVENTF_LEFTDOWN;
     clk[1].type = INPUT_MOUSE; clk[1].mi.dwFlags = MOUSEEVENTF_LEFTUP;
     ::SendInput(2, clk, sizeof(INPUT));
+
     g_last_shot = now; wf = true;
 }
 

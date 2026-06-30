@@ -159,6 +159,7 @@ bool Config::load(const std::string& path) {
     esp.global_alpha = json_get_float(json, "GlobalAlpha", 1.0f);
     esp.shadow_alpha = json_get_float(json, "ShadowAlpha", 0.5f);
     esp.smooth_factor = json_get_float(json, "SmoothFactor", 0.0f);
+    esp.text_scale = json_get_float(json, "ESP_TextScale", 1.0f);
     esp.show_head_circle = json_get_bool(json, "ShowHeadCircle", true);
     esp.head_circle_thickness = json_get_float(json, "HeadCircleThickness", 1.5f);
     esp.head_circle_color = json_get_color(json, "Col_HeadCircle", Color(1,1,1,1));
@@ -303,6 +304,8 @@ bool Config::save(const std::string& path) {
     write_json_color(f, "Col_ESP_Shadow", esp.shadow_color);
     fprintf(f, ",\n");
     write_json_float(f, "SmoothFactor", esp.smooth_factor);
+    fprintf(f, ",\n");
+    write_json_float(f, "ESP_TextScale", esp.text_scale);
     fprintf(f, ",\n");
 
     write_json_bool(f, "ShowHeadCircle", esp.show_head_circle);

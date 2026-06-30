@@ -50,6 +50,12 @@ struct AimbotConfig {
     // 击杀冷却
     int kill_delay_ms = 0;
 
+    // 目标锁定: 锁定后不因新敌人出现（出生）而切换，只有目标死亡才解锁
+    bool hard_lock = true;
+
+    // visible_check 超时: 记住最后 spotted 时间，此窗口内认为可见 (ms)
+    int spotted_timeout_ms = 1500;
+
     // 侧身头部补偿: 敌人侧身时头骨不在正上方
     bool head_offset_enabled = true;
     float head_offset_amount = 3.6f;      // 补偿量 (单位)
