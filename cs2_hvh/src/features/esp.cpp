@@ -15,6 +15,14 @@ namespace cs2::esp {
 
 using namespace memory;
 
+// Lightweight cache: bones (every 3 frames) + weapon name (~1 fps)
+static int s_bone_tick = 0;
+static int s_weapon_tick = 0;
+static constexpr int BONE_INTERVAL = 3;
+static constexpr int WEAPON_INTERVAL = 144; // ~1×/s at 144fps, ~2×/s at 60fps
+static std::unordered_map<uintptr_t, std::vector<Vector3>> s_bone_cache;
+static std::unordered_map<uintptr_t, std::string> s_weapon_cache;
+
 struct ESPEntity {
     uintptr_t pawn;
     Vector3 origin;
@@ -153,6 +161,12 @@ void run(const ESPConfig& cfg) {
     // ═════════════════════════════════════════════════════════════
     std::vector<RawEntity> rawList;
 
+    // Heavy-read throttle: bones (every 3 frames), weapon names (~1 fps)
+    s_bone_tick = (s_bone_tick + 1) % BONE_INTERVAL;
+    s_weapon_tick = (s_weapon_tick + 1) % WEAPON_INTERVAL;
+    bool do_bones = (s_bone_tick == 0);
+    bool do_weapons = (s_weapon_tick == 0);
+
     for (int i = 1; i < 64; ++i) {
         uintptr_t chunkPtr = read<uintptr_t>(entListBase + 8 * (i >> 9) + 0x10);
         if (!chunkPtr) continue;
@@ -189,30 +203,52 @@ void run(const ESPConfig& cfg) {
         Vector3 origin;
         if (!read(pawn + NetVars::m_vOldOrigin, &origin, 12)) continue;
 
-        // ── Read bone positions (Vector3 at stride 0x20) ─────────
-        // Reference: IMXNOOBX reads bone_data { Vec3 pos; uint8_t pad[0x14] } *30
-        // Each entry is 32 bytes, position is the first Vector3.
+        // ── Bone / skeleton ────────────────────────────────────
+        // Always read head bone for accurate box/circle positioning.
+        // Full 30-bone read only when skeleton enabled (throttled).
         Vector3 headPos(origin.x, origin.y, origin.z + 72.0f);
         bool headFromBone = false;
         int boneCount = 0;
         Vector3 boneWorld[BoneIndex::MAX_BONES]{};
 
-        if (sceneNode) {
-            uintptr_t ms = sceneNode + NetVars::m_modelState;
-            uintptr_t ba = read<uintptr_t>(ms + NetVars::m_pBones);
-            if (ba) {
-                // Read 30 bones * 32 bytes each in one batch
-                uint8_t raw[30 * 0x20];
-                if (read(ba, raw, sizeof(raw))) {
-                    boneCount = 30;
-                    for (int b = 0; b < 30; ++b) {
-                        float* pf = (float*)(raw + b * 0x20);
-                        boneWorld[b] = Vector3(pf[0], pf[1], pf[2]);
+        uintptr_t ba = 0;
+        if (sceneNode)
+            ba = read<uintptr_t>(sceneNode + NetVars::m_modelState + NetVars::m_pBones);
+
+        if (ba) {
+            if (cfg.show_skeleton) {
+                if (do_bones) {
+                    uint8_t raw[30 * 0x20];
+                    if (read(ba, raw, sizeof(raw))) {
+                        boneCount = 30;
+                        for (int b = 0; b < 30; ++b) {
+                            float* pf = (float*)(raw + b * 0x20);
+                            boneWorld[b] = Vector3(pf[0], pf[1], pf[2]);
+                        }
+                        if (boneWorld[BoneIndex::HEAD].length() > 1.0f) {
+                            headPos = boneWorld[BoneIndex::HEAD];
+                            headFromBone = true;
+                        }
+                        s_bone_cache[pawn].assign(boneWorld, boneWorld + boneCount);
                     }
-                    if (boneWorld[BoneIndex::HEAD].length() > 1.0f) {
-                        headPos = boneWorld[BoneIndex::HEAD];
-                        headFromBone = true;
+                } else {
+                    auto cit = s_bone_cache.find(pawn);
+                    if (cit != s_bone_cache.end() && !cit->second.empty()) {
+                        boneCount = (int)std::min(cit->second.size(), (size_t)BoneIndex::MAX_BONES);
+                        for (int b = 0; b < boneCount; ++b)
+                            boneWorld[b] = cit->second[b];
+                        if (boneWorld[BoneIndex::HEAD].length() > 1.0f) {
+                            headPos = boneWorld[BoneIndex::HEAD];
+                            headFromBone = true;
+                        }
                     }
+                }
+            } else {
+                // Lightweight: head bone only (no 960-byte read)
+                Vector3 hb = read<Vector3>(ba + BoneIndex::HEAD * 0x20);
+                if (hb.length() > 1.0f) {
+                    headPos = hb;
+                    headFromBone = true;
                 }
             }
         }
@@ -223,15 +259,22 @@ void run(const ESPConfig& cfg) {
         // Name
         std::string entName;
         {
-            const char* ns = (const char*)(ctrlBuf + 0x34);
+            const char* ns = (const char*)(ctrlBuf + 0x38); // m_iszPlayerName at 0x6F4
             size_t nl = strnlen(ns, 32);
             if (nl > 0) entName.assign(ns, nl);
         }
 
-        // Weapon
+        // Weapon (~1 fps throttle, or first encounter)
         std::string weaponName;
-        if (cfg.show_weapon)
-            weaponName = get_weapon_name_cached(pawn, entListBase);
+        if (cfg.show_weapon) {
+            auto wit = s_weapon_cache.find(pawn);
+            if (do_weapons || wit == s_weapon_cache.end()) {
+                weaponName = get_weapon_name_cached(pawn, entListBase);
+                s_weapon_cache[pawn] = weaponName;
+            } else {
+                weaponName = wit->second;
+            }
+        }
 
         rawList.push_back(RawEntity{
             pawn, origin, headPos, health, team, dist,
@@ -319,8 +362,8 @@ void run(const ESPConfig& cfg) {
         entities.push_back(ent);
     }
 
-    // ── Clean up smoothing state for dead entities ────────────
-    if (cfg.smooth_factor > 0.0f) {
+    // ── Clean up smoothing + cache for dead entities ────────────
+    {
         auto prune = [&](auto& map) {
             for (auto it = map.begin(); it != map.end(); ) {
                 bool alive = false;
@@ -330,8 +373,9 @@ void run(const ESPConfig& cfg) {
                 else       it = map.erase(it);
             }
         };
-        prune(s_smoothFoot);
-        prune(s_smoothHead);
+        if (cfg.smooth_factor > 0.0f) { prune(s_smoothFoot); prune(s_smoothHead); }
+        prune(s_bone_cache);
+        prune(s_weapon_cache);
     }
 
     std::sort(entities.begin(), entities.end(),

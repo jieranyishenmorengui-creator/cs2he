@@ -16,6 +16,7 @@ set(SOURCES
     src/core/offsets.cpp
     src/features/aimbot.cpp
     src/features/esp.cpp
+    src/features/spectator.cpp
     src/features/crosshair.cpp
     src/features/misc.cpp
     src/menu/menu.cpp
@@ -38,6 +39,7 @@ set(HEADERS
     src/core/offsets.h
     src/features/aimbot.h
     src/features/esp.h
+    src/features/spectator.h
     src/features/crosshair.h
     src/features/misc.h
     src/menu/menu.h

@@ -118,7 +118,7 @@ enum BoneIndex : int {
 // Reference: https://github.com/a2x/cs2-dumper/tree/main/output
 struct NetVars {
     // CBasePlayerController (parent of CCSPlayerController)
-    static constexpr uint32_t m_iszPlayerName   = 0x6F0;  // char[128]
+    static constexpr uint32_t m_iszPlayerName   = 0x6F4;  // char[128] (2026-07: +4 from 0x6F0)
 
     // CCSPlayerController
     static constexpr uint32_t m_hPawn          = 0x6BC;  // CHandle<C_CSPlayerPawn> (controller→pawn)
@@ -157,6 +157,11 @@ struct NetVars {
     static constexpr uint32_t m_bSpottedByMask    = 0xC;      // EntitySpottedState_t: uint32 bitmask (bit N = controller slot N spotted)
     static constexpr uint32_t m_flFlashDuration   = 0x1400;   // C_CSPlayerPawnBase
 
+    // Component: CPlayer_ObserverServices (on C_BasePlayerPawn +0x11F8)
+    static constexpr uint32_t m_pObserverServices = 0x11F8; // CPlayer_ObserverServices*
+    static constexpr uint32_t m_iObserverMode     = 0x48;   // uint8
+    static constexpr uint32_t m_hObserverTarget   = 0x4C;   // CHandle<C_BaseEntity>
+
     // Component: CPlayer_MovementServices
     static constexpr uint32_t m_nButtons         = 0x50;   // CInButtonState (read as uint32)
 
@@ -192,7 +197,7 @@ struct CCSPlayerController : CEntityInstance {
     char pad0[0x6BC];
     uint32_t m_hPawn;               // 0x6BC
     char pad1[0x6F0 - 0x6C0];
-    char m_iszPlayerName[128];      // 0x6F0
+    char m_iszPlayerName[128];      // 0x6F4 (was 0x6F0 pre-2026-07)
     char pad2[0x904 - 0x770];
     uint32_t m_hPlayerPawn;         // 0x904 (on C_CSPlayerPawn)
 };

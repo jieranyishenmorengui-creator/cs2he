@@ -17,6 +17,7 @@
 #include "menu/menu.h"
 #include "features/aimbot.h"
 #include "features/esp.h"
+#include "features/spectator.h"
 #include "features/crosshair.h"
 #include "features/misc.h"
 #include "utils/debug_log.h"
@@ -202,6 +203,8 @@ static void render_thread_logic() {
         } else {
             if (!menu::is_open() || true) {
                 esp::run(cfg.esp);
+                spectator::update();
+                spectator::draw();
                 crosshair::run(cfg.crosshair);
             }
         }

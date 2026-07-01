@@ -88,15 +88,24 @@ static std::unordered_map<uintptr_t, Vector3> s_target_cache;
 
 static void clear_ema() { s_target_cache.clear(); }
 
-static Vector3 ema_target(uintptr_t pawn, const Vector3& cur, float smoothness) {
+static Vector3 ema_target(uintptr_t pawn, const Vector3& cur, float smoothness, float frametime = 0.f) {
     auto it = s_target_cache.find(pawn);
     if (it == s_target_cache.end()) {
         s_target_cache[pawn] = cur;
         return cur;
     }
-    float alpha = (smoothness <= 1.f) ? 0.65f :
-                  (smoothness >= 10.f) ? 0.15f :
-                  0.65f - (smoothness - 1.f) / 9.f * 0.5f;
+
+    // Base alpha for reference 64 fps (interval_per_tick ≈ 0.015625s)
+    float base_alpha = (smoothness <= 1.f) ? 0.65f :
+                       (smoothness >= 10.f) ? 0.15f :
+                       0.65f - (smoothness - 1.f) / 9.f * 0.5f;
+
+    // Frame-rate independent normalization via dwGlobalVars frametime
+    float alpha = base_alpha;
+    if (frametime > 0.001f && frametime < 0.1f) {
+        alpha = 1.f - powf(1.f - base_alpha, frametime * 64.f);
+    }
+
     Vector3 s = it->second + (cur - it->second) * alpha;
     s_target_cache[pawn] = s;
     return s;
@@ -290,12 +299,19 @@ void run(const AimbotConfig& cfg) {
     g_last = best; g_last_hp = chp;
     if (chp <= 0) return;
 
+    // 帧时间归一化 (dwGlobalVars → frametime)
+    float ft = 0.f;
+    if (g_offsets.dwGlobalVars) {
+        uintptr_t gv = read<uintptr_t>(g_offsets.dwGlobalVars);
+        if (IsRemotePtrValid(gv)) ft = read<float>(gv + 0x10); // GlobalVars.frametime
+    }
+
     // 目标骨骼 + 侧身补偿 + EMA
     Vector3 to = read<Vector3>(best + NetVars::m_vOldOrigin);
     Vector3 rp = get_bone_pos(best, cfg.target_bone);
     if (rp.length() < 0.1f) rp = to + read<Vector3>(best + NetVars::m_vecViewOffset);
     rp = adjust_head_for_facing(cfg, best, rp, eye);
-    Vector3 tp = ema_target(best, rp, cfg.smoothness);
+    Vector3 tp = ema_target(best, rp, cfg.smoothness, ft);
 
     // 提前量
     Vector3 ap = tp, ae = eye;
