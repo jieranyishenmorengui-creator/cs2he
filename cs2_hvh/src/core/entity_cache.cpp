@@ -13,7 +13,9 @@ using namespace ::cs2::offsets;
 
 // ── Forward-declare internal structures ──────────────────────
 struct BoneCacheVal { Vector3 bones[30]; int count; };
+struct ObsCacheVal { uintptr_t services; uint32_t target; };
 static std::unordered_map<uintptr_t, BoneCacheVal> s_bone_pool;
+static std::unordered_map<uintptr_t, ObsCacheVal>  s_obs_cache;
 
 // ── Internal state ──────────────────────────────────────────
 
@@ -115,12 +117,13 @@ void update() {
             ent.view_offset = read<Vector3>(pawn + NetVars::m_vecViewOffset);
             ent.flash_duration = read<float>(pawn + NetVars::m_flFlashDuration);
             uintptr_t ss = pawn + NetVars::m_entitySpottedState;
+            ent.spotted          = read<uint8_t>(ss + NetVars::m_bSpotted) != 0;
             ent.spotted_by_mask = read<uint32_t>(ss + NetVars::m_bSpottedByMask);
             ent.weapon_services    = read<uintptr_t>(pawn + NetVars::m_pWeaponServices);
             ent.aim_punch_services = read<uintptr_t>(pawn + NetVars::m_pAimPunchServices);
             ent.movement_services  = read<uintptr_t>(pawn + NetVars::m_pMovementServices);
 
-            // Tier 2: bones + observer (every ~3 scans)
+            // Tier 2: bones (every ~3 scans)
             if (tier2 && IsRemotePtrValid(sceneNode)) {
                 uintptr_t ba = read<uintptr_t>(sceneNode + NetVars::m_modelState + NetVars::m_pBones);
                 if (IsRemotePtrValid(ba)) {
@@ -136,11 +139,6 @@ void update() {
                         s_bone_pool[pawn].count = 30;
                     }
                 }
-                uintptr_t obs = read<uintptr_t>(pawn + NetVars::m_pObserverServices);
-                if (IsRemotePtrValid(obs)) {
-                    ent.observer_services = obs;
-                    ent.observer_target   = read<uint32_t>(obs + NetVars::m_hObserverTarget);
-                }
             } else {
                 auto bit = s_bone_pool.find(pawn);
                 if (bit != s_bone_pool.end()) {
@@ -154,6 +152,23 @@ void update() {
                 ent.head_pos = ent.bones[BoneIndex::HEAD];
             else
                 ent.head_pos = ent.origin + Vector3(0, 0, 72.0f);
+        } // end if (alive)
+
+        // ── Observer services (read for ALL, alive or dead — needed by spectator) ──
+        // Tier 2 refresh, cached between frames
+        {
+            auto oit = s_obs_cache.find(pawn);
+            if (tier2) {
+                uintptr_t obs = read<uintptr_t>(pawn + NetVars::m_pObserverServices);
+                if (IsRemotePtrValid(obs)) {
+                    ent.observer_services = obs;
+                    ent.observer_target   = read<uint32_t>(obs + NetVars::m_hObserverTarget);
+                    s_obs_cache[pawn] = {obs, ent.observer_target};
+                }
+            } else if (oit != s_obs_cache.end()) {
+                ent.observer_services = oit->second.services;
+                ent.observer_target   = oit->second.target;
+            }
         }
 
         const char* ns = (const char*)(ctrlBuf + 0x38);
@@ -167,6 +182,8 @@ void update() {
     // ── Prune dead entities from bone pool ─────────────────────
     for (auto it = s_bone_pool.begin(); it != s_bone_pool.end(); )
         if (!seen.count(it->first)) it = s_bone_pool.erase(it); else ++it;
+    for (auto it = s_obs_cache.begin(); it != s_obs_cache.end(); )
+        if (!seen.count(it->first)) it = s_obs_cache.erase(it); else ++it;
     } // end if (elb)
 
     // ── Swap into cache ────────────────────────────────────

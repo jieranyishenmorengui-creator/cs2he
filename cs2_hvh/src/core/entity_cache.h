@@ -19,6 +19,7 @@ struct CachedEntity {
     bool   alive = false;        // health > 0 && lifeState == 0
     bool   dormant = true;       // sceneNode + 0x103
     uint32_t spotted_by_mask = 0; // EntitySpottedState_t::m_bSpottedByMask (bit N = player N saw you)
+    bool   spotted = false;      // m_bSpotted (anyone saw you — fallback)
     float  flash_duration = 0;   // m_flFlashDuration
 
     // Skeleton (world-space positions, 30 bones max)

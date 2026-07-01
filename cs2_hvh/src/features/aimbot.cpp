@@ -187,11 +187,8 @@ void run(const AimbotConfig& cfg) {
         if (!ent.alive || ent.dormant) continue;
         if (cfg.team_check && ent.team == local_team) continue;
         if (cfg.visible_check) {
-            // m_bSpottedByMask: bit N = 玩家N看到你了. N = local controller index
-            int idx = snap.local_controller_index;
-            bool spotted_by_me = idx > 0 && idx < 32 &&
-                (ent.spotted_by_mask & (1u << idx)) != 0;
-            if (spotted_by_me)
+            // m_bSpotted 超时缓存: 一旦为 true 就记录时间戳
+            if (ent.spotted)
                 s_spotted_cache[ent.pawn] = t_now;
             auto sit = s_spotted_cache.find(ent.pawn);
             if (sit == s_spotted_cache.end()) continue;
