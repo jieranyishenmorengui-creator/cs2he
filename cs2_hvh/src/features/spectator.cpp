@@ -1,7 +1,7 @@
 #include "spectator.h"
+#include "../core/entity_cache.h"
 #include "../core/memory.h"
 #include "../core/offsets.h"
-#include "../utils/sdk.h"
 #include "../imgui/imgui.h"
 #include "../core/overlay.h"
 #include <string>
@@ -15,7 +15,7 @@ using namespace ::cs2::offsets;
 
 static std::vector<std::string> s_spectators;
 static std::chrono::steady_clock::time_point s_last_update;
-static constexpr int UPDATE_INTERVAL_MS = 250; // 每秒扫4次, 不拖帧
+static constexpr int UPDATE_INTERVAL_MS = 250;
 
 void update() {
     auto now = std::chrono::steady_clock::now();
@@ -25,53 +25,20 @@ void update() {
 
     s_spectators.clear();
 
-    uintptr_t ctrl = read<uintptr_t>(g_offsets.dwLocalPlayerController);
-    if (!IsRemotePtrValid(ctrl)) return;
-    uintptr_t local_pawn = get_entity_from_handle(read<uint32_t>(ctrl + NetVars::m_hPawn));
+    auto snap = entity_cache::fetch();
+    uintptr_t local_pawn = snap.local_pawn;
     if (!IsRemotePtrValid(local_pawn)) return;
 
-    uintptr_t elb = read<uintptr_t>(g_offsets.dwEntityList);
-    if (!IsRemotePtrValid(elb)) return;
+    for (auto& ent : snap.entities) {
+        if (ent.alive) continue; // only dead players spectate
+        if (!ent.observer_services) continue;
+        if (ent.observer_target == 0) continue;
 
-    for (int i = 1; i < 64; ++i) {
-        // Level 1: chunk pointer
-        uintptr_t ch = read<uintptr_t>(elb + 8 * (i >> 9) + 0x10);
-        if (!IsRemotePtrValid(ch)) continue;
-
-        // Level 2: controller entity
-        uintptr_t entity = read<uintptr_t>(ch + 112 * (i & 0x1FF));
-        if (!IsRemotePtrValid(entity) || entity == ctrl) continue;
-
-        // Batch read: pawnHandle + health (to skip name string read)
-        uint32_t ph = read<uint32_t>(entity + NetVars::m_hPawn);
-        if (!ph) continue;
-
-        uintptr_t pawn = get_entity_from_handle(ph);
-        if (!IsRemotePtrValid(pawn)) continue;
-
-        int hp = read<int32_t>(pawn + NetVars::m_iHealth);
-        if (hp > 0 && read<uint8_t>(pawn + NetVars::m_lifeState) == 0) continue;
-
-        // Read observer services
-        uintptr_t obs = read<uintptr_t>(pawn + NetVars::m_pObserverServices);
-        if (!IsRemotePtrValid(obs)) continue;
-
-        uint32_t target_handle = read<uint32_t>(obs + NetVars::m_hObserverTarget);
-        if (!target_handle) continue;
-
-        uintptr_t target_pawn = get_entity_from_handle(target_handle);
+        uintptr_t target_pawn = get_entity_from_handle(ent.observer_target);
         if (target_pawn == local_pawn) {
-            // Read name (offset fixed: 0x6F4)
-            char name[128] = {};
-            read(entity + NetVars::m_iszPlayerName, name, sizeof(name));
-            name[sizeof(name) - 1] = 0;
+            const char* name = ent.name;
             if (name[0])
                 s_spectators.emplace_back(name);
-            else {
-                char tag[32];
-                snprintf(tag, sizeof(tag), "Player #%d", i);
-                s_spectators.emplace_back(tag);
-            }
         }
     }
 }

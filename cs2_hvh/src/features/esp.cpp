@@ -1,5 +1,6 @@
 #include "esp.h"
 #include "../core/memory.h"
+#include "../core/entity_cache.h"
 #include "../core/offsets.h"
 #include "../core/overlay.h"
 #include "../core/renderer.h"
@@ -14,14 +15,6 @@
 namespace cs2::esp {
 
 using namespace memory;
-
-// Lightweight cache: bones (every 3 frames) + weapon name (~1 fps)
-static int s_bone_tick = 0;
-static int s_weapon_tick = 0;
-static constexpr int BONE_INTERVAL = 3;
-static constexpr int WEAPON_INTERVAL = 144; // ~1×/s at 144fps, ~2×/s at 60fps
-static std::unordered_map<uintptr_t, std::vector<Vector3>> s_bone_cache;
-static std::unordered_map<uintptr_t, std::string> s_weapon_cache;
 
 struct ESPEntity {
     uintptr_t pawn;
@@ -139,150 +132,76 @@ void run(const ESPConfig& cfg) {
     int sw = overlay::get_width();
     int sh = overlay::get_height();
 
-    // ── Cache entity-list base ──────────────────────────────────
-    uintptr_t entListBase = read<uintptr_t>(g_offsets.dwEntityList);
-    if (!entListBase) return;
-
-    // ── Local player ────────────────────────────────────────────
-    uintptr_t local_ctrl = read<uintptr_t>(g_offsets.dwLocalPlayerController);
-    if (!local_ctrl) return;
-
-    uint32_t local_handle = read<uint32_t>(local_ctrl + NetVars::m_hPawn);
-    if (!local_handle) return;
-
-    uintptr_t local_pawn = get_entity_from_handle(local_handle);
-    if (!local_pawn) return;
-
-    uint8_t local_team = read<uint8_t>(local_pawn + NetVars::m_iTeamNum);
-    Vector3 local_origin = read<Vector3>(local_pawn + NetVars::m_vOldOrigin);
-
     // ═════════════════════════════════════════════════════════════
-    //  PHASE 1: Collect raw world-space data (NO W2S)
+    //  Phase 1: Read entity cache (0 RPM, populated by game thread)
     // ═════════════════════════════════════════════════════════════
+    auto snap = entity_cache::fetch();
+    uintptr_t local_pawn = snap.local_pawn;
+    if (!IsRemotePtrValid(local_pawn)) return;
+    uint8_t local_team = (uint8_t)snap.local_team;
+    Vector3 local_origin = snap.local_origin;
+
+    struct RawEntity {
+        uintptr_t pawn;
+        Vector3   origin;
+        Vector3   headPos;
+        int       health;
+        int       team;
+        float     distance;
+        std::string name;
+        std::string weapon_name;
+        bool      headFromBone;
+        int       boneCount;
+        Vector3   boneWorld[BoneIndex::MAX_BONES];
+    };
     std::vector<RawEntity> rawList;
 
-    // Heavy-read throttle: bones (every 3 frames), weapon names (~1 fps)
-    s_bone_tick = (s_bone_tick + 1) % BONE_INTERVAL;
-    s_weapon_tick = (s_weapon_tick + 1) % WEAPON_INTERVAL;
-    bool do_bones = (s_bone_tick == 0);
-    bool do_weapons = (s_weapon_tick == 0);
+    for (auto& ent : snap.entities) {
+        if (!ent.alive) continue;
+        if (cfg.team_check && ent.team == local_team) continue;
+        if (ent.dormant) continue;
 
-    for (int i = 1; i < 64; ++i) {
-        uintptr_t chunkPtr = read<uintptr_t>(entListBase + 8 * (i >> 9) + 0x10);
-        if (!chunkPtr) continue;
-        uintptr_t controller = read<uintptr_t>(chunkPtr + 112 * (i & 0x1FF));
-        if (!controller || controller == local_ctrl) continue;
+        float dist = local_origin.dist_to(ent.origin);
 
-        // Batch-read controller: pawnHandle + playerName
-        uint8_t ctrlBuf[0x60];
-        if (!read(controller + 0x6BC, ctrlBuf, 0x58)) continue;
-        uint32_t pawn_handle = *(uint32_t*)(ctrlBuf + 0x00);
-        if (!pawn_handle) continue;
-
-        // Inline pawn traversal with cached entListBase (avoids 3× VirtualQueryEx)
-        uintptr_t pawn = 0;
-        {
-            uint32_t pIdx = pawn_handle & 0x7FFF;
-            uintptr_t pChunk = read<uintptr_t>(entListBase + 8 * (pIdx >> 9) + 0x10);
-            if (pChunk) pawn = read<uintptr_t>(pChunk + 112 * (pIdx & 0x1FF));
-        }
-        if (!pawn || pawn == local_pawn) continue;
-
-        // Batch-read pawn core (0x330 ~ 0x400)
-        uint8_t pawnCore[0xD0];
-        if (!read(pawn + 0x330, pawnCore, 0xD0)) continue;
-        uintptr_t sceneNode = *(uintptr_t*)(pawnCore + 0x00);
-        int32_t  health     = *(int32_t*)(pawnCore + 0x1C);
-        uint8_t  life       = *(uint8_t*)(pawnCore + 0x24);
-        uint8_t  team       = *(uint8_t*)(pawnCore + 0xBB);
-        if (health <= 0 || health > 200) continue;
-        if (life != 0) continue;
-        if (cfg.team_check && team == local_team) continue;
-
-        // Origin
-        Vector3 origin;
-        if (!read(pawn + NetVars::m_vOldOrigin, &origin, 12)) continue;
-
-        // ── Bone / skeleton ────────────────────────────────────
-        // Always read head bone for accurate box/circle positioning.
-        // Full 30-bone read only when skeleton enabled (throttled).
-        Vector3 headPos(origin.x, origin.y, origin.z + 72.0f);
-        bool headFromBone = false;
-        int boneCount = 0;
-        Vector3 boneWorld[BoneIndex::MAX_BONES]{};
-
-        uintptr_t ba = 0;
-        if (sceneNode)
-            ba = read<uintptr_t>(sceneNode + NetVars::m_modelState + NetVars::m_pBones);
-
-        if (ba) {
-            if (cfg.show_skeleton) {
-                if (do_bones) {
-                    uint8_t raw[30 * 0x20];
-                    if (read(ba, raw, sizeof(raw))) {
-                        boneCount = 30;
-                        for (int b = 0; b < 30; ++b) {
-                            float* pf = (float*)(raw + b * 0x20);
-                            boneWorld[b] = Vector3(pf[0], pf[1], pf[2]);
-                        }
-                        if (boneWorld[BoneIndex::HEAD].length() > 1.0f) {
-                            headPos = boneWorld[BoneIndex::HEAD];
-                            headFromBone = true;
-                        }
-                        s_bone_cache[pawn].assign(boneWorld, boneWorld + boneCount);
-                    }
-                } else {
-                    auto cit = s_bone_cache.find(pawn);
-                    if (cit != s_bone_cache.end() && !cit->second.empty()) {
-                        boneCount = (int)std::min(cit->second.size(), (size_t)BoneIndex::MAX_BONES);
-                        for (int b = 0; b < boneCount; ++b)
-                            boneWorld[b] = cit->second[b];
-                        if (boneWorld[BoneIndex::HEAD].length() > 1.0f) {
-                            headPos = boneWorld[BoneIndex::HEAD];
-                            headFromBone = true;
-                        }
-                    }
-                }
-            } else {
-                // Lightweight: head bone only (no 960-byte read)
-                Vector3 hb = read<Vector3>(ba + BoneIndex::HEAD * 0x20);
-                if (hb.length() > 1.0f) {
-                    headPos = hb;
-                    headFromBone = true;
-                }
-            }
-        }
-
-        // Distance
-        float dist = local_origin.dist_to(origin);
-
-        // Name
+        // Name from cache
         std::string entName;
         {
-            const char* ns = (const char*)(ctrlBuf + 0x38); // m_iszPlayerName at 0x6F4
+            const char* ns = ent.name;
             size_t nl = strnlen(ns, 32);
             if (nl > 0) entName.assign(ns, nl);
         }
 
-        // Weapon (~1 fps throttle, or first encounter)
+        // Weapon from cache (throttled ~7Hz in entity_cache)
         std::string weaponName;
         if (cfg.show_weapon) {
-            auto wit = s_weapon_cache.find(pawn);
-            if (do_weapons || wit == s_weapon_cache.end()) {
-                weaponName = get_weapon_name_cached(pawn, entListBase);
-                s_weapon_cache[pawn] = weaponName;
-            } else {
-                weaponName = wit->second;
+            weaponName = ""; // weapon name not in basic cache; resolve lazily
+            // Use cached weapon_services pointer to avoid entity traversal
+            if (ent.weapon_services) {
+                uint32_t h = read<uint32_t>(ent.weapon_services + NetVars::m_hActiveWeapon);
+                if (h) {
+                    uint32_t idx = h & 0x7FFF;
+                    uintptr_t elb = read<uintptr_t>(g_offsets.dwEntityList);
+                    if (elb) {
+                        uintptr_t entry = read<uintptr_t>(elb + 8 * (idx >> 9) + 16);
+                        if (entry) {
+                            uintptr_t weapon = read<uintptr_t>(entry + 112 * (idx & 0x1FF));
+                            if (weapon) {
+                                uint16_t def = read<uint16_t>(weapon + 0x1180 + 0x50 + 0x1BA);
+                                weaponName = weapon_id_to_name(def);
+                            }
+                        }
+                    }
+                }
             }
         }
 
         rawList.push_back(RawEntity{
-            pawn, origin, headPos, health, team, dist,
+            ent.pawn, ent.origin, ent.head_pos, ent.health, ent.team, dist,
             std::move(entName), std::move(weaponName),
-            headFromBone, boneCount, {}
+            ent.bone_count > 0, ent.bone_count, {}
         });
-        if (boneCount > 0)
-            memcpy(rawList.back().boneWorld, boneWorld, sizeof(Vector3) * boneCount);
+        if (ent.bone_count > 0)
+            memcpy(rawList.back().boneWorld, ent.bones, sizeof(Vector3) * ent.bone_count);
     }
 
     // ═════════════════════════════════════════════════════════════
@@ -374,8 +293,6 @@ void run(const ESPConfig& cfg) {
             }
         };
         if (cfg.smooth_factor > 0.0f) { prune(s_smoothFoot); prune(s_smoothHead); }
-        prune(s_bone_cache);
-        prune(s_weapon_cache);
     }
 
     std::sort(entities.begin(), entities.end(),

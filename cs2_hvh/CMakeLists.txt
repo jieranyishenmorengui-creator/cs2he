@@ -13,6 +13,7 @@ set(SOURCES
     src/core/process.cpp
     src/core/overlay.cpp
     src/core/renderer.cpp
+    src/core/entity_cache.cpp
     src/core/offsets.cpp
     src/features/aimbot.cpp
     src/features/esp.cpp
