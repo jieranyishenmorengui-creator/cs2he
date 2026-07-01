@@ -25,7 +25,7 @@ static std::mutex    s_mutex;
 // Tiered throttling counters (game thread runs ~1000Hz)
 static int  s_tier2 = 0;   // bones          → every 3  scans (~333Hz)
 static int  s_tier3 = 0;   // weapon names   → every 144 scans (~7Hz)
-static constexpr int TIER2_INTERVAL = 3;
+static constexpr int TIER2_INTERVAL = 2;
 static constexpr int TIER3_INTERVAL = 144;
 
 // ── Scan implementation ─────────────────────────────────────
