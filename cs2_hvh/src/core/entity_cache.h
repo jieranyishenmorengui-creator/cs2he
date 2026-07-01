@@ -18,7 +18,7 @@ struct CachedEntity {
     int    team = 0;
     bool   alive = false;        // health > 0 && lifeState == 0
     bool   dormant = true;       // sceneNode + 0x103
-    bool   spotted = false;      // EntitySpottedState_t::m_bSpotted
+    uint32_t spotted_by_mask = 0; // EntitySpottedState_t::m_bSpottedByMask (bit N = player N saw you)
     float  flash_duration = 0;   // m_flFlashDuration
 
     // Skeleton (world-space positions, 30 bones max)
@@ -43,6 +43,7 @@ struct CacheSnapshot {
     std::vector<CachedEntity> entities;
     uintptr_t local_pawn = 0;
     uintptr_t local_controller = 0;
+    int       local_controller_index = 0; // entity-list index for m_bSpottedByMask bit check
     int       local_team = 0;
     Vector3   local_origin;
     Vector3   local_velocity;

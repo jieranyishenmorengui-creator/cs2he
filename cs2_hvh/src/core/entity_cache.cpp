@@ -66,7 +66,13 @@ void update() {
         if (!IsRemotePtrValid(ch)) continue;
 
         uintptr_t controller = read<uintptr_t>(ch + 112 * (i & 0x1FF));
-        if (!IsRemotePtrValid(controller) || controller == snap.local_controller) continue;
+        if (!IsRemotePtrValid(controller)) continue;
+
+        // Track local controller index for spotted-by-mask bit check
+        if (controller == snap.local_controller) {
+            snap.local_controller_index = i;
+            continue;
+        }
 
         // Batch read controller: pawnHandle + name
         uint8_t ctrlBuf[0x60];
@@ -109,7 +115,7 @@ void update() {
             ent.view_offset = read<Vector3>(pawn + NetVars::m_vecViewOffset);
             ent.flash_duration = read<float>(pawn + NetVars::m_flFlashDuration);
             uintptr_t ss = pawn + NetVars::m_entitySpottedState;
-            ent.spotted   = read<uint8_t>(ss + NetVars::m_bSpotted) != 0;
+            ent.spotted_by_mask = read<uint32_t>(ss + NetVars::m_bSpottedByMask);
             ent.weapon_services    = read<uintptr_t>(pawn + NetVars::m_pWeaponServices);
             ent.aim_punch_services = read<uintptr_t>(pawn + NetVars::m_pAimPunchServices);
             ent.movement_services  = read<uintptr_t>(pawn + NetVars::m_pMovementServices);

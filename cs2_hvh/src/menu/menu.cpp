@@ -135,7 +135,7 @@ static void tab_aimbot() {
     ImGui::Separator();
     ImGui::SliderInt("Kill Cooldown (ms)", &cfg.kill_delay_ms, 0, 3000, "%d ms");
     ImGui::SliderFloat("Velocity Lead (0=off)", &cfg.lead_time, 0.0f, 0.15f, "%.3f s");
-    ImGui::Checkbox("Visible Check", &cfg.visible_check);
+    ImGui::Checkbox("Visible Check (byMask)", &cfg.visible_check);
 
     ImGui::SeparatorText("Head Offset (side-facing fix)");
     ImGui::Checkbox("Enable Head Offset", &cfg.head_offset_enabled);
