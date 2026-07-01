@@ -197,15 +197,19 @@ void run(const ESPConfig& cfg) {
         uintptr_t sn = read<uintptr_t>(pawn + NetVars::m_pGameSceneNode);
         if (sn && read<uint8_t>(sn + 0x103)) continue;
 
-        // Fetch heavy data from cache
+        // Fetch heavy data from cache (bones, name, weapon)
         const auto* cached = ec.find_by_pawn(pawn);
 
-        // Head position: try cache bones first, fallback to origin+72
+        // Head bone: read directly every frame (smooth box tracking)
         Vector3 headPos = origin + Vector3(0, 0, 72.0f);
-        if (cached && cached->bone_count > 0 &&
-            BoneIndex::HEAD < cached->bone_count &&
-            cached->bones[BoneIndex::HEAD].length() > 1.0f)
-            headPos = cached->bones[BoneIndex::HEAD];
+        if (sn) {
+            uintptr_t ba = read<uintptr_t>(sn + NetVars::m_modelState + NetVars::m_pBones);
+            if (ba) {
+                Vector3 hb = read<Vector3>(ba + BoneIndex::HEAD * 0x20);
+                if (hb.length() > 1.0f)
+                    headPos = hb;
+            }
+        }
 
         float dist = local_origin.dist_to(origin);
 
@@ -234,14 +238,32 @@ void run(const ESPConfig& cfg) {
             }
         }
 
+        // Bones: direct read when skeleton on (smooth), cache when off
+        int boneCount = 0;
+        Vector3 boneWorld[30]{};
+        if (cfg.show_skeleton && sn) {
+            uintptr_t ba = read<uintptr_t>(sn + NetVars::m_modelState + NetVars::m_pBones);
+            if (ba) {
+                uint8_t raw[30 * 0x20];
+                if (read(ba, raw, sizeof(raw))) {
+                    boneCount = 30;
+                    for (int b = 0; b < 30; ++b)
+                        boneWorld[b] = *(Vector3*)(raw + b * 0x20);
+                }
+            }
+        } else if (cached && cached->bone_count > 0) {
+            boneCount = cached->bone_count;
+            memcpy(boneWorld, cached->bones, sizeof(Vector3) * boneCount);
+        }
+
+        int team = cached ? cached->team : read<uint8_t>(pawn + NetVars::m_iTeamNum);
         rawList.push_back(RawEntity{
-            pawn, origin, headPos, hp, 0, dist,
+            pawn, origin, headPos, hp, team, dist,
             std::move(entName), std::move(weaponName),
-            cached ? cached->bone_count : 0, {}
+            boneCount, {}
         });
-        if (cached && cached->bone_count > 0)
-            memcpy(rawList.back().boneWorld, cached->bones, sizeof(Vector3) * cached->bone_count);
-        rawList.back().team = cached ? cached->team : read<uint8_t>(pawn + NetVars::m_iTeamNum);
+        if (boneCount > 0)
+            memcpy(rawList.back().boneWorld, boneWorld, sizeof(Vector3) * boneCount);
     }
 
     // ═════════════════════════════════════════════════════════════

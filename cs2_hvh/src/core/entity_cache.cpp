@@ -5,6 +5,7 @@
 #include <cstring>
 #include <cstdio>
 #include <unordered_map>
+#include <chrono>
 
 namespace cs2::entity_cache {
 
@@ -21,6 +22,8 @@ static std::unordered_map<uintptr_t, ObsCacheVal>  s_obs_cache;
 
 static CacheSnapshot s_cache;       // written by update(), read by read()
 static std::mutex    s_mutex;
+static std::chrono::steady_clock::time_point s_last_scan;
+static constexpr int SCAN_INTERVAL_MS = 30; // ~33 Hz
 
 // Tiered throttling counters (game thread runs ~1000Hz)
 static int  s_tier2 = 0;   // bones          → every 3  scans (~333Hz)
@@ -31,7 +34,12 @@ static constexpr int TIER3_INTERVAL = 144;
 // ── Scan implementation ─────────────────────────────────────
 
 void update() {
-    // Advance throttle counters
+    // Time throttle: ~30 Hz is enough for aimbot/spectator cache data
+    auto now = std::chrono::steady_clock::now();
+    if (std::chrono::duration_cast<std::chrono::milliseconds>(now - s_last_scan).count() < SCAN_INTERVAL_MS) return;
+    s_last_scan = now;
+
+    // Advance throttle counters (only when scan actually runs)
     s_tier2 = (s_tier2 + 1) % TIER2_INTERVAL;
     s_tier3 = (s_tier3 + 1) % TIER3_INTERVAL;
     bool tier2 = (s_tier2 == 0);
