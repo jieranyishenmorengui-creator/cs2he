@@ -74,41 +74,53 @@ static uintptr_t get_engine2_base() {
     return base;
 }
 
-// Read map name from engine2's CNetworkGameClient
+// Read map name — batch-scan engine2 for "de_" strings
 static std::string get_map_name() {
     static uintptr_t s_engine2 = 0;
+    static size_t   s_engine2_size = 0;
     if (!s_engine2) s_engine2 = get_engine2_base();
     if (!s_engine2) {
-        // Try window title fallback
-        wchar_t wtitle[256]{};
+        // Last resort: window title
+        wchar_t wt[256]{};
         HWND gw = cs2::process::get_game_window();
-        if (gw && GetWindowTextW(gw, wtitle, 256)) {
-            char title[256]{};
-            wcstombs(title, wtitle, 256);
-            // CS2 title contains map name sometimes
-            const char* de = strstr(title, "de_");
-            if (de) {
-                for (int j = 0; j < 32; ++j)
-                    if (de[j] < 'a' || de[j] > 'z' || de[j] == 0) { return std::string(de, de + j); }
-            }
+        if (gw && GetWindowTextW(gw, wt, 256)) {
+            char t[64]{};
+            wcstombs(t, wt, 64);
+            const char* p = strstr(t, "de_");
+            if (p) { for (int j = 0; j < 24; ++j) if (p[j] < 'a' || p[j] > 'z') { return {p, p + j}; } }
         }
         return {};
     }
+    if (!s_engine2_size) {
+        HANDLE snap = CreateToolhelp32Snapshot(TH32CS_SNAPMODULE, cs2::process::get_process_id());
+        if (snap != INVALID_HANDLE_VALUE) {
+            MODULEENTRY32W me{};
+            me.dwSize = sizeof(me);
+            if (Module32FirstW(snap, &me)) do {
+                if (_wcsicmp(me.szModule, L"engine2.dll") == 0) { s_engine2_size = me.modBaseSize; break; }
+            } while (Module32NextW(snap, &me));
+            CloseHandle(snap);
+        }
+        if (!s_engine2_size) s_engine2_size = 0x1000000; // fallback 16MB
+    }
 
-    // dwNetworkGameClient offset (cs2-dumper build 14166)
-    uintptr_t ngc = cs2::memory::read<uintptr_t>(s_engine2 + 0x90A1A0);
-    if (!ngc) return {};
-
-    // Scan for map name in CNetworkGameClient (wide range)
-    char buf[128]{};
-    for (int off = 0; off < 0x3000; off += 4) {
-        if (!cs2::memory::read(ngc + off, buf, 6)) continue;
-        if ((buf[0] == 'd' && buf[1] == 'e' && buf[2] == '_')) {
-            cs2::memory::read(ngc + off, buf, 63);
-            buf[63] = 0;
-            for (int j = 3; j < 63; ++j)
-                if ((buf[j] < 'a' || buf[j] > 'z') && buf[j] != '.') { buf[j] = 0; break; }
-            return std::string(buf);
+    // Batch-read 64KB chunks and scan for "de_"
+    constexpr size_t CHUNK = 0x10000; // 64KB
+    char chunk[CHUNK];
+    for (size_t off = 0; off < s_engine2_size; off += CHUNK) {
+        if (!cs2::memory::read(s_engine2 + off, chunk, CHUNK)) continue;
+        for (size_t i = 0; i < CHUNK - 8; ++i) {
+            if (chunk[i] == 'd' && chunk[i+1] == 'e' && chunk[i+2] == '_') {
+                int end = i + 3;
+                while (end < i + 24 && end < (int)CHUNK &&
+                       ((chunk[end] >= 'a' && chunk[end] <= 'z') ||
+                        chunk[end] == '_' || chunk[end] == '.')) end++;
+                if (end - i > 6) {
+                    std::string map(chunk + i, end - i);
+                    if (map.find('/') == std::string::npos)
+                        return map;
+                }
+            }
         }
     }
     return {};
