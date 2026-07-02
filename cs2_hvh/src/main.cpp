@@ -74,55 +74,71 @@ static uintptr_t get_engine2_base() {
     return base;
 }
 
-// Read map name — batch-scan engine2 for "de_" strings
+// Read map name — ONE-SHOT scan
 static std::string get_map_name() {
-    static uintptr_t s_engine2 = 0;
-    static size_t   s_engine2_size = 0;
-    if (!s_engine2) s_engine2 = get_engine2_base();
-    if (!s_engine2) {
-        // Last resort: window title
-        wchar_t wt[256]{};
-        HWND gw = cs2::process::get_game_window();
-        if (gw && GetWindowTextW(gw, wt, 256)) {
-            char t[64]{};
-            wcstombs(t, wt, 64);
-            const char* p = strstr(t, "de_");
-            if (p) { for (int j = 0; j < 24; ++j) if (p[j] < 'a' || p[j] > 'z') { return {p, p + j}; } }
-        }
-        return {};
-    }
-    if (!s_engine2_size) {
-        HANDLE snap = CreateToolhelp32Snapshot(TH32CS_SNAPMODULE, cs2::process::get_process_id());
-        if (snap != INVALID_HANDLE_VALUE) {
-            MODULEENTRY32W me{};
-            me.dwSize = sizeof(me);
-            if (Module32FirstW(snap, &me)) do {
-                if (_wcsicmp(me.szModule, L"engine2.dll") == 0) { s_engine2_size = me.modBaseSize; break; }
-            } while (Module32NextW(snap, &me));
-            CloseHandle(snap);
-        }
-        if (!s_engine2_size) s_engine2_size = 0x1000000; // fallback 16MB
-    }
+    static std::string s_cached;
+    static bool s_done = false;
+    if (s_done) return s_cached;
+    s_done = true;
 
-    // Batch-read 64KB chunks and scan for "de_"
-    constexpr size_t CHUNK = 0x10000; // 64KB
-    char chunk[CHUNK];
-    for (size_t off = 0; off < s_engine2_size; off += CHUNK) {
-        if (!cs2::memory::read(s_engine2 + off, chunk, CHUNK)) continue;
-        for (size_t i = 0; i < CHUNK - 8; ++i) {
-            if (chunk[i] == 'd' && chunk[i+1] == 'e' && chunk[i+2] == '_') {
+    uintptr_t engine2 = get_engine2_base();
+    if (!engine2) return {};
+
+    // CNetworkGameClient at engine2+0x90A1A0
+    // Try as direct address (Option A) and as pointer (Option B)
+    for (auto& mode : {0, 1}) {
+        uintptr_t ngc = (mode == 0) ? (engine2 + 0x90A1A0) : cs2::memory::read<uintptr_t>(engine2 + 0x90A1A0);
+        if (!ngc || !cs2::memory::IsRemotePtrValid(ngc)) continue;
+
+        // Scan for "de_" string directly within struct
+        char buf[0x4000];
+        if (!cs2::memory::read(ngc, buf, sizeof(buf))) continue;
+        for (int i = 0; i < (int)sizeof(buf) - 8; ++i) {
+            if (buf[i] == 'd' && buf[i+1] == 'e' && buf[i+2] == '_') {
                 int end = i + 3;
-                while (end < i + 24 && end < (int)CHUNK &&
-                       ((chunk[end] >= 'a' && chunk[end] <= 'z') ||
-                        chunk[end] == '_' || chunk[end] == '.')) end++;
-                if (end - i > 6) {
-                    std::string map(chunk + i, end - i);
-                    if (map.find('/') == std::string::npos)
-                        return map;
+                while (end < i + 48 && end < (int)sizeof(buf) &&
+                       ((buf[end] >= 'a' && buf[end] <= 'z') || buf[end] == '_' || buf[end] == '.'))
+                    end++;
+                if (end - i > 5) {
+                    s_cached = std::string(buf + i, end - i);
+                    printf("[VisCheck] Map '%s' (mode %d, off %d)\n", s_cached.c_str(), mode, i);
+                    return s_cached;
                 }
             }
         }
     }
+
+    // Also scan for pointers TO "de_" (CUtlString style)
+    uintptr_t ngc_ptr = cs2::memory::read<uintptr_t>(engine2 + 0x90A1A0);
+    if (ngc_ptr) {
+        char tmp[64];
+        for (int off = 0; off < 0x4000; off += 8) {
+            uintptr_t ptr = cs2::memory::read<uintptr_t>(ngc_ptr + off);
+            if (ptr && cs2::memory::read(ptr, tmp, 6)) {
+                if (tmp[0] == 'd' && tmp[1] == 'e' && tmp[2] == '_') {
+                    cs2::memory::read(ptr, tmp, 48);
+                    tmp[48] = 0;
+                    for (int j = 3; j < 48; ++j)
+                        if ((tmp[j] < 'a' || tmp[j] > 'z') && tmp[j] != '.') { tmp[j] = 0; break; }
+                    if (strlen(tmp) > 5) { s_cached = tmp; return s_cached; }
+                }
+            }
+        }
+    }
+
+    // Fallback: window title
+    wchar_t wt[256]{};
+    HWND gw = cs2::process::get_game_window();
+    if (gw && GetWindowTextW(gw, wt, 256)) {
+        char t[64]{}; wcstombs(t, wt, 64);
+        const char* p = strstr(t, "de_");
+        if (p) {
+            for (int j = 0; j < 24; ++j)
+                if (p[j] < 'a' || p[j] > 'z') { s_cached = std::string(p, p + j); return s_cached; }
+        }
+    }
+
+    printf("[VisCheck] Map detection failed\n");
     return {};
 }
 
