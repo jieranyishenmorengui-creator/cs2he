@@ -1,4 +1,6 @@
 #include "menu.h"
+void cs2_vischeck_reset();
+
 #include "../core/overlay.h"
 #include "../config/config.h"
 #include "../imgui/imgui.h"
@@ -248,11 +250,37 @@ static void tab_triggerbot() {
     ImGui::SliderFloat("Max Velocity", &cfg.max_velocity, 0.0f, 50.0f, "%.0f u/s");
 }
 
+// ── vischeck: map selection ────────────────────────────────────
+static const char* VIS_MAPS[] = {
+    "auto", "de_mirage", "de_inferno", "de_anubis", "de_dust2",
+    "de_nuke", "de_overpass", "de_vertigo", "de_ancient",
+    "de_cache", "de_train", "de_poseidon", "de_sanctum", "de_warden"
+};
+static constexpr int VIS_MAP_COUNT = sizeof(VIS_MAPS) / sizeof(VIS_MAPS[0]);
+
 static void tab_misc() {
-    auto& cfg = config::get().misc;
+    auto& all = config::get();
+    auto& cfg = all.misc;
 
     ImGui::SliderInt("Max FPS", &cfg.max_fps, 30, 500);
     ImGui::Checkbox("Auto Jump (Bunny Hop)", &cfg.auto_jump);
+
+    // ── VisCheck map selector ──
+    ImGui::SeparatorText("VisCheck Map");
+    static int vis_idx = 1; // default: de_mirage
+    // Sync from config
+    if (!all.vis_map.empty()) {
+        for (int i = 0; i < VIS_MAP_COUNT; ++i)
+            if (all.vis_map == VIS_MAPS[i]) { vis_idx = i; break; }
+    }
+    if (ImGui::Combo("Map", &vis_idx, VIS_MAPS, VIS_MAP_COUNT)) {
+        all.vis_map = VIS_MAPS[vis_idx];
+        if (vis_idx == 0) all.vis_map.clear(); // auto
+        config::get().save("config.json");
+        // Reset so next loop tries to load
+        ::cs2_vischeck_reset();
+    }
+    ImGui::TextDisabled("更改后需保存config再重新加载地图");
 }
 
 static void tab_config() {

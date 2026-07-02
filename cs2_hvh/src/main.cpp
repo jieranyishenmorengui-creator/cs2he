@@ -29,6 +29,8 @@ static bool g_test_mode = false;
 static std::atomic<const char*> g_init_status{"Initializing..."};
 static cs2::vischeck::VisCheck g_vischeck;
 static std::string g_current_map;
+// Reset vischeck state (called from menu when user changes map)
+void cs2_vischeck_reset() { g_current_map.clear(); g_pVisCheck = nullptr; }
 static char g_vis_status[64] = "VisCheck: no map data";
 static constexpr const char* MAP_DIR = "data/";
 
