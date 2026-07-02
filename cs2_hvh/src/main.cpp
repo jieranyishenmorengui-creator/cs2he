@@ -157,8 +157,14 @@ static void game_thread() {
 
     g_init_status = "Ready - Press INSERT for menu";
 
-    // Try loading map for vischeck
-    try_load_map(get_map_name());
+    // Try loading map for vischeck (check config first, bypass get_map_name cache)
+    {
+        auto& cfg = config::get();
+        if (!cfg.vis_map.empty())
+            try_load_map(cfg.vis_map);
+        else
+            try_load_map(get_map_name());
+    }
 
     // Main game loop
     while (g_running) {
@@ -171,7 +177,11 @@ static void game_thread() {
         // Periodically check map change (every ~100 iterations)
         static int map_check = 0;
         if (++map_check % 100 == 0) {
-            try_load_map(get_map_name());
+            auto& cfg = config::get();
+            if (!cfg.vis_map.empty())
+                try_load_map(cfg.vis_map);
+            else
+                try_load_map(get_map_name());
         }
 
         auto& cfg = config::get();
