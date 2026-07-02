@@ -14,6 +14,7 @@ set(SOURCES
     src/core/overlay.cpp
     src/core/renderer.cpp
     src/core/offsets.cpp
+    src/core/vischeck.cpp
     src/features/aimbot.cpp
     src/features/esp.cpp
     src/features/spectator.cpp

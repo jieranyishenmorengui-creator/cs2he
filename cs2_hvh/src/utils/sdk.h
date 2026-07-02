@@ -34,6 +34,9 @@ struct Vector3 {
     Vector3 operator*(float s) const { return {x * s, y * s, z * s}; }
     Vector3 operator/(float s) const { return {x / s, y / s, z / s}; }
     float dot(const Vector3& o) const { return x * o.x + y * o.y + z * o.z; }
+    Vector3 cross(const Vector3& o) const {
+        return { y * o.z - z * o.y, z * o.x - x * o.z, x * o.y - y * o.x };
+    }
     float length() const { return sqrtf(x * x + y * y + z * z); }
     float length2d() const { return sqrtf(x * x + y * y); }
     float dist_to(const Vector3& o) const { return (*this - o).length(); }

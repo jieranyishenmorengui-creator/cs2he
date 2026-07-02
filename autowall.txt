@@ -1,0 +1,522 @@
+namespace cheat::cs2::features {
+    void c_auto_wall::scale_damage( const int hitgroup, const game_sdk::entity::c_base_entity* entity ) {
+        data_t& data = m_data;
+ 
+        // ida: server.dll; 80 78 42 00 74 08 F3 0F 59 35 ?? ?? ?? ?? 80 BE 04 0D 00 00 00
+        static game_sdk::con_var_t *mp_damage_scale_ct_head = g_interfaces->get_cvar( )->find_var_by_name(
+                                       utilities::c_string_hash< std::string_view >{ }( "mp_damage_scale_ct_head" ) ),
+                                   *mp_damage_scale_t_head = g_interfaces->get_cvar( )->find_var_by_name(
+                                       utilities::c_string_hash< std::string_view >{ }( "mp_damage_scale_t_head" ) ),
+                                   *mp_damage_scale_ct_body = g_interfaces->get_cvar( )->find_var_by_name(
+                                       utilities::c_string_hash< std::string_view >{ }( "mp_damage_scale_ct_body" ) ),
+                                   *mp_damage_scale_t_body = g_interfaces->get_cvar( )->find_var_by_name(
+                                       utilities::c_string_hash< std::string_view >{ }( "mp_damage_scale_t_body" ) );
+ 
+        const auto damage_scale_ct_head = mp_damage_scale_ct_head->get_value< float >( ),
+                   damage_scale_t_head = mp_damage_scale_t_head->get_value< float >( ),
+                   damage_scale_ct_body = mp_damage_scale_ct_body->get_value< float >( ),
+                   damage_scale_t_body = mp_damage_scale_t_body->get_value< float >( );
+ 
+        const bool is_ct = entity->m_iTeamNum( ) == 3, is_t = entity->m_iTeamNum( ) == 2;
+ 
+        float head_damage_scale = is_ct ? damage_scale_ct_head : is_t ? damage_scale_t_head : 1.0f;
+        const float body_damage_scale = is_ct ? damage_scale_ct_body : is_t ? damage_scale_t_body : 1.0f;
+ 
+        // william: magic values u can see here: ida: server.dll; F3 0F 10 35 ?? ?? ?? ?? 0F 29 7C 24 30 44 0F 29 44 24
+        // xref: mp_heavybot_damage_reduction_scale
+        if ( entity->m_bHasHeavyArmor( ) ) {
+            head_damage_scale *= 0.5f;
+        }
+ 
+        // todo: mb missed some hitgroups, anyway this is a calculation of all important hitgroups
+        switch ( hitgroup ) {
+            case game_sdk::entity::e_hitgroups::hitgroup_head:
+                data.m_dmg *= data.m_wpn_data->m_flHeadshotMultiplier( ) * head_damage_scale;
+                break;
+            case game_sdk::entity::e_hitgroups::hitgroup_chest:
+            case game_sdk::entity::e_hitgroups::hitgroup_left_arm:
+            case game_sdk::entity::e_hitgroups::hitgroup_right_arm:
+            case game_sdk::entity::e_hitgroups::hitgroup_neck:
+                data.m_dmg *= body_damage_scale;
+                break;
+            case game_sdk::entity::e_hitgroups::hitgroup_stomach:
+                data.m_dmg *= 1.25f * body_damage_scale;
+                break;
+            case game_sdk::entity::e_hitgroups::hitgroup_left_leg:
+            case game_sdk::entity::e_hitgroups::hitgroup_right_leg:
+                data.m_dmg *= 0.75f * body_damage_scale;
+                break;
+            default:
+                break;
+        }
+ 
+        if ( !entity->is_armored( hitgroup ) )
+            return;
+ 
+        float heavy_armor_bonus = 1.0f, armor_bonus = 0.5f, armor_ratio = data.m_wpn_data->m_flArmorRatio( ) * 0.5f;
+ 
+        if ( entity->m_bHasHeavyArmor( ) ) {
+            heavy_armor_bonus = 0.25f;
+            armor_bonus = 0.33f;
+            armor_ratio *= 0.20f;
+        }
+ 
+        float damage_to_health = data.m_dmg * armor_ratio;
+        const float damage_to_armor = ( data.m_dmg - damage_to_health ) * ( heavy_armor_bonus * armor_bonus );
+ 
+        if ( damage_to_armor > static_cast< float >( entity->m_ArmorValue( ) ) ) {
+            damage_to_health = data.m_dmg - static_cast< float >( entity->m_ArmorValue( ) ) / armor_bonus;
+        }
+ 
+        data.m_dmg = damage_to_health;
+    }
+ 
+    bool c_auto_wall::fire_bullet( ) {
+        data_t& data = m_data;
+        CS2_ASSERT( data.m_local != nullptr || data.m_target != nullptr || data.m_wpn_data != nullptr );
+ 
+        game_sdk::trace_data_t trace_data{ };
+        trace_data.m_arr_pointer = &trace_data.m_arr;
+ 
+        const utilities::vec3_t direction =
+                                    data.m_pos.at( data_t::e_pos::e_target ) - data.m_pos.at( data_t::e_pos::e_local ),
+                                end_pos = direction * data.m_wpn_data->m_flRange( );
+ 
+        const game_sdk::trace_filter_t filter( game_sdk::k_main_pen_mask, data.m_local, 3 );
+        create_trace( &trace_data, data.m_pos.at( data_t::e_pos::e_local ), end_pos, filter, 4 );
+ 
+        struct handle_bullet_data_t {
+            handle_bullet_data_t( const float dmg_mod, const float pen, const float range_mod, const float range,
+                                  const int pen_count, const bool failed ) :
+                m_dmg( dmg_mod ),
+                m_pen( pen ),
+                m_range_mod( range_mod ),
+                m_range( range ),
+                m_pen_count( pen_count ),
+                m_failed( failed ) {}
+ 
+            float m_dmg{ }, m_pen{ }, m_range_mod{ }, m_range{ };
+            int m_pen_count{ };
+            bool m_failed{ };
+        } handle_bullet_data( static_cast< float >( data.m_wpn_data->m_nDamage( ) ),
+                              data.m_wpn_data->m_flPenetration( ), data.m_wpn_data->m_flRange( ),
+                              data.m_wpn_data->m_flRangeModifier( ), 4, false );
+        if ( trace_data.m_num_update > 0 ) {
+            for ( int i{ }; i < trace_data.m_num_update; i++ ) {
+                auto* value = reinterpret_cast< game_sdk::update_value_t* const >(
+                    reinterpret_cast< std::uintptr_t >( trace_data.m_pointer_update_value )
+                    + i * sizeof( game_sdk::update_value_t ) );
+ 
+                game_sdk::game_trace_t game_trace{ };
+                init_trace_info( &game_trace );
+                get_trace_info(
+                    &trace_data, &game_trace, 0.0f,
+                                reinterpret_cast< void* >(
+                                    reinterpret_cast< std::uintptr_t >( trace_data.m_arr.data( ) )
+                                    + sizeof( game_sdk::trace_arr_element_t ) * ( value->m_handle_idx & game_sdk::entity::k_ent_entry_mask ) ) );
+ 
+                if ( game_trace.m_hit_entity == data.m_target ) {
+                    if ( data.m_dmg > 0.0f ) // huh?
+                        scale_damage( game_trace.m_hitbox_data->m_hitgroup, game_trace.m_hit_entity );
+                    return true;
+                }
+ 
+                if ( handle_bullet_penetration( &trace_data, &handle_bullet_data, value ) )
+                    return false;
+ 
+                data.m_dmg = handle_bullet_data.m_dmg;
+            }
+        }
+ 
+        return false;
+    }
+}
+相关结构与函数：
+代码：
+// client.dll; 48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 48 89 7C 24 20 41 56 48 83 EC 40 F2
+CS2_INLINE static void create_trace( game_sdk::trace_data_t* const trace, const utilities::vec3_t start,
+                                     const utilities::vec3_t end, const game_sdk::trace_filter_t& filler,
+                                     const int penetration_count ) {
+    static const auto fn =
+        g_modules->get_client( )
+            .m_create_trace.as< void( __fastcall* )( game_sdk::trace_data_t*, utilities::vec3_t, utilities::vec3_t,
+                                                     game_sdk::trace_filter_t, void*, void*, void*, void*, int ) >( );
+    return fn( trace, start, end, filler, nullptr, nullptr, nullptr, nullptr, penetration_count );
+}
+ 
+// client.dll; 48 89 5C 24 08 57 48 83 EC 20 48 8B D9 33 FF 48 8B 0D
+CS2_INLINE static void init_trace_info( game_sdk::game_trace_t* const hit ) {
+    static const auto fn =
+        g_modules->get_client( ).m_init_trace_info.as< void( __fastcall* )( game_sdk::game_trace_t* ) >( );
+    return fn( hit );
+}
+ 
+// client.dll; 48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 57 48 83 EC 60 48 8B E9 0F
+CS2_INLINE static void get_trace_info( game_sdk::trace_data_t* const trace, game_sdk::game_trace_t* const hit,
+                                       const float unknown_float, void* unknown ) {
+    static const auto fn =
+        g_modules->get_client( )
+            .m_get_trace_info
+            .as< void( __fastcall* )( game_sdk::trace_data_t*, game_sdk::game_trace_t*, float, void* ) >( );
+    return fn( trace, hit, unknown_float, unknown );
+}
+ 
+// william: there is no need to rebuild this function.
+// client.dll; 48 8B C4 44 89 48 20 55 57 41 55
+CS2_INLINE static bool handle_bullet_penetration( game_sdk::trace_data_t* const trace, void* stats,
+                                                  game_sdk::update_value_t* const mod_value,
+                                                  const bool draw_showimpacts = false ) {
+    static const auto fn =
+        g_modules->get_client( )
+            .m_handle_bullet_pen.as< bool( __fastcall* )( game_sdk::trace_data_t*, void*, game_sdk::update_value_t*,
+                                                          void*, void*, void*, void*, void*, bool ) >( );
+    return fn( trace, stats, mod_value, nullptr, nullptr, nullptr, nullptr, nullptr, draw_showimpacts );
+}
+ 
+namespace cheat::cs2::game_sdk {
+    inline static constexpr std::uint32_t k_main_pen_mask = 0x1C300Bu;
+ 
+    struct surface_data_t {
+        CS2_PAD( 0, 0x8 )
+        float m_penetration_modifier{ }, m_damage_modifier{ };
+        CS2_PAD( 1, 0x4 )
+        int m_material{ };
+    };
+ 
+    struct trace_hitbox_data_t {
+        CS2_PAD( 0, 0x38 )
+        int m_hitgroup{ };
+    };
+ 
+    struct game_trace_t {
+        void* m_surface{ };
+        entity::c_base_entity* m_hit_entity{ };
+        trace_hitbox_data_t* m_hitbox_data{ };
+        CS2_PAD( 0, 0x38 )
+        std::uint32_t m_contents{ };
+        CS2_PAD( 1, 0x24 )
+        utilities::vec3_t m_start_pos{ }, m_end_pos{ }, m_normal{ }, m_pos{ };
+        CS2_PAD( 2, 0x4 )
+        float m_fraction{ };
+        CS2_PAD( 3, 0x6 )
+        bool m_all_solid{ };
+        CS2_PAD( 4, 0x4D )
+    };
+ 
+    struct trace_filter_t {
+        std::int64_t m_trace_mask{ };
+        std::array< std::int64_t, 2 > m_v1{ };
+        std::array< std::int32_t, 4 > m_skip_handles{ };
+        std::array< std::int16_t, 2 > m_collisions{ };
+        std::int16_t m_v3{ };
+        bool m_v4{ }, m_v5{ }, m_v6{ };
+ 
+        trace_filter_t( std::uintptr_t mask, const void* skip, int layer ) noexcept;
+    };
+    
+    // client.dll; 48 89 5C 24 08 48 89 74 24 10 57 48 83 EC 20 0F B6 41 37 33
+    trace_filter_t::trace_filter_t( const std::uintptr_t mask, const void* skip, const int layer ) noexcept {
+        static const auto fn =
+            g_modules->get_client( )
+                .m_trace_filter.as< void( __fastcall* )( void*, const void*, std::uintptr_t, int, int ) >( );
+        fn( this, skip, mask, layer, 7 );
+    }
+ 
+    struct update_value_t {
+        float m_previous_length_mod{ }, m_current_length_mod{ };
+        CS2_PAD( 0, 0x8 )
+        std::int16_t m_handle_idx{ };
+        CS2_PAD( 1, 0x6 )
+    };
+ 
+    struct trace_arr_element_t {
+        CS2_PAD( 0, 0x30 )
+    };
+ 
+    struct trace_data_t {
+        std::int32_t m_uk1{ };
+        float m_uk2{ 52.0f };
+        void* m_arr_pointer{ };
+        std::int32_t m_uk3{ 128 };
+        std::int32_t m_uk4{ static_cast< std::int32_t >( 0x80000000 ) };
+        std::array< trace_arr_element_t, 0x80 > m_arr = { };
+        CS2_PAD( 0, 0x8 )
+        std::int64_t m_num_update{ };
+        void* m_pointer_update_value{ };
+        CS2_PAD( 1, 0xC8 )
+        utilities::vec3_t m_start{ }, m_end{ };
+        CS2_PAD( 2, 0x50 )
+    };
+}
+我说没必要重建HandleBulletPenetration，但无论如何，谁想要一个伪：
+更多信息见这里：https://www.unknowncheats.me/forum/3884694-post5.html
+代码：
+char __fastcall CS2::HandleBulletPenetration(
+        __int64 a1,
+        struct_trace *trace,
+        struct_a3 *a3,
+        int a4,
+        int *sv_showimpacts_penetration)
+{
+  float current_distance; // xmm8_4
+  float dmg_modifier; // xmm6_4
+  float v10; // xmm0_4
+  char result; // al
+  __int64 v12; // rbx
+  __int64 v13; // rsi
+  int v14; // eax
+  __int64 v15; // r9
+  __int64 *v16; // r14
+  __int64 v17; // r14
+  char v18; // al
+  __int64 v19; // rcx
+  __int64 v20; // rax
+  __int64 v21; // rax
+  __int64 v22; // rax
+  int enter_material; // r14d
+  float combined_penetration_modifier; // xmm7_4
+  int penetration_count; // eax
+  char failed_penetrate; // si
+  float v27; // xmm12_4
+  float v28; // xmm13_4
+  float v29; // xmm11_4
+  float v30; // xmm8_4
+  float v31; // xmm9_4
+  float v32; // xmm6_4
+  float v33; // xmm10_4
+  float v34; // xmm7_4
+  float v35; // xmm10_4
+  showimpacts_data_t *v36; // rdx
+  float v37; // xmm0_4
+  int exit_material; // r12d
+  float *ff_damage_reduction_bullets; // rax
+  float *ff_damage_bullet_penetration; // rax
+  float *ff_damage_bullet_penetration_0; // rax
+  __int64 v42; // rsi
+  __int64 v43; // r14
+  __int64 v44; // rbx
+  __int64 v45; // rax
+  __int64 v46; // rax
+  float modifier; // xmm1_4
+  float pen_wep_mod; // xmm7_4
+  float total_lost_dmg; // xmm6_4
+  showimpacts_data_t *v50; // rdx
+  float v51; // ecx
+  float v52; // eax
+  float current_dmg; // xmm0_4
+  __int64 v54; // [rsp+28h] [rbp-E0h]
+  float v55; // [rsp+30h] [rbp-D8h]
+  __int64 filter_2[13]; // [rsp+38h] [rbp-D0h] BYREF
+  int v57; // [rsp+A0h] [rbp-68h]
+  int v58; // [rsp+A4h] [rbp-64h]
+  int v59; // [rsp+A8h] [rbp-60h]
+  __int64 v60; // [rsp+BCh] [rbp-4Ch]
+  float v61; // [rsp+C4h] [rbp-44h]
+  __int64 filter[13]; // [rsp+F8h] [rbp-10h] BYREF
+  int v63; // [rsp+160h] [rbp+58h]
+  int v64; // [rsp+164h] [rbp+5Ch]
+  int v65; // [rsp+168h] [rbp+60h]
+  __int64 v66; // [rsp+17Ch] [rbp+74h]
+  float v67; // [rsp+184h] [rbp+7Ch]
+  unsigned int v68; // [rsp+290h] [rbp+188h] BYREF
+  int v69; // [rsp+298h] [rbp+190h]
+  int v70; // [rsp+2A0h] [rbp+198h]
+ 
+  v70 = a4;
+  current_distance = trace->dist * a3->dist;
+  if ( (a3->byte14 & 1) == 0 )
+  {
+    dmg_modifier = trace->dmg_modifier;
+    v10 = V_powf();
+    result = 0;
+    trace->dmg_modifier = v10 * dmg_modifier;
+    return result;
+  }
+  v12 = 0i64;
+  v13 = *(_QWORD *)(a1 + 8) + 48i64 * (a3->handle_idx & 0x7FFF);
+  v14 = *(_DWORD *)(v13 + 36);
+  if ( v14 != -1
+    && qword_18176D428
+    && v14 != -2
+    && (v15 = *(_QWORD *)(qword_18176D428 + 8 * ((unsigned __int64)(v14 & 0x7FFF) >> 9))) != 0
+    && (v16 = (__int64 *)(v15 + 120i64 * (v14 & 0x1FF))) != 0i64
+    && *((_DWORD *)v16 + 4) == v14 )
+  {
+    v17 = *v16;
+  }
+  else
+  {
+    v17 = 0i64;
+  }
+  v18 = *(_BYTE *)(v13 + 43);
+  if ( v18 == 1 )
+  {
+    if ( v17 && (*(__int64 (__fastcall **)(__int64))(*(_QWORD *)v17 + 416i64))(v17) )
+      (*(void (__fastcall **)(__int64))(*(_QWORD *)v17 + 416i64))(v17);
+  }
+  else if ( !v18 )
+  {
+    v19 = *(_QWORD *)(v13 + 24);
+    if ( v19 )
+      (*(void (__fastcall **)(__int64))(*(_QWORD *)v19 + 144i64))(v19);
+  }
+  v20 = (*(__int64 (__fastcall **)(__int64))(*(_QWORD *)qword_181970F80 + 136i64))(qword_181970F80);
+  v21 = (*(__int64 (__fastcall **)(__int64, _QWORD))(*(_QWORD *)v20 + 24i64))(v20, (unsigned int)*(__int16 *)(v13 + 40));
+  v22 = GetSurfaceData(v21);
+  enter_material = *(unsigned __int16 *)(v22 + 20);
+  v69 = enter_material;
+  combined_penetration_modifier = *(float *)(v22 + 8);
+  if ( current_distance > 3000.0 || combined_penetration_modifier < 0.1 )
+    trace->penetration_count = 0;
+  penetration_count = trace->penetration_count;
+  if ( !penetration_count || (failed_penetrate = 0, penetration_count <= 0) )
+    failed_penetrate = 1;
+  memset(&filter[10], 0, 24);
+  v65 = 0x7000000;                              // mask
+  v63 = 0;
+  v64 = -1;
+  InitGameTraceInfo((game_trace_t *)filter);
+  GetTraceInfo(a1, (__int64)filter, a3->unk_fl, (unsigned __int64 *)(*(_QWORD *)(a1 + 8) + 48i64 * a3->idx));
+  memset(&filter_2[10], 0, 24);
+  v59 = 0x7000000;
+  v57 = 0;
+  v58 = -1;
+  InitGameTraceInfo((game_trace_t *)filter_2);
+  GetTraceInfo(a1, (__int64)filter_2, 0.0, (unsigned __int64 *)(*(_QWORD *)(a1 + 8) + 48i64 * (a3->handle_idx & 0x7FFF)));
+  v27 = *(float *)&v66;
+  v28 = *((float *)&v66 + 1);
+  v29 = v67;
+  v54 = v66;
+  v55 = v67;
+  if ( failed_penetrate == 1 )
+  {
+    // store some data for impacts
+    if ( sv_showimpacts_penetration )
+    {
+      v30 = *(float *)&v66 - *(float *)&v60;
+      v31 = *((float *)&v66 + 1) - *((float *)&v60 + 1);
+      v32 = v67 - v61;
+      v33 = 1.0 / combined_penetration_modifier;
+      v34 = trace->dmg_modifier * 0.15000001;
+      v35 = fmaxf(v33, 0.0);
+      v36 = (showimpacts_data_t *)UtlVec(sv_showimpacts_penetration);
+      v36->qword0 = v60;
+      v36->float8 = v61;
+      v36->qwordC = v66;
+      v36->float14 = v67;
+      v36->dist = fsqrt(
+                    (float)((float)((float)(v29 - v61) * (float)(v29 - v61))
+                          + (float)((float)(v28 - *((float *)&v60 + 1)) * (float)(v28 - *((float *)&v60 + 1))))
+                  + (float)((float)(v27 - *(float *)&v60) * (float)(v27 - *(float *)&v60)));
+      v36->dmg_modifier = trace->dmg_modifier;
+      v37 = (float)((float)(fmaxf(3.54 / trace->penetration_power, 0.0) * v35) * 2.8) + v34;
+      v36->pen_wep_mod = v37;
+      v36->dmg = (float)((float)((float)((float)((float)(v31 * v31) + (float)(v32 * v32)) + (float)(v30 * v30)) * v35)
+                       * 0.041666668)
+               + v37;
+      v36->filter = filter_2[0];
+      result = 1;
+      v36->hit_ent = 0i64;
+      trace->failed = 1;
+      return result;
+    }
+    goto LABEL_54;
+  }
+  exit_material = *(unsigned __int16 *)(GetSurfaceData(filter[0]) + 20);
+  if ( filter_2[1] && (*(unsigned __int8 (__fastcall **)(__int64))(*(_QWORD *)filter_2[1] + 1144i64))(filter_2[1]) )
+    v12 = filter_2[1];
+  if ( enter_material != 70 )
+    goto LABEL_42;
+  ff_damage_reduction_bullets = (float *)Cvar::GetVar((__int64)&::ff_damage_reduction_bullets, -1);
+  if ( !ff_damage_reduction_bullets )
+    ff_damage_reduction_bullets = *(float **)(qword_1817D5198 + 8);
+  if ( *ff_damage_reduction_bullets == 0.0 && v12 && (sub_180D9B240(v12, (__int64)&v68), !Player::IsEnemy(v68, v70)) )
+  {
+    ff_damage_bullet_penetration = (float *)Cvar::GetVar((__int64)&::ff_damage_bullet_penetration, -1);
+    if ( !ff_damage_bullet_penetration )
+      ff_damage_bullet_penetration = *(float **)(qword_1817D51B8 + 8);
+    if ( *ff_damage_bullet_penetration == 0.0 )
+      goto LABEL_54;
+    ff_damage_bullet_penetration_0 = (float *)Cvar::GetVar((__int64)&::ff_damage_bullet_penetration, -1);
+    if ( !ff_damage_bullet_penetration_0 )
+      ff_damage_bullet_penetration_0 = *(float **)(qword_1817D51B8 + 8);
+    combined_penetration_modifier = *ff_damage_bullet_penetration_0;
+  }
+  else
+  {
+LABEL_42:
+    v42 = a3->handle_idx & 0x7FFF;
+    if ( (unsigned int)v42 <= a3->idx )
+    {
+      v43 = 48 * v42;
+      do
+      {
+        v44 = *(_QWORD *)(a1 + 8);
+        v45 = (*(__int64 (__fastcall **)(__int64))(*(_QWORD *)qword_181970F80 + 136i64))(qword_181970F80);
+        v46 = (*(__int64 (__fastcall **)(__int64, _QWORD))(*(_QWORD *)v45 + 24i64))(
+                v45,
+                (unsigned int)*(__int16 *)(v43 + v44 + 40));
+        LODWORD(v42) = v42 + 1;
+        v43 += 48i64;
+        combined_penetration_modifier = fminf(*(float *)(GetSurfaceData(v46) + 8), combined_penetration_modifier);
+      }
+      while ( (int)v42 <= a3->idx );
+      enter_material = v69;
+    }
+  }
+  if ( enter_material == exit_material )
+  {
+    if ( ((exit_material - 85) & 0xFFFFFFFD) != 0 )
+    {
+      if ( exit_material == 76 )
+        combined_penetration_modifier = 2.0;
+    }
+    else
+    {
+      combined_penetration_modifier = 3.0;
+    }
+  }
+  modifier = fmaxf(1.0 / combined_penetration_modifier, 0.0);
+  pen_wep_mod = (float)((float)(fmaxf(3.75 / trace->penetration_power, 0.0) * modifier) * 3.0)
+              + (float)(trace->dmg_modifier * 0.16);
+  total_lost_dmg = (float)((float)((float)((float)((float)((float)(v67 - v61) * (float)(v67 - v61))
+                                                 + (float)((float)(*((float *)&v66 + 1) - *((float *)&v60 + 1))
+                                                         * (float)(*((float *)&v66 + 1) - *((float *)&v60 + 1))))// length_sqr( )
+                                         + (float)((float)(*(float *)&v66 - *(float *)&v60)
+                                                 * (float)(*(float *)&v66 - *(float *)&v60)))
+                                 * modifier)
+                         * 0.041666668)
+                 + pen_wep_mod;
+  // store some data for impacts
+  if ( sv_showimpacts_penetration )
+  {
+    v50 = (showimpacts_data_t *)UtlVec(sv_showimpacts_penetration);
+    v50->qword0 = v60;
+    v51 = v61;
+    v50->qwordC = v54;
+    v50->float8 = v51;
+    v50->float14 = v55;
+    v50->dist = fsqrt(
+                  (float)((float)((float)(v29 - v61) * (float)(v29 - v61))
+                        + (float)((float)(v28 - *((float *)&v60 + 1)) * (float)(v28 - *((float *)&v60 + 1))))
+                + (float)((float)(v27 - *(float *)&v60) * (float)(v27 - *(float *)&v60)));
+    v52 = trace->dmg_modifier;
+    v50->pen_wep_mod = pen_wep_mod;
+    v50->dmg = total_lost_dmg;
+    v50->dmg_modifier = v52;
+    v50->filter = filter_2[0];
+    v50->hit_ent = filter[0];
+  }
+  current_dmg = trace->dmg_modifier - fmaxf(total_lost_dmg, 0.0);
+  trace->dmg_modifier = current_dmg;
+  if ( current_dmg < 1.0 )
+  {
+LABEL_54:
+    trace->failed = 1;
+    return 1;
+  }
+  --trace->penetration_count;
+  result = 0;
+  trace->failed = 0;
+  return result;
+}

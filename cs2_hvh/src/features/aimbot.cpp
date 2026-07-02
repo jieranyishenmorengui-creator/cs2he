@@ -1,6 +1,7 @@
 #include "aimbot.h"
 #include "../core/memory.h"
 #include "../core/offsets.h"
+#include "../core/vischeck.h"
 #include "../core/overlay.h"
 #include <cmath>
 #include <chrono>
@@ -203,14 +204,29 @@ void run(const AimbotConfig& cfg) {
         uintptr_t sn = read<uintptr_t>(p + NetVars::m_pGameSceneNode);
         if (IsRemotePtrValid(sn) && read<uint8_t>(sn + 0x103)) continue;
 
-        // Visible check
+        // Visible check (VisCheck raycast if .opt loaded, else m_bSpotted fallback)
         if (cfg.visible_check) {
-            if (read<uint8_t>(p + NetVars::m_entitySpottedState + NetVars::m_bSpotted))
-                s_spotted_cache[p] = t_now;
-            auto sit = s_spotted_cache.find(p);
-            if (sit == s_spotted_cache.end()) continue;
-            int ms_ago = (int)std::chrono::duration_cast<std::chrono::milliseconds>(t_now - sit->second).count();
-            if (ms_ago > cfg.spotted_timeout_ms) continue;
+            auto* vc = g_pVisCheck;
+            if (vc) {
+                Vector3 head_bp;
+                uintptr_t vc_sn = read<uintptr_t>(p + NetVars::m_pGameSceneNode);
+                if (IsRemotePtrValid(vc_sn)) {
+                    uintptr_t vc_ba = read<uintptr_t>(vc_sn + NetVars::m_modelState + NetVars::m_pBones);
+                    if (vc_ba)
+                        head_bp = read<Vector3>(vc_ba + BoneIndex::HEAD * 0x20);
+                }
+                if (head_bp.length() > 1.0f) {
+                    if (!vc->is_visible(eye, head_bp)) continue;
+                }
+            } else {
+                // Fallback: m_bSpotted + timeout cache
+                if (read<uint8_t>(p + NetVars::m_entitySpottedState + NetVars::m_bSpotted))
+                    s_spotted_cache[p] = t_now;
+                auto sit = s_spotted_cache.find(p);
+                if (sit == s_spotted_cache.end()) continue;
+                int ms_ago = (int)std::chrono::duration_cast<std::chrono::milliseconds>(t_now - sit->second).count();
+                if (ms_ago > cfg.spotted_timeout_ms) continue;
+            }
         }
 
         Vector3 o = read<Vector3>(p + NetVars::m_vOldOrigin);

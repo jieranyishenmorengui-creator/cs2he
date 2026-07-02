@@ -12,6 +12,7 @@
 #include "core/overlay.h"
 #include "core/renderer.h"
 #include "core/offsets.h"
+#include "core/vischeck.h"
 
 #include "config/config.h"
 #include "menu/menu.h"
@@ -26,6 +27,70 @@
 static std::atomic<bool> g_running{true};
 static bool g_test_mode = false;
 static std::atomic<const char*> g_init_status{"Initializing..."};
+static cs2::vischeck::VisCheck g_vischeck;
+static std::string g_current_map;
+static constexpr const char* MAP_DIR = "data/";
+
+// Map name → .opt file loader
+static void try_load_map(const std::string& map_name) {
+    if (map_name.empty() || map_name == g_current_map) return;
+
+    std::string path = std::string(MAP_DIR) + map_name + ".opt";
+    FILE* f = fopen(path.c_str(), "rb");
+    if (!f) {
+        printf("[VisCheck] No .opt for map '%s' (try: %s)\n", map_name.c_str(), path.c_str());
+        g_current_map.clear();
+        g_pVisCheck = nullptr;
+        return;
+    }
+    fclose(f);
+
+    if (g_vischeck.load_map(path)) {
+        g_current_map = map_name;
+        g_pVisCheck = &g_vischeck;
+        printf("[VisCheck] Map '%s' loaded\n", map_name.c_str());
+    }
+}
+
+// Helper: find engine2.dll base in remote CS2 process
+static uintptr_t get_engine2_base() {
+    HANDLE snap = CreateToolhelp32Snapshot(TH32CS_SNAPMODULE, cs2::process::get_process_id());
+    if (snap == INVALID_HANDLE_VALUE) return 0;
+    uintptr_t base = 0;
+    MODULEENTRY32W me{};
+    me.dwSize = sizeof(me);
+    if (Module32FirstW(snap, &me)) {
+        do {
+            if (_wcsicmp(me.szModule, L"engine2.dll") == 0) { base = (uintptr_t)me.modBaseAddr; break; }
+        } while (Module32NextW(snap, &me));
+    }
+    CloseHandle(snap);
+    return base;
+}
+
+// Read map name from CNetworkGameClient (engine2.dll + dwNetworkGameClient)
+static std::string get_map_name() {
+    static uintptr_t s_engine2 = 0;
+    if (!s_engine2) s_engine2 = get_engine2_base();
+    if (!s_engine2) return {};
+
+    uintptr_t ngc = cs2::memory::read<uintptr_t>(s_engine2 + 0x90A1A0);
+    if (!ngc) return {};
+
+    // Scan for "de_" in likely map name area
+    char buf[64]{};
+    for (int off = 0x100; off < 0x300; ++off) {
+        cs2::memory::read(ngc + off, buf, 4);
+        if (buf[0] == 'd' && buf[1] == 'e' && buf[2] == '_') {
+            cs2::memory::read(ngc + off, buf, sizeof(buf) - 1);
+            buf[sizeof(buf) - 1] = 0;
+            for (int j = 3; j < 64; ++j)
+                if (buf[j] < 'a' || buf[j] > 'z') { buf[j] = 0; break; }
+            return std::string(buf);
+        }
+    }
+    return {};
+}
 
 // Atomic flags for cross-thread key events
 static std::atomic<bool> g_panic_key{false};
@@ -89,6 +154,9 @@ static void game_thread() {
 
     g_init_status = "Ready - Press INSERT for menu";
 
+    // Try loading map for vischeck
+    try_load_map(get_map_name());
+
     // Main game loop
     while (g_running) {
         if (!process::is_process_running()) {
@@ -97,9 +165,18 @@ static void game_thread() {
             break;
         }
 
+        // Periodically check map change (every ~100 iterations)
+        static int map_check = 0;
+        if (++map_check % 100 == 0)
+            try_load_map(get_map_name());
+
         auto& cfg = config::get();
         aimbot::run(cfg.aimbot);
         aimbot::triggerbot(cfg.triggerbot);
+
+        // Idle sleep when no game features active (省 CPU)
+        if (!cfg.aimbot.enabled && !cfg.triggerbot.enabled)
+            Sleep(50);
 
         // Read atomic key events set by render thread
         if (g_panic_key.exchange(false)) {
