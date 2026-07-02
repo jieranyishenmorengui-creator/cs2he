@@ -25,3 +25,5 @@ cs2_hvh/cs2_hvh_debug.txt
 
 # Config
 cs2_hvh/config.json
+*.opt
+data/*.opt
