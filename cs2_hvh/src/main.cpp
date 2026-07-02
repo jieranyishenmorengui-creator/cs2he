@@ -186,7 +186,7 @@ static void game_thread() {
     g_init_status = "Ready - Press INSERT for menu";
 
     // Try loading map for vischeck
-    try_load_map(get_map_name());
+    // try_load_map(get_map_name());  // disabled
 
     // Main game loop
     while (g_running) {
@@ -198,8 +198,9 @@ static void game_thread() {
 
         // Periodically check map change (every ~100 iterations)
         static int map_check = 0;
-        if (++map_check % 100 == 0)
-            try_load_map(get_map_name());
+        if (++map_check % 100 == 0) {
+    // try_load_map(get_map_name());  // disabled
+        }
 
         auto& cfg = config::get();
         aimbot::run(cfg.aimbot);
