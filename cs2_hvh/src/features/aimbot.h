@@ -78,4 +78,11 @@ struct TriggerbotConfig {
 void run(const AimbotConfig& cfg);
 void triggerbot(const TriggerbotConfig& cfg);
 
+// Shared visible-set for ESP (populated by aimbot raycast, read by render thread)
+struct VisibleSet {
+    uintptr_t pawns[64];
+    int count = 0;
+};
+extern VisibleSet g_visible_set;
+
 } // namespace cs2::aimbot

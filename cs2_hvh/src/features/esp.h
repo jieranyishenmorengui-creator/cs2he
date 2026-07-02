@@ -28,10 +28,12 @@ struct ESPConfig {
     float skeleton_thickness = 1.5f;
     Color skeleton_color = Color(1, 1, 1, 0.6f);
 
-    Color team_color     = Color(0.2f, 0.8f, 1.0f, 1.0f);
-    Color enemy_color    = Color(1.0f, 0.3f, 0.2f, 1.0f);
+    bool show_visible_color = true; // spotted→绿色框
+    Color visible_color   = Color(0.0f, 1.0f, 0.3f, 1.0f); // 可见敌人绿色
+    Color team_color      = Color(0.2f, 0.8f, 1.0f, 1.0f);
+    Color enemy_color     = Color(1.0f, 0.3f, 0.2f, 1.0f);
     Color aim_target_color = Color(1.0f, 1.0f, 0.0f, 1.0f);
-    Color shadow_color   = Color(0, 0, 0, 0.5f);
+    Color shadow_color    = Color(0, 0, 0, 0.5f);
 };
 
 void run(const ESPConfig& cfg);

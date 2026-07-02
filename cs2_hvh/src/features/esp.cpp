@@ -25,6 +25,7 @@ struct ESPEntity {
     int team;
     float distance;
     bool valid;
+    bool spotted;
     std::string name;
     std::string weapon_name;
     int bone_positions[BoneIndex::MAX_BONES * 2];
@@ -109,6 +110,7 @@ struct RawEntity {
     int       health;
     int       team;
     float     distance;
+        bool      spotted;
     std::string name;
     std::string weapon_name;
 
@@ -152,6 +154,7 @@ void run(const ESPConfig& cfg) {
         int       health;
         int       team;
         float     distance;
+        bool      spotted;
         std::string name;
         std::string weapon_name;
         int       boneCount;
@@ -205,6 +208,7 @@ void run(const ESPConfig& cfg) {
 
         float dist = local_origin.dist_to(origin);
         int team = read<uint8_t>(pawn + NetVars::m_iTeamNum);
+        bool spotted = read<uint8_t>(pawn + NetVars::m_entitySpottedState + NetVars::m_bSpotted) != 0;
 
         // Name from controller (batch read)
         std::string entName;
@@ -238,7 +242,7 @@ void run(const ESPConfig& cfg) {
             }
         }
         rawList.push_back(RawEntity{
-            pawn, origin, headPos, hp, team, dist,
+            pawn, origin, headPos, hp, team, dist, spotted,
             std::move(entName), std::move(weaponName),
             boneCount, {}
         });
@@ -290,6 +294,7 @@ void run(const ESPConfig& cfg) {
         ent.team          = raw.team;
         ent.distance      = raw.distance;
         ent.valid         = true;
+        ent.spotted       = raw.spotted;
         ent.name          = std::move(raw.name);
         ent.weapon_name   = std::move(raw.weapon_name);
 
@@ -351,7 +356,10 @@ void run(const ESPConfig& cfg) {
         float w  = std::max(h * 0.5f, 1.0f);
         float x  = head.x - w * 0.5f;
 
-        Color col = ent.team == local_team ? cfg.team_color : cfg.enemy_color;
+        // Visible color when spotted
+        bool is_visible = cfg.show_visible_color && ent.spotted;
+        Color col = ent.team == local_team ? cfg.team_color :
+                    (is_visible ? cfg.visible_color : cfg.enemy_color);
         col.a *= cfg.global_alpha;
         Color shadow = cfg.shadow_color;
         shadow.a *= cfg.shadow_alpha * cfg.global_alpha;

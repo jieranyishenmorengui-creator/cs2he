@@ -125,6 +125,9 @@ static std::unordered_map<uintptr_t, std::chrono::steady_clock::time_point> s_sp
 static bool g_aimbot_has_target = false;     // aimbot锁定中
 static float g_aimbot_fov_raw = 999.f;       // 平滑前角度差
 
+// Shared visible set for ESP (populated during visible_check scan)
+VisibleSet g_visible_set;
+
 // ═════════════════════════════════════════════════════════════
 //  Aimbot
 // ═════════════════════════════════════════════════════════════
@@ -139,6 +142,7 @@ static bool     g_kcd = false;
 static int      g_pc = 0;
 
 void run(const AimbotConfig& cfg) {
+    g_visible_set.count = 0; // reset visible set for ESP (even when disabled)
     if (!cfg.enabled) { g_last = 0; g_kcd = false; clear_ema(); g_aimbot_has_target = false; return; }
 
     bool key_down = false;
@@ -182,6 +186,7 @@ void run(const AimbotConfig& cfg) {
     uintptr_t best = 0;
     float best_score = 3.4e38f;
     g_aimbot_has_target = false;
+    g_visible_set.count = 0; // reset visible set for ESP
     auto t_now = std::chrono::steady_clock::now();
 
     for (int i = 1; i < 64; ++i) {
@@ -249,6 +254,8 @@ void run(const AimbotConfig& cfg) {
         else score = fd + wd * 0.01f;
 
         if (score < best_score) { best = p; best_score = score; }
+        // Add to visible set for ESP
+        g_visible_set.pawns[g_visible_set.count++] = p;
     }
 
     // Periodic cleanup (EMA + spotted)
