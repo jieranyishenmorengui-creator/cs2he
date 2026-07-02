@@ -66,7 +66,15 @@ static std::string get_map_name() {
     if (s_done) return s_cached;
     s_done = true;
 
-    // Only use window title — no module memory access
+    // 1) Config override (set vis_map in config.json)
+    auto& cfg = cs2::config::get();
+    if (!cfg.vis_map.empty()) {
+        s_cached = cfg.vis_map;
+        printf("[VisCheck] Map from config: %s\n", s_cached.c_str());
+        return s_cached;
+    }
+
+    // 2) Window title (CS2 usually doesn't have map name here)
     wchar_t wt[256]{};
     HWND gw = cs2::process::get_game_window();
     if (gw && GetWindowTextW(gw, wt, 256)) {
@@ -76,15 +84,12 @@ static std::string get_map_name() {
                 int j = 3;
                 while (j < 24 && ((t[k+j] >= 'a' && t[k+j] <= 'z') ||
                        t[k+j] == '_' || (t[k+j] >= '0' && t[k+j] <= '9'))) j++;
-                if (j >= 5) {
-                    s_cached = std::string(t + k, j);
-                    printf("[VisCheck] Map from title: %s\n", s_cached.c_str());
-                    return s_cached;
-                }
+                if (j >= 5) { s_cached = std::string(t + k, j); return s_cached; }
             }
         }
     }
-    printf("[VisCheck] No map in window title\n");
+
+    printf("[VisCheck] Set vis_map in config.json\n");
     return {};
 }
 

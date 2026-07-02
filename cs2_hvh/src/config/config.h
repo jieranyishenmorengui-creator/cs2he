@@ -17,6 +17,9 @@ struct Config {
     int aimbot_toggle_key = 0;
     int crosshair_toggle_key = 0;
 
+    // VisCheck map (empty = auto-detect, otherwise e.g. "de_mirage")
+    std::string vis_map;
+
     // Feature configs
     aimbot::AimbotConfig aimbot;
     aimbot::TriggerbotConfig triggerbot;

@@ -143,6 +143,10 @@ bool Config::load(const std::string& path) {
     aimbot.head_offset_angle_min = json_get_float(json, "AimHeadOffMinAng", 45.0f);
     aimbot.head_offset_angle_max = json_get_float(json, "AimHeadOffMaxAng", 135.0f);
 
+    // VisCheck
+    vis_map = json_get_string(json, "VisMap");
+    printf("[VisCheck] Config vis_map = '%s'\n", vis_map.c_str());
+
     // ESP
     esp.enabled = json_get_bool(json, "VisualEnable", true);
     esp.team_check = json_get_bool(json, "ESP_Team", true);
@@ -267,6 +271,8 @@ bool Config::save(const std::string& path) {
     fprintf(f, ",\n");
 
     // ESP
+    write_json_string(f, "VisMap", vis_map.c_str());
+    fprintf(f, ",\n");
     write_json_bool(f, "VisualEnable", esp.enabled);
     fprintf(f, ",\n");
     write_json_bool(f, "ESP_Team", esp.team_check);
