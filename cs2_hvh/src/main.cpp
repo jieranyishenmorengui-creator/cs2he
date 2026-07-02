@@ -106,21 +106,21 @@ static std::string get_map_name() {
         if (signon == 6) {
             char chunk[0x10000];
             if (cs2::memory::read(ngc, chunk, sizeof(chunk))) {
-                for (int i = 0; i < (int)sizeof(chunk) - 10; ++i) {
+                for (int i = 0; i < (int)sizeof(chunk) - 32; ++i) {
                     if (chunk[i] != 'd' || chunk[i+1] != 'e' || chunk[i+2] != '_') continue;
                     int len = 3;
-                    while (len < 32 && ((chunk[i+len] >= 'a' && chunk[i+len] <= 'z') || chunk[i+len] == '_')) len++;
-                    if (len < 6) continue;
+                    while (len < 28 && i + len < (int)sizeof(chunk) && ((chunk[i+len] >= 'a' && chunk[i+len] <= 'z') || chunk[i+len] == '_' || (chunk[i+len] >= '0' && chunk[i+len] <= '9'))) len++;
+                    if (len < 6 || len > 24) continue;
                     std::string map(chunk + i, len);
                     std::string opt = std::string(MAP_DIR) + map + ".opt";
                     FILE* f = fopen(opt.c_str(), "rb");
-                    if (f) { fclose(f); s_cached = map; return s_cached; }
+                    if (f) { fclose(f); s_cached = map; printf("[VisCheck] Map: %s\n", map.c_str()); return s_cached; }
                 }
             }
         } else {
             printf("[VisCheck] signOnState=%d (expected 6)\n", signon);
         }
-    };
+    }
 }
 
 // Atomic flags for cross-thread key events
