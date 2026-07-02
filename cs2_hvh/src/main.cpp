@@ -29,6 +29,7 @@ static bool g_test_mode = false;
 static std::atomic<const char*> g_init_status{"Initializing..."};
 static cs2::vischeck::VisCheck g_vischeck;
 static std::string g_current_map;
+static char g_vis_status[64] = "VisCheck: no map data";
 static constexpr const char* MAP_DIR = "data/";
 
 // Map name → .opt file loader
@@ -49,12 +50,17 @@ static void try_load_map(const std::string& map_name) {
         g_current_map = map_name;
         g_pVisCheck = &g_vischeck;
         printf("[VisCheck] Map '%s' loaded\n", map_name.c_str());
+        snprintf(g_vis_status, sizeof(g_vis_status), "VisCheck: %s", map_name.c_str());
+    } else {
+        printf("[VisCheck] Failed to load %s\n", path.c_str());
+        snprintf(g_vis_status, sizeof(g_vis_status), "VisCheck: load failed");
     }
 }
 
-// Helper: find engine2.dll base in remote CS2 process
 static uintptr_t get_engine2_base() {
-    HANDLE snap = CreateToolhelp32Snapshot(TH32CS_SNAPMODULE, cs2::process::get_process_id());
+    DWORD pid = cs2::process::get_process_id();
+    if (!pid) return 0;
+    HANDLE snap = CreateToolhelp32Snapshot(TH32CS_SNAPMODULE, pid);
     if (snap == INVALID_HANDLE_VALUE) return 0;
     uintptr_t base = 0;
     MODULEENTRY32W me{};
@@ -68,24 +74,40 @@ static uintptr_t get_engine2_base() {
     return base;
 }
 
-// Read map name from CNetworkGameClient (engine2.dll + dwNetworkGameClient)
+// Read map name from engine2's CNetworkGameClient
 static std::string get_map_name() {
     static uintptr_t s_engine2 = 0;
     if (!s_engine2) s_engine2 = get_engine2_base();
-    if (!s_engine2) return {};
+    if (!s_engine2) {
+        // Try window title fallback
+        wchar_t wtitle[256]{};
+        HWND gw = cs2::process::get_game_window();
+        if (gw && GetWindowTextW(gw, wtitle, 256)) {
+            char title[256]{};
+            wcstombs(title, wtitle, 256);
+            // CS2 title contains map name sometimes
+            const char* de = strstr(title, "de_");
+            if (de) {
+                for (int j = 0; j < 32; ++j)
+                    if (de[j] < 'a' || de[j] > 'z' || de[j] == 0) { return std::string(de, de + j); }
+            }
+        }
+        return {};
+    }
 
+    // dwNetworkGameClient offset (cs2-dumper build 14166)
     uintptr_t ngc = cs2::memory::read<uintptr_t>(s_engine2 + 0x90A1A0);
     if (!ngc) return {};
 
-    // Scan for "de_" in likely map name area
-    char buf[64]{};
-    for (int off = 0x100; off < 0x300; ++off) {
-        cs2::memory::read(ngc + off, buf, 4);
-        if (buf[0] == 'd' && buf[1] == 'e' && buf[2] == '_') {
-            cs2::memory::read(ngc + off, buf, sizeof(buf) - 1);
-            buf[sizeof(buf) - 1] = 0;
-            for (int j = 3; j < 64; ++j)
-                if (buf[j] < 'a' || buf[j] > 'z') { buf[j] = 0; break; }
+    // Scan for map name in CNetworkGameClient (wide range)
+    char buf[128]{};
+    for (int off = 0; off < 0x3000; off += 4) {
+        if (!cs2::memory::read(ngc + off, buf, 6)) continue;
+        if ((buf[0] == 'd' && buf[1] == 'e' && buf[2] == '_')) {
+            cs2::memory::read(ngc + off, buf, 63);
+            buf[63] = 0;
+            for (int j = 3; j < 63; ++j)
+                if ((buf[j] < 'a' || buf[j] > 'z') && buf[j] != '.') { buf[j] = 0; break; }
             return std::string(buf);
         }
     }
@@ -257,6 +279,7 @@ static void render_thread_logic() {
                 ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar);
             ImGui::TextColored(ImVec4(0,1,0,1), "CS2 HvH Active  |  FPS: %d", g_current_fps);
             ImGui::Text("Menu: INSERT  |  Status: %s", g_init_status.load());
+            ImGui::TextColored(g_pVisCheck ? ImVec4(0.3f,1,0.3f,1) : ImVec4(1,0.3f,0,1), "%s", g_vis_status);
             ImGui::End();
         }
 
