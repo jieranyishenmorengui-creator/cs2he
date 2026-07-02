@@ -254,7 +254,10 @@ static void tab_triggerbot() {
 static const char* VIS_MAPS[] = {
     "auto", "de_mirage", "de_inferno", "de_anubis", "de_dust2",
     "de_nuke", "de_overpass", "de_vertigo", "de_ancient",
-    "de_cache", "de_train", "de_poseidon", "de_sanctum", "de_warden"
+    "de_cache", "de_train", "de_poseidon", "de_sanctum", "de_warden",
+    "de_stronghold", "aim_map2_go_pwa", "aim_redline_fp",
+    "ar_baggage", "ar_pool_day", "ar_shoots",
+    "cs_italy", "cs_office"
 };
 static constexpr int VIS_MAP_COUNT = sizeof(VIS_MAPS) / sizeof(VIS_MAPS[0]);
 
