@@ -1,4 +1,5 @@
 #include "esp.h"
+#include "aimbot.h"
 #include "../core/memory.h"
 #include "../core/offsets.h"
 #include "../core/overlay.h"
@@ -208,7 +209,12 @@ void run(const ESPConfig& cfg) {
 
         float dist = local_origin.dist_to(origin);
         int team = read<uint8_t>(pawn + NetVars::m_iTeamNum);
-        bool spotted = read<uint8_t>(pawn + NetVars::m_entitySpottedState + NetVars::m_bSpotted) != 0;
+        // Visible: prefer aimbot raycast set (real-time), fallback m_bSpotted
+        bool in_visible_set = false;
+        for (int vi = 0; vi < aimbot::g_visible_set.count; ++vi)
+            if (aimbot::g_visible_set.pawns[vi] == pawn) { in_visible_set = true; break; }
+        bool visible = in_visible_set ||
+            read<uint8_t>(pawn + NetVars::m_entitySpottedState + NetVars::m_bSpotted) != 0;
 
         // Name from controller (batch read)
         std::string entName;
@@ -242,7 +248,7 @@ void run(const ESPConfig& cfg) {
             }
         }
         rawList.push_back(RawEntity{
-            pawn, origin, headPos, hp, team, dist, spotted,
+            pawn, origin, headPos, hp, team, dist, visible,
             std::move(entName), std::move(weaponName),
             boneCount, {}
         });

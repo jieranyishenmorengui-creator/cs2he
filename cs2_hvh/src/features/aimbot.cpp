@@ -142,7 +142,6 @@ static bool     g_kcd = false;
 static int      g_pc = 0;
 
 void run(const AimbotConfig& cfg) {
-    g_visible_set.count = 0; // reset visible set for ESP (even when disabled)
     if (!cfg.enabled) { g_last = 0; g_kcd = false; clear_ema(); g_aimbot_has_target = false; return; }
 
     bool key_down = false;
@@ -182,11 +181,11 @@ void run(const AimbotConfig& cfg) {
     int sw = overlay::get_width(), sh = overlay::get_height();
 
     // ── 实体扫描 ────────────────────────────────────────────
+    g_visible_set.count = 0; // reset visible set (preserved for ESP when scan doesn't run)
     uintptr_t elb = read<uintptr_t>(g_offsets.dwEntityList);
     uintptr_t best = 0;
     float best_score = 3.4e38f;
     g_aimbot_has_target = false;
-    g_visible_set.count = 0; // reset visible set for ESP
     auto t_now = std::chrono::steady_clock::now();
 
     for (int i = 1; i < 64; ++i) {
