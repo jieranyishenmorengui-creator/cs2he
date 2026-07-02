@@ -97,42 +97,30 @@ static std::string get_map_name() {
         }
     }
 
-    // ── engine2 — scan for "de_" across entire module ──
+        // ── CNetworkGameClient at engine2+0x90A1A0 ──
     uintptr_t e2 = get_engine2_base();
-    if (!e2) { printf("[VisCheck] engine2 not found\n"); return {}; }
-
-    // Read engine2 module size
-    size_t e2_size = 0;
-    HANDLE snap = CreateToolhelp32Snapshot(TH32CS_SNAPMODULE, cs2::process::get_process_id());
-    if (snap != INVALID_HANDLE_VALUE) {
-        MODULEENTRY32W me{}; me.dwSize = sizeof(me);
-        if (Module32FirstW(snap, &me)) do {
-            if (_wcsicmp(me.szModule, L"engine2.dll") == 0) { e2_size = me.modBaseSize; break; }
-        } while (Module32NextW(snap, &me));
-        CloseHandle(snap);
-    }
-    if (!e2_size) e2_size = 0xA00000; // ~10MB default
-
-    // Batch-scan for "de_"/"ar_"/"cs_" (64KB chunks) — validate against .opt files
-    char chunk[0x10000];
-    for (size_t base = 0; base < e2_size; base += sizeof(chunk)) {
-        if (!cs2::memory::read(e2 + base, chunk, sizeof(chunk))) continue;
-        for (int i = 0; i < (int)sizeof(chunk) - 10; ++i) {
-            if (chunk[i] != 'd' || chunk[i+1] != 'e' || chunk[i+2] != '_') continue;
-            // Extract map name candidates
-            int len = 3;
-            while (len < 32 && chunk[i+len] >= 'a' && chunk[i+len] <= 'z') len++;
-            if (len < 6 || chunk[i+len-1] == '_') continue; // too short or trailing _
-            // Verify: check if .opt file exists
-            std::string candidate(chunk + i, len);
-            std::string opt_path = std::string(MAP_DIR) + candidate + ".opt";
-            FILE* f = fopen(opt_path.c_str(), "rb");
-            if (f) { fclose(f); s_cached = candidate; return s_cached; }
+    if (!e2) return {};
+    uintptr_t ngc = cs2::memory::read<uintptr_t>(e2 + 0x90A1A0);
+    if (ngc && cs2::memory::IsRemotePtrValid(ngc)) {
+        int signon = cs2::memory::read<int>(ngc + 0x230);
+        if (signon == 6) {
+            char chunk[0x10000];
+            if (cs2::memory::read(ngc, chunk, sizeof(chunk))) {
+                for (int i = 0; i < (int)sizeof(chunk) - 10; ++i) {
+                    if (chunk[i] != 'd' || chunk[i+1] != 'e' || chunk[i+2] != '_') continue;
+                    int len = 3;
+                    while (len < 32 && ((chunk[i+len] >= 'a' && chunk[i+len] <= 'z') || chunk[i+len] == '_')) len++;
+                    if (len < 6) continue;
+                    std::string map(chunk + i, len);
+                    std::string opt = std::string(MAP_DIR) + map + ".opt";
+                    FILE* f = fopen(opt.c_str(), "rb");
+                    if (f) { fclose(f); s_cached = map; return s_cached; }
+                }
+            }
+        } else {
+            printf("[VisCheck] signOnState=%d (expected 6)\n", signon);
         }
-    }
-
-    printf("[VisCheck] Map not found in engine2 (%zu MB scanned)\n", e2_size / 0x100000);
-    return {};
+    };
 }
 
 // Atomic flags for cross-thread key events
