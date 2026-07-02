@@ -11,7 +11,6 @@
 #include "core/process.h"
 #include "core/overlay.h"
 #include "core/renderer.h"
-#include "core/entity_cache.h"
 #include "core/offsets.h"
 
 #include "config/config.h"
@@ -97,9 +96,6 @@ static void game_thread() {
             g_running = false;
             break;
         }
-
-        // Refresh entity cache (0 RPM for ESP/spectator afterward)
-        entity_cache::update();
 
         auto& cfg = config::get();
         aimbot::run(cfg.aimbot);

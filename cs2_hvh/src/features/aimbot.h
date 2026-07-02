@@ -64,7 +64,7 @@ struct AimbotConfig {
 };
 
 struct TriggerbotConfig {
-    bool enabled = true;
+    bool enabled = false;
     int key = 0x4C;                  // L键 (76)
     int delay_min = 10;
     int delay_max = 25;

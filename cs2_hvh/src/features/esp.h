@@ -11,15 +11,15 @@ struct ESPConfig {
     bool filled = false;
     bool show_line = false;
     bool show_skeleton = false;
-    bool show_health = true;
-    bool show_distance = true;
+    bool show_health = false;
+    bool show_distance = false;
     bool show_name = true;
-    bool show_weapon = false;
+    bool show_weapon = true;
     float text_scale = 1.0f;        // ESP文字大小 (1.0=16px, 1.5=24px)
     float max_distance = 200.0f;
     float global_alpha = 1.0f;
     float shadow_alpha = 0.5f;
-    float smooth_factor = 0.0f;   // 0=无平滑, >0=插值强度
+    float smooth_factor = 0.09f;  // 0=无平滑, >0=插值强度
 
     bool show_head_circle = true;
     float head_circle_thickness = 1.5f;

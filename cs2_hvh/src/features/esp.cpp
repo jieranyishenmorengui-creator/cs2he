@@ -1,6 +1,5 @@
 #include "esp.h"
 #include "../core/memory.h"
-#include "../core/entity_cache.h"
 #include "../core/offsets.h"
 #include "../core/overlay.h"
 #include "../core/renderer.h"
@@ -146,9 +145,6 @@ void run(const ESPConfig& cfg) {
     uint8_t local_team = read<uint8_t>(local_pawn + NetVars::m_iTeamNum);
     Vector3 local_origin = read<Vector3>(local_pawn + NetVars::m_vOldOrigin);
 
-    // Cache snapshot for non-position data
-    auto ec = entity_cache::fetch();
-
     struct RawEntity {
         uintptr_t pawn;
         Vector3   origin;
@@ -197,48 +193,37 @@ void run(const ESPConfig& cfg) {
         uintptr_t sn = read<uintptr_t>(pawn + NetVars::m_pGameSceneNode);
         if (sn && read<uint8_t>(sn + 0x103)) continue;
 
-        // Fetch heavy data from cache (bones, name, weapon)
-        const auto* cached = ec.find_by_pawn(pawn);
-
-        // Head bone: read directly every frame (smooth box tracking)
+        // Head bone: read directly every frame
         Vector3 headPos = origin + Vector3(0, 0, 72.0f);
         if (sn) {
             uintptr_t ba = read<uintptr_t>(sn + NetVars::m_modelState + NetVars::m_pBones);
             if (ba) {
                 Vector3 hb = read<Vector3>(ba + BoneIndex::HEAD * 0x20);
-                if (hb.length() > 1.0f)
-                    headPos = hb;
+                if (hb.length() > 1.0f) headPos = hb;
             }
         }
 
         float dist = local_origin.dist_to(origin);
+        int team = read<uint8_t>(pawn + NetVars::m_iTeamNum);
 
-        // Name
+        // Name from controller (batch read)
         std::string entName;
-        if (cached) {
-            const char* ns = cached->name;
-            size_t nl = strnlen(ns, 32);
-            if (nl > 0) entName.assign(ns, nl);
-        }
-
-        // Weapon from cache
-        std::string weaponName;
-        if (cfg.show_weapon && cached && cached->weapon_services) {
-            uint32_t h = read<uint32_t>(cached->weapon_services + NetVars::m_hActiveWeapon);
-            if (h) {
-                uint32_t idx = h & 0x7FFF;
-                uintptr_t entry = read<uintptr_t>(elb + 8 * (idx >> 9) + 16);
-                if (entry) {
-                    uintptr_t weapon = read<uintptr_t>(entry + 112 * (idx & 0x1FF));
-                    if (weapon) {
-                        uint16_t def = read<uint16_t>(weapon + 0x1180 + 0x50 + 0x1BA);
-                        weaponName = weapon_id_to_name(def);
-                    }
-                }
+        {
+            uint8_t cbuf[0x60];
+            if (read(controller + 0x6BC, cbuf, 0x58)) {
+                const char* ns = (const char*)(cbuf + 0x38);
+                size_t nl = strnlen(ns, 32);
+                if (nl > 0) entName.assign(ns, nl);
             }
         }
 
-        // Bones: direct read when skeleton on (smooth), cache when off
+        // Weapon
+        std::string weaponName;
+        if (cfg.show_weapon) {
+            weaponName = get_weapon_name_cached(pawn, elb);
+        }
+
+        // Skeleton bones (direct read when on)
         int boneCount = 0;
         Vector3 boneWorld[30]{};
         if (cfg.show_skeleton && sn) {
@@ -251,12 +236,7 @@ void run(const ESPConfig& cfg) {
                         boneWorld[b] = *(Vector3*)(raw + b * 0x20);
                 }
             }
-        } else if (cached && cached->bone_count > 0) {
-            boneCount = cached->bone_count;
-            memcpy(boneWorld, cached->bones, sizeof(Vector3) * boneCount);
         }
-
-        int team = cached ? cached->team : read<uint8_t>(pawn + NetVars::m_iTeamNum);
         rawList.push_back(RawEntity{
             pawn, origin, headPos, hp, team, dist,
             std::move(entName), std::move(weaponName),

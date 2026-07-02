@@ -1,6 +1,5 @@
 #include "aimbot.h"
 #include "../core/memory.h"
-#include "../core/entity_cache.h"
 #include "../core/offsets.h"
 #include "../core/overlay.h"
 #include <cmath>
@@ -159,51 +158,69 @@ void run(const AimbotConfig& cfg) {
         g_kcd = false;
     }
 
-    // ── 从实体缓存读取 (0 RPM) ────────────────────────────
-    auto snap = entity_cache::fetch();
-    uintptr_t lp = snap.local_pawn;
-    uintptr_t ctrl = snap.local_controller;
-    if (!IsRemotePtrValid(lp) || !IsRemotePtrValid(ctrl)) return;
+    // ── 本地玩家 ───────────────────────────────────────────
+    uintptr_t ctrl = read<uintptr_t>(g_offsets.dwLocalPlayerController);
+    if (!IsRemotePtrValid(ctrl)) return;
+    uintptr_t lp = get_entity_from_handle(read<uint32_t>(ctrl + NetVars::m_hPawn));
+    if (!IsRemotePtrValid(lp)) return;
 
-    uint8_t local_team = (uint8_t)snap.local_team;
-    Vector3 eye = snap.local_origin + snap.local_view_offset;
+    uint8_t local_team = read<uint8_t>(lp + NetVars::m_iTeamNum);
+    Vector3 eye = read<Vector3>(lp + NetVars::m_vOldOrigin)
+                + read<Vector3>(lp + NetVars::m_vecViewOffset);
 
     if (cfg.disable_when_flashed) {
-        if (snap.local_flash_duration > 0.1f && snap.local_flash_duration < 200.f &&
-            snap.local_flash_duration > cfg.flash_threshold) return;
+        float f = read<float>(lp + NetVars::m_flFlashDuration);
+        if (f > 0.1f && f < 200.f && f > cfg.flash_threshold) return;
     }
 
     ViewMatrix vm = read<ViewMatrix>(g_offsets.dwViewMatrix);
     int sw = overlay::get_width(), sh = overlay::get_height();
 
-    // ── 实体扫描 (从缓存, 0 RPM) ──────────────────────────
+    // ── 实体扫描 ────────────────────────────────────────────
+    uintptr_t elb = read<uintptr_t>(g_offsets.dwEntityList);
     uintptr_t best = 0;
     float best_score = 3.4e38f;
     g_aimbot_has_target = false;
-
     auto t_now = std::chrono::steady_clock::now();
 
-    for (auto& ent : snap.entities) {
-        if (!ent.alive || ent.dormant) continue;
-        if (cfg.team_check && ent.team == local_team) continue;
+    for (int i = 1; i < 64; ++i) {
+        uintptr_t ch = read<uintptr_t>(elb + 8 * (i >> 9) + 0x10);
+        if (!IsRemotePtrValid(ch)) continue;
+        uintptr_t c = read<uintptr_t>(ch + 112 * (i & 0x1FF));
+        if (!IsRemotePtrValid(c) || c == ctrl) continue;
+
+        uint32_t ph = read<uint32_t>(c + NetVars::m_hPawn);
+        if (!ph) continue;
+        uintptr_t p = get_entity_from_handle(ph);
+        if (!IsRemotePtrValid(p) || p == lp) continue;
+
+        int hp = read<int32_t>(p + NetVars::m_iHealth);
+        if (hp <= 0) continue;
+        if (read<uint8_t>(p + NetVars::m_lifeState) != 0) continue;
+        if (cfg.team_check && read<uint8_t>(p + NetVars::m_iTeamNum) == local_team) continue;
+
+        // Dormant
+        uintptr_t sn = read<uintptr_t>(p + NetVars::m_pGameSceneNode);
+        if (IsRemotePtrValid(sn) && read<uint8_t>(sn + 0x103)) continue;
+
+        // Visible check
         if (cfg.visible_check) {
-            // m_bSpotted 超时缓存: 一旦为 true 就记录时间戳
-            if (ent.spotted)
-                s_spotted_cache[ent.pawn] = t_now;
-            auto sit = s_spotted_cache.find(ent.pawn);
+            if (read<uint8_t>(p + NetVars::m_entitySpottedState + NetVars::m_bSpotted))
+                s_spotted_cache[p] = t_now;
+            auto sit = s_spotted_cache.find(p);
             if (sit == s_spotted_cache.end()) continue;
-            int ms_ago = (int)std::chrono::duration_cast<std::chrono::milliseconds>(
-                t_now - sit->second).count();
+            int ms_ago = (int)std::chrono::duration_cast<std::chrono::milliseconds>(t_now - sit->second).count();
             if (ms_ago > cfg.spotted_timeout_ms) continue;
         }
 
-        float wd = eye.dist_to(ent.origin);
+        Vector3 o = read<Vector3>(p + NetVars::m_vOldOrigin);
+        float wd = eye.dist_to(o);
         if (cfg.max_distance > 0.f && wd > cfg.max_distance) continue;
 
-        // 骨骼 (从缓存) + 侧身头部补偿
-        Vector3 bp = ent.bones[cfg.target_bone];
-        if (bp.length() < 0.1f) bp = ent.head_pos;
-        bp = adjust_head_for_facing(cfg, ent.pawn, bp, eye);
+        // 骨骼直读
+        Vector3 bp = get_bone_pos(p, cfg.target_bone);
+        if (bp.length() < 0.1f) bp = o + read<Vector3>(p + NetVars::m_vecViewOffset);
+        bp = adjust_head_for_facing(cfg, p, bp, eye);
 
         Vector2 sp;
         if (!world_to_screen(bp, sp, vm, sw, sh)) continue;
@@ -211,24 +228,18 @@ void run(const AimbotConfig& cfg) {
         if (fd > cfg.fov) continue;
 
         float score;
-        if (cfg.aim_priority == 1)
-            score = wd;
-        else if (cfg.aim_priority == 2)
-            score = (float)ent.health + wd * 0.001f;
-        else
-            score = fd + wd * 0.01f;
+        if (cfg.aim_priority == 1) score = wd;
+        else if (cfg.aim_priority == 2) score = (float)hp + wd * 0.001f;
+        else score = fd + wd * 0.01f;
 
-        if (score < best_score) {
-            best = ent.pawn; best_score = score;
-        }
+        if (score < best_score) { best = p; best_score = score; }
     }
 
-    // Periodic cache cleanup (EMA + spotted)
+    // Periodic cleanup (EMA + spotted)
     if (++g_pc > 30) {
         g_pc = 0;
         for (auto it = s_target_cache.begin(); it != s_target_cache.end();) {
-            auto* ce = snap.find_by_pawn(it->first);
-            int h = ce ? ce->health : 0;
+            int h = read<int32_t>(it->first + NetVars::m_iHealth);
             if (h <= 0 || h > 200) it = s_target_cache.erase(it); else ++it;
         }
         for (auto it = s_spotted_cache.begin(); it != s_spotted_cache.end();) {
@@ -239,22 +250,30 @@ void run(const AimbotConfig& cfg) {
 
     // ── 目标锁定 ─────────────────────────────────────────────
     if (g_last && g_last != best) {
-        auto* old = snap.find_by_pawn(g_last);
-        if (old && old->alive && !old->dormant) {
-            Vector3 old_bp = old->bones[cfg.target_bone];
-            if (old_bp.length() < 0.1f) old_bp = old->head_pos;
-            Vector2 old_sp;
-            if (world_to_screen(old_bp, old_sp, vm, sw, sh)) {
-                float old_fd = (old_sp - Vector2(sw*0.5f, sh*0.5f)).length();
-                if (cfg.hard_lock) {
-                    if (old_fd <= cfg.fov * 2.0f) best = g_last;
-                } else {
-                    float old_wd = eye.dist_to(old->origin);
-                    float old_score;
-                    if (cfg.aim_priority == 1) old_score = old_wd;
-                    else if (cfg.aim_priority == 2) old_score = (float)old->health + old_wd * 0.001f;
-                    else old_score = old_fd + old_wd * 0.01f;
-                    if (old_score <= best_score * 1.15f) best = g_last;
+        int old_hp = read<int32_t>(g_last + NetVars::m_iHealth);
+        bool old_alive = old_hp > 0 && read<uint8_t>(g_last + NetVars::m_lifeState) == 0;
+        if (old_alive) {
+            uintptr_t old_sn = read<uintptr_t>(g_last + NetVars::m_pGameSceneNode);
+            bool old_dormant = IsRemotePtrValid(old_sn) && read<uint8_t>(old_sn + 0x103);
+            if (!old_dormant) {
+                Vector3 old_bp = get_bone_pos(g_last, cfg.target_bone);
+                if (old_bp.length() < 0.1f) {
+                    Vector3 old_o = read<Vector3>(g_last + NetVars::m_vOldOrigin);
+                    old_bp = old_o + read<Vector3>(g_last + NetVars::m_vecViewOffset);
+                }
+                Vector2 old_sp;
+                if (world_to_screen(old_bp, old_sp, vm, sw, sh)) {
+                    float old_fd = (old_sp - Vector2(sw*0.5f, sh*0.5f)).length();
+                    if (cfg.hard_lock) {
+                        if (old_fd <= cfg.fov * 2.0f) best = g_last;
+                    } else {
+                        float old_wd = eye.dist_to(read<Vector3>(g_last + NetVars::m_vOldOrigin));
+                        float old_score;
+                        if (cfg.aim_priority == 1) old_score = old_wd;
+                        else if (cfg.aim_priority == 2) old_score = (float)old_hp + old_wd * 0.001f;
+                        else old_score = old_fd + old_wd * 0.01f;
+                        if (old_score <= best_score * 1.15f) best = g_last;
+                    }
                 }
             }
         }
@@ -262,14 +281,11 @@ void run(const AimbotConfig& cfg) {
 
     if (!best) { g_last = 0; g_aimbot_has_target = false; return; }
 
-    // 击杀检测 (从缓存)
-    auto* best_ent = snap.find_by_pawn(best);
-    int chp = best_ent ? best_ent->health : 0;
+    int chp = read<int32_t>(best + NetVars::m_iHealth);
     if (g_last == best) {
         if (g_last_hp > 0 && chp <= 0) { g_kcd = true; g_kt = t_now; g_last = 0; return; }
     } else if (g_last && g_last_hp > 0) {
-        auto* oh_ent = snap.find_by_pawn(g_last);
-        int oh = oh_ent ? oh_ent->health : 0;
+        int oh = read<int32_t>(g_last + NetVars::m_iHealth);
         if (oh <= 0) { g_kcd = true; g_kt = t_now; g_last = 0; return; }
     }
     g_last = best; g_last_hp = chp;
@@ -282,9 +298,12 @@ void run(const AimbotConfig& cfg) {
         if (IsRemotePtrValid(gv)) ft = read<float>(gv + 0x10);
     }
 
-    // 目标骨骼 + 侧身补偿 + EMA (从缓存)
-    Vector3 rp = best_ent ? best_ent->bones[cfg.target_bone] : Vector3{};
-    if (rp.length() < 0.1f) rp = best_ent ? best_ent->head_pos : Vector3{};
+    // 目标骨骼直读 + EMA
+    Vector3 rp = get_bone_pos(best, cfg.target_bone);
+    if (rp.length() < 0.1f) {
+        Vector3 to = read<Vector3>(best + NetVars::m_vOldOrigin);
+        rp = to + read<Vector3>(best + NetVars::m_vecViewOffset);
+    }
     rp = adjust_head_for_facing(cfg, best, rp, eye);
     Vector3 tp = ema_target(best, rp, cfg.smoothness, ft);
 
@@ -293,9 +312,19 @@ void run(const AimbotConfig& cfg) {
     if (cfg.lead_time > 0.f) {
         Vector3 tv = read<Vector3>(best + NetVars::m_vecVelocity);
         Vector3 lv = read<Vector3>(lp + NetVars::m_vecVelocity);
-        if ((tv - lv).length() > 10.f) {
+        Vector3 rv = tv - lv; // 相对速度
+        float rs = rv.length();
+        if (rs > 10.f) {
             float lt = std::min(cfg.lead_time, 0.15f);
-            ap = tp + tv * lt; ae = eye + lv * lt;
+            // 距离缩放: 越远越需要提前 (近距少提前防抖)
+            float dist_fac = std::clamp(eye.dist_to(tp) / 500.0f, 0.3f, 1.5f);
+            lt *= dist_fac;
+            // 最大提前量不超过 4 单位 (~半个头宽), 追头时不会歪到空气
+            Vector3 lead = rv * lt;
+            float lead_len = lead.length();
+            if (lead_len > 4.0f) lead = lead * (4.0f / lead_len);
+            ap = tp + lead;
+            ae = eye; // 自己不提前（你在移动也一样）
         }
     }
 
