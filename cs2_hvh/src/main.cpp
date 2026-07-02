@@ -34,16 +34,19 @@ static constexpr const char* MAP_DIR = "data/";
 
 // Map name → .opt file loader
 static void try_load_map(const std::string& map_name) {
-    if (map_name.empty() || map_name == g_current_map) return;
+    static bool s_last_fail = false; // only log one "no .opt" per map
+    if (map_name.empty() || map_name == g_current_map) { s_last_fail = false; return; }
 
     std::string path = std::string(MAP_DIR) + map_name + ".opt";
     FILE* f = fopen(path.c_str(), "rb");
     if (!f) {
-        printf("[VisCheck] No .opt for map '%s' (try: %s)\n", map_name.c_str(), path.c_str());
+        if (!s_last_fail) printf("[VisCheck] No .opt for '%s'\n", map_name.c_str());
+        s_last_fail = true;
         g_current_map.clear();
         g_pVisCheck = nullptr;
         return;
     }
+    s_last_fail = false;
     fclose(f);
 
     if (g_vischeck.load_map(path)) {
@@ -74,71 +77,61 @@ static uintptr_t get_engine2_base() {
     return base;
 }
 
-// Read map name — ONE-SHOT scan
 static std::string get_map_name() {
     static std::string s_cached;
     static bool s_done = false;
     if (s_done) return s_cached;
     s_done = true;
 
-    uintptr_t engine2 = get_engine2_base();
-    if (!engine2) return {};
-
-    // CNetworkGameClient at engine2+0x90A1A0
-    // Try as direct address (Option A) and as pointer (Option B)
-    for (auto& mode : {0, 1}) {
-        uintptr_t ngc = (mode == 0) ? (engine2 + 0x90A1A0) : cs2::memory::read<uintptr_t>(engine2 + 0x90A1A0);
-        if (!ngc || !cs2::memory::IsRemotePtrValid(ngc)) continue;
-
-        // Scan for "de_" string directly within struct
-        char buf[0x4000];
-        if (!cs2::memory::read(ngc, buf, sizeof(buf))) continue;
-        for (int i = 0; i < (int)sizeof(buf) - 8; ++i) {
-            if (buf[i] == 'd' && buf[i+1] == 'e' && buf[i+2] == '_') {
-                int end = i + 3;
-                while (end < i + 48 && end < (int)sizeof(buf) &&
-                       ((buf[end] >= 'a' && buf[end] <= 'z') || buf[end] == '_' || buf[end] == '.'))
-                    end++;
-                if (end - i > 5) {
-                    s_cached = std::string(buf + i, end - i);
-                    printf("[VisCheck] Map '%s' (mode %d, off %d)\n", s_cached.c_str(), mode, i);
-                    return s_cached;
-                }
-            }
-        }
-    }
-
-    // Also scan for pointers TO "de_" (CUtlString style)
-    uintptr_t ngc_ptr = cs2::memory::read<uintptr_t>(engine2 + 0x90A1A0);
-    if (ngc_ptr) {
-        char tmp[64];
-        for (int off = 0; off < 0x4000; off += 8) {
-            uintptr_t ptr = cs2::memory::read<uintptr_t>(ngc_ptr + off);
-            if (ptr && cs2::memory::read(ptr, tmp, 6)) {
-                if (tmp[0] == 'd' && tmp[1] == 'e' && tmp[2] == '_') {
-                    cs2::memory::read(ptr, tmp, 48);
-                    tmp[48] = 0;
-                    for (int j = 3; j < 48; ++j)
-                        if ((tmp[j] < 'a' || tmp[j] > 'z') && tmp[j] != '.') { tmp[j] = 0; break; }
-                    if (strlen(tmp) > 5) { s_cached = tmp; return s_cached; }
-                }
-            }
-        }
-    }
-
-    // Fallback: window title
+    // ── Window title (quickest, no module deps) ─────
     wchar_t wt[256]{};
     HWND gw = cs2::process::get_game_window();
     if (gw && GetWindowTextW(gw, wt, 256)) {
         char t[64]{}; wcstombs(t, wt, 64);
-        const char* p = strstr(t, "de_");
-        if (p) {
-            for (int j = 0; j < 24; ++j)
-                if (p[j] < 'a' || p[j] > 'z') { s_cached = std::string(p, p + j); return s_cached; }
+        const char* de = strstr(t, "de_");
+        if (!de) de = strstr(t, "ar_");
+        if (!de) de = strstr(t, "cs_");
+        if (de) {
+            int j = 3; while (j < 24 && de[j] >= 'a' && de[j] <= 'z') j++;
+            if (j > 5) { s_cached = std::string(de, de + j); return s_cached; }
         }
     }
 
-    printf("[VisCheck] Map detection failed\n");
+    // ── engine2 — scan for "de_" across entire module ──
+    uintptr_t e2 = get_engine2_base();
+    if (!e2) { printf("[VisCheck] engine2 not found\n"); return {}; }
+
+    // Read engine2 module size
+    size_t e2_size = 0;
+    HANDLE snap = CreateToolhelp32Snapshot(TH32CS_SNAPMODULE, cs2::process::get_process_id());
+    if (snap != INVALID_HANDLE_VALUE) {
+        MODULEENTRY32W me{}; me.dwSize = sizeof(me);
+        if (Module32FirstW(snap, &me)) do {
+            if (_wcsicmp(me.szModule, L"engine2.dll") == 0) { e2_size = me.modBaseSize; break; }
+        } while (Module32NextW(snap, &me));
+        CloseHandle(snap);
+    }
+    if (!e2_size) e2_size = 0xA00000; // ~10MB default
+
+    // Batch-scan for "de_"/"ar_"/"cs_" (64KB chunks) — validate against .opt files
+    char chunk[0x10000];
+    for (size_t base = 0; base < e2_size; base += sizeof(chunk)) {
+        if (!cs2::memory::read(e2 + base, chunk, sizeof(chunk))) continue;
+        for (int i = 0; i < (int)sizeof(chunk) - 10; ++i) {
+            if (chunk[i] != 'd' || chunk[i+1] != 'e' || chunk[i+2] != '_') continue;
+            // Extract map name candidates
+            int len = 3;
+            while (len < 32 && chunk[i+len] >= 'a' && chunk[i+len] <= 'z') len++;
+            if (len < 6 || chunk[i+len-1] == '_') continue; // too short or trailing _
+            // Verify: check if .opt file exists
+            std::string candidate(chunk + i, len);
+            std::string opt_path = std::string(MAP_DIR) + candidate + ".opt";
+            FILE* f = fopen(opt_path.c_str(), "rb");
+            if (f) { fclose(f); s_cached = candidate; return s_cached; }
+        }
+    }
+
+    printf("[VisCheck] Map not found in engine2 (%zu MB scanned)\n", e2_size / 0x100000);
     return {};
 }
 
