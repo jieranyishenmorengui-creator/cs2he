@@ -60,67 +60,32 @@ static void try_load_map(const std::string& map_name) {
     }
 }
 
-static uintptr_t get_engine2_base() {
-    DWORD pid = cs2::process::get_process_id();
-    if (!pid) return 0;
-    HANDLE snap = CreateToolhelp32Snapshot(TH32CS_SNAPMODULE, pid);
-    if (snap == INVALID_HANDLE_VALUE) return 0;
-    uintptr_t base = 0;
-    MODULEENTRY32W me{};
-    me.dwSize = sizeof(me);
-    if (Module32FirstW(snap, &me)) {
-        do {
-            if (_wcsicmp(me.szModule, L"engine2.dll") == 0) { base = (uintptr_t)me.modBaseAddr; break; }
-        } while (Module32NextW(snap, &me));
-    }
-    CloseHandle(snap);
-    return base;
-}
-
 static std::string get_map_name() {
     static std::string s_cached;
     static bool s_done = false;
     if (s_done) return s_cached;
     s_done = true;
 
-    // ── Window title (quickest, no module deps) ─────
+    // Only use window title — no module memory access
     wchar_t wt[256]{};
     HWND gw = cs2::process::get_game_window();
     if (gw && GetWindowTextW(gw, wt, 256)) {
         char t[64]{}; wcstombs(t, wt, 64);
-        const char* de = strstr(t, "de_");
-        if (!de) de = strstr(t, "ar_");
-        if (!de) de = strstr(t, "cs_");
-        if (de) {
-            int j = 3; while (j < 24 && de[j] >= 'a' && de[j] <= 'z') j++;
-            if (j > 5) { s_cached = std::string(de, de + j); return s_cached; }
-        }
-    }
-
-        // ── CNetworkGameClient at engine2+0x90A1A0 ──
-    uintptr_t e2 = get_engine2_base();
-    if (!e2) return {};
-    uintptr_t ngc = cs2::memory::read<uintptr_t>(e2 + 0x90A1A0);
-    if (ngc && cs2::memory::IsRemotePtrValid(ngc)) {
-        int signon = cs2::memory::read<int>(ngc + 0x230);
-        if (signon == 6) {
-            char chunk[0x10000];
-            if (cs2::memory::read(ngc, chunk, sizeof(chunk))) {
-                for (int i = 0; i < (int)sizeof(chunk) - 32; ++i) {
-                    if (chunk[i] != 'd' || chunk[i+1] != 'e' || chunk[i+2] != '_') continue;
-                    int len = 3;
-                    while (len < 28 && i + len < (int)sizeof(chunk) && ((chunk[i+len] >= 'a' && chunk[i+len] <= 'z') || chunk[i+len] == '_' || (chunk[i+len] >= '0' && chunk[i+len] <= '9'))) len++;
-                    if (len < 6 || len > 24) continue;
-                    std::string map(chunk + i, len);
-                    std::string opt = std::string(MAP_DIR) + map + ".opt";
-                    FILE* f = fopen(opt.c_str(), "rb");
-                    if (f) { fclose(f); s_cached = map; printf("[VisCheck] Map: %s\n", map.c_str()); return s_cached; }
+        for (int k = 0; t[k] && k < 60; ++k) {
+            if (t[k] == 'd' && t[k+1] == 'e' && t[k+2] == '_') {
+                int j = 3;
+                while (j < 24 && ((t[k+j] >= 'a' && t[k+j] <= 'z') ||
+                       t[k+j] == '_' || (t[k+j] >= '0' && t[k+j] <= '9'))) j++;
+                if (j >= 5) {
+                    s_cached = std::string(t + k, j);
+                    printf("[VisCheck] Map from title: %s\n", s_cached.c_str());
+                    return s_cached;
                 }
             }
-        } else {
-            printf("[VisCheck] signOnState=%d (expected 6)\n", signon);
         }
     }
+    printf("[VisCheck] No map in window title\n");
+    return {};
 }
 
 // Atomic flags for cross-thread key events
