@@ -439,8 +439,23 @@ void triggerbot(const TriggerbotConfig& cfg) {
                     if (IsRemotePtrValid(tp) && tp != lp &&
                         read<uint8_t>(tp + NetVars::m_lifeState) == 0 &&
                         read<int32_t>(tp + NetVars::m_iHealth) > 0)
-                        if (!cfg.team_check || read<uint8_t>(tp + NetVars::m_iTeamNum) != lt)
+                        if (!cfg.team_check || read<uint8_t>(tp + NetVars::m_iTeamNum) != lt) {
                             raw_valid = true;
+                            // VisCheck: 有射线检测时挡墙不触发
+                            if (g_pVisCheck) {
+                                Vector3 eye = read<Vector3>(lp + NetVars::m_vOldOrigin)
+                                            + read<Vector3>(lp + NetVars::m_vecViewOffset);
+                                uintptr_t sn2 = read<uintptr_t>(tp + NetVars::m_pGameSceneNode);
+                                if (IsRemotePtrValid(sn2)) {
+                                    uintptr_t ba2 = read<uintptr_t>(sn2 + NetVars::m_modelState + NetVars::m_pBones);
+                                    if (ba2) {
+                                        Vector3 hb = read<Vector3>(ba2 + BoneIndex::HEAD * 0x20);
+                                        if (hb.length() > 1.0f)
+                                            raw_valid = g_pVisCheck->is_visible(eye, hb);
+                                    }
+                                }
+                            }
+                        }
                 }
             }
         }
