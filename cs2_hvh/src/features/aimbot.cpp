@@ -432,45 +432,67 @@ void triggerbot(const TriggerbotConfig& cfg) {
     if (!IsRemotePtrValid(ctrl)) { wf = false; s_armed = false; return; }
     uintptr_t lp = get_entity_from_handle(read<uint32_t>(ctrl + NetVars::m_hPawn));
     if (!IsRemotePtrValid(lp)) { wf = false; s_armed = false; return; }
+    Vector3 eye = read<Vector3>(lp + NetVars::m_vOldOrigin)
+                + read<Vector3>(lp + NetVars::m_vecViewOffset);
     uint8_t lt = read<uint8_t>(lp + NetVars::m_iTeamNum);
+    ViewMatrix vm = read<ViewMatrix>(g_offsets.dwViewMatrix);
+    int sw = overlay::get_width(), sh = overlay::get_height();
 
     bool raw_valid = false;
 
-    if (cfg.mode == 0) {
-        // 模式0: m_iIDEntIndex (游戏自带射线检测，有约1帧延迟)
-        int ei = read<int32_t>(lp + NetVars::m_iIDEntIndex);
-        if (ei > 0 && ei <= 63) {
-            uintptr_t tc = get_entity_from_index(ei);
-            if (IsRemotePtrValid(tc) && tc != ctrl) {
-                uint32_t th = read<uint32_t>(tc + NetVars::m_hPawn);
-                if (th) {
-                    uintptr_t tp = get_entity_from_handle(th);
-                    if (IsRemotePtrValid(tp) && tp != lp &&
-                        read<uint8_t>(tp + NetVars::m_lifeState) == 0 &&
-                        read<int32_t>(tp + NetVars::m_iHealth) > 0)
-                        if (!cfg.team_check || read<uint8_t>(tp + NetVars::m_iTeamNum) != lt) {
-                            raw_valid = true;
-                            // VisCheck: 有射线检测时挡墙不触发
-                            if (g_pVisCheck) {
-                                Vector3 eye = read<Vector3>(lp + NetVars::m_vOldOrigin)
-                                            + read<Vector3>(lp + NetVars::m_vecViewOffset);
-                                uintptr_t sn2 = read<uintptr_t>(tp + NetVars::m_pGameSceneNode);
-                                if (IsRemotePtrValid(sn2)) {
-                                    uintptr_t ba2 = read<uintptr_t>(sn2 + NetVars::m_modelState + NetVars::m_pBones);
-                                    if (ba2) {
-                                        Vector3 hb = read<Vector3>(ba2 + BoneIndex::HEAD * 0x20);
-                                        if (hb.length() > 1.0f)
-                                            raw_valid = g_pVisCheck->is_visible(eye, hb);
-                                    }
-                                }
-                            }
-                        }
-                }
+    // 两种模式: 统一走独立实体扫描
+    uintptr_t elb = read<uintptr_t>(g_offsets.dwEntityList);
+    if (IsRemotePtrValid(elb)) {
+        for (int i = 1; i < 64; ++i) {
+            uintptr_t ch = read<uintptr_t>(elb + 8 * (i >> 9) + 0x10);
+            if (!ch) continue;
+            uintptr_t c = read<uintptr_t>(ch + 112 * (i & 0x1FF));
+            if (!c || c == ctrl) continue;
+
+            uint32_t ph = read<uint32_t>(c + NetVars::m_hPawn);
+            if (!ph) continue;
+            uintptr_t p = get_entity_from_handle(ph);
+            if (!p || p == lp) continue;
+
+            int hp = read<int32_t>(p + NetVars::m_iHealth);
+            if (hp <= 0) continue;
+            if (read<uint8_t>(p + NetVars::m_lifeState) != 0) continue;
+            if (cfg.team_check && read<uint8_t>(p + NetVars::m_iTeamNum) == lt) continue;
+
+            // Dormant
+            uintptr_t sn = read<uintptr_t>(p + NetVars::m_pGameSceneNode);
+            if (sn && read<uint8_t>(sn + 0x103)) continue;
+
+            // 取头部骨骼位置做W2S和射线检测
+            Vector3 headPos;
+            if (sn) {
+                uintptr_t ba = read<uintptr_t>(sn + NetVars::m_modelState + NetVars::m_pBones);
+                if (ba)
+                    headPos = read<Vector3>(ba + BoneIndex::HEAD * 0x20);
+            }
+            if (headPos.length() < 1.0f)
+                headPos = read<Vector3>(p + NetVars::m_vOldOrigin) + Vector3(0,0,72);
+
+            // VisCheck墙体检测
+            if (g_pVisCheck && !g_pVisCheck->is_visible(eye, headPos)) continue;
+
+            // W2S判断是否在准星附近
+            Vector2 sp;
+            if (!world_to_screen(headPos, sp, vm, sw, sh)) continue;
+            float fd = (sp - Vector2(sw*0.5f, sh*0.5f)).length();
+
+            // mode 0: m_iIDEntIndex (必须指向这个实体才算)
+            // mode 1: 只要在FOV阈值内就算
+            if (cfg.mode == 0) {
+                int ei = read<int32_t>(lp + NetVars::m_iIDEntIndex);
+                if (ei != i) continue;
+            }
+
+            if (fd <= cfg.fov_threshold * (sh / 90.0f)) { // 度→像素换算
+                raw_valid = true;
+                break;
             }
         }
-    } else {
-        // 模式1: 联动自瞄信号
-        raw_valid = g_aimbot_has_target && (g_aimbot_fov_raw <= cfg.fov_threshold);
     }
 
     // ── 滞回逻辑 ──────────────────────────────────────────────
