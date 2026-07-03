@@ -197,8 +197,15 @@ void run(const ESPConfig& cfg) {
         uintptr_t sn = read<uintptr_t>(pawn + NetVars::m_pGameSceneNode);
         if (sn && read<uint8_t>(sn + 0x103)) continue;
 
-        // Head position: use fixed offset from origin (no bone jitter)
+        // Head bone: read directly every frame
         Vector3 headPos = origin + Vector3(0, 0, 72.0f);
+        if (sn) {
+            uintptr_t ba = read<uintptr_t>(sn + NetVars::m_modelState + NetVars::m_pBones);
+            if (ba) {
+                Vector3 hb = read<Vector3>(ba + BoneIndex::HEAD * 0x20);
+                if (hb.length() > 1.0f) headPos = hb;
+            }
+        }
 
         float dist = local_origin.dist_to(origin);
         int team = read<uint8_t>(pawn + NetVars::m_iTeamNum);
