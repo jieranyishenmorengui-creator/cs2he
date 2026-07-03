@@ -411,21 +411,12 @@ void triggerbot(const TriggerbotConfig& cfg) {
     static std::chrono::steady_clock::time_point s_lost_at;
     static constexpr int GRACE_MS = 18; // FOV短暂超出的容忍窗口(ms)
 
-    // 点射状态
-    static int s_burst_count = 0;
-    static std::chrono::steady_clock::time_point s_burst_start;
-    static bool s_burst_cooldown = false;
-
-    // 静态RNG (不要在热路径上重建)
-    static std::mt19937 s_rng((unsigned)std::chrono::steady_clock::now().time_since_epoch().count());
-
     auto now = std::chrono::steady_clock::now();
 
-    if (!cfg.enabled) { wf = false; s_armed = false; s_lost_track = false; s_burst_count = 0; s_burst_cooldown = false; return; }
+    if (!cfg.enabled) { wf = false; s_armed = false; s_lost_track = false; return; }
     if (cfg.key && !overlay::is_key_down(cfg.key)) {
         if (wf && g_offsets.clientBase) write<int>(g_offsets.clientBase + B_ATTACK, 0);
-        wf = false; s_armed = false; s_lost_track = false;
-        s_burst_count = 0; s_burst_cooldown = false; return;
+        wf = false; s_armed = false; s_lost_track = false; return;
     }
 
     uintptr_t ctrl = read<uintptr_t>(g_offsets.dwLocalPlayerController);
@@ -504,28 +495,12 @@ void triggerbot(const TriggerbotConfig& cfg) {
         }
     }
 
-    // ── 点射冷却 ────────────────────────────────────────────
-    if (cfg.burst_mode && s_burst_cooldown) {
-        auto burst_elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(now - s_burst_start).count();
-        if (burst_elapsed < cfg.burst_cooldown) { wf = false; return; }
-        s_burst_cooldown = false;
-        s_burst_count = 0;
-    }
-
-    // ── 点射计数 ────────────────────────────────────────────
-    if (cfg.burst_mode && s_burst_count >= cfg.burst_shots) {
-        s_burst_cooldown = true;
-        s_burst_start = now;
-        if (wf && g_offsets.clientBase) write<int>(g_offsets.clientBase + B_ATTACK, 0);
-        wf = false; return;
-    }
-
-    // ── 射击延迟 ────────────────────────────────────────────
     auto el = std::chrono::duration_cast<std::chrono::milliseconds>(now - g_last_shot).count();
     int dly = cfg.delay_min;
     if (cfg.delay_max > cfg.delay_min) {
+        static std::mt19937 rng((unsigned)now.time_since_epoch().count());
         std::uniform_int_distribution<int> d(cfg.delay_min, cfg.delay_max);
-        dly = d(s_rng);
+        dly = d(rng);
     }
     if (el < dly) { wf = true; return; }
 
@@ -540,7 +515,6 @@ void triggerbot(const TriggerbotConfig& cfg) {
     ::SendInput(2, clk, sizeof(INPUT));
 
     g_last_shot = now; wf = true;
-    s_burst_count++;
 }
 
 } // namespace cs2::aimbot
