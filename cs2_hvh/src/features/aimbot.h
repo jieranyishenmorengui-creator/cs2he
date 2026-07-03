@@ -66,13 +66,18 @@ struct AimbotConfig {
 struct TriggerbotConfig {
     bool enabled = false;
     int key = 0x4C;                  // L键 (76)
-    int delay_min = 10;
-    int delay_max = 25;
+    int delay_min = 5;
+    int delay_max = 12;
     bool team_check = false;
     float max_velocity = 18.0f;
     // 检测模式: 0=m_iIDEntIndex  1=FOV(角度, 更精确)
     int mode = 1;                    // FOV角度检测
     float fov_threshold = 1.5f;      // FOV模式触发阈值(度)
+
+    // 点射模式 (burst)
+    bool burst_mode = true;          // 默认点射
+    int burst_shots = 3;             // 每次点射几发
+    int burst_cooldown = 150;        // 点射后冷却(ms)
 };
 
 void run(const AimbotConfig& cfg);
