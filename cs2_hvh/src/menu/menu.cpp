@@ -196,6 +196,7 @@ static void tab_visuals() {
     ImGui::Checkbox("Show Distance", &cfg.show_distance);
     ImGui::Checkbox("Show Name", &cfg.show_name);
     ImGui::Checkbox("Show Weapon", &cfg.show_weapon);
+    ImGui::Checkbox("Visible Green (spotted)", &cfg.show_visible_color);
 
     ImGui::Separator();
     ImGui::SliderFloat("Text Scale", &cfg.text_scale, 0.5f, 2.0f, "%.1f");
