@@ -146,11 +146,7 @@ void run(const ESPConfig& cfg) {
     uintptr_t local_pawn = get_entity_from_handle(lh);
     if (!local_pawn) return;
     uint8_t local_team = read<uint8_t>(local_pawn + NetVars::m_iTeamNum);
-    Vector3 local_origin;
-    {   uintptr_t lsn = read<uintptr_t>(local_pawn + NetVars::m_pGameSceneNode);
-        if (lsn) local_origin = read<Vector3>(lsn + 0xC8);
-        if (local_origin.length() < 0.1f) local_origin = read<Vector3>(local_pawn + NetVars::m_vOldOrigin);
-    }
+    Vector3 local_origin = read<Vector3>(local_pawn + NetVars::m_vOldOrigin);
 
     struct RawEntity {
         uintptr_t pawn;
@@ -185,19 +181,8 @@ void run(const ESPConfig& cfg) {
         }
         if (!pawn || pawn == local_pawn) continue;
 
-        // Dormant + scene node (for origin & later bone read)
-        uintptr_t sn = read<uintptr_t>(pawn + NetVars::m_pGameSceneNode);
-        if (sn && read<uint8_t>(sn + 0x103)) continue;
-
-        // Read origin from scene node abs origin (interpolated, smoother)
-        Vector3 origin;
-        if (sn) {
-            origin = read<Vector3>(sn + 0xC8); // CGameSceneNode::m_vecAbsOrigin
-            if (origin.length() < 0.1f)
-                origin = read<Vector3>(pawn + NetVars::m_vOldOrigin);
-        } else {
-            origin = read<Vector3>(pawn + NetVars::m_vOldOrigin);
-        }
+        // Read origin & health fresh (box tracking, 2 RPM)
+        Vector3 origin = read<Vector3>(pawn + NetVars::m_vOldOrigin);
         int hp = read<int32_t>(pawn + NetVars::m_iHealth);
         if (hp <= 0 || hp > 200) continue;
         uint8_t life = read<uint8_t>(pawn + NetVars::m_lifeState);
@@ -207,6 +192,10 @@ void run(const ESPConfig& cfg) {
             uint8_t team = read<uint8_t>(pawn + NetVars::m_iTeamNum);
             if (team == local_team) continue;
         }
+
+        // Dormant from scene node
+        uintptr_t sn = read<uintptr_t>(pawn + NetVars::m_pGameSceneNode);
+        if (sn && read<uint8_t>(sn + 0x103)) continue;
 
         // Head bone: read directly every frame
         Vector3 headPos = origin + Vector3(0, 0, 72.0f);
