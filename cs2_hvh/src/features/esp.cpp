@@ -146,7 +146,7 @@ void run(const ESPConfig& cfg) {
     uintptr_t local_pawn = get_entity_from_handle(lh);
     if (!local_pawn) return;
     uint8_t local_team = read<uint8_t>(local_pawn + NetVars::m_iTeamNum);
-    Vector3 local_origin = read<Vector3>(local_pawn + NetVars::m_vecOrigin);
+    Vector3 local_origin = read<Vector3>(local_pawn + NetVars::m_vOldOrigin);
 
     struct RawEntity {
         uintptr_t pawn;
@@ -182,7 +182,7 @@ void run(const ESPConfig& cfg) {
         if (!pawn || pawn == local_pawn) continue;
 
         // Read origin & health fresh (box tracking, 2 RPM)
-        Vector3 origin = read<Vector3>(pawn + NetVars::m_vecOrigin);
+        Vector3 origin = read<Vector3>(pawn + NetVars::m_vOldOrigin);
         int hp = read<int32_t>(pawn + NetVars::m_iHealth);
         if (hp <= 0 || hp > 200) continue;
         uint8_t life = read<uint8_t>(pawn + NetVars::m_lifeState);
