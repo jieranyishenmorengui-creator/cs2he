@@ -264,7 +264,8 @@ void run(const ESPConfig& cfg) {
     // Smoothing state (persists across frames)
     static std::unordered_map<uintptr_t, Vector2> s_smoothFoot;
     static std::unordered_map<uintptr_t, Vector2> s_smoothHead;
-    float alpha = 1.0f - std::clamp(cfg.smooth_factor, 0.0f, 0.95f);
+    // Adaptive smoothing — fast movement=track, slow=no jitter
+    float base_alpha = 1.0f - std::clamp(cfg.smooth_factor, 0.0f, 0.95f);
 
     std::vector<ESPEntity> entities;
 
@@ -273,21 +274,38 @@ void run(const ESPConfig& cfg) {
         if (!world_to_screen(raw.origin, foot, vm, sw, sh)) continue;
         if (!world_to_screen(raw.headPos, head2d, vm, sw, sh)) continue;
 
-        // ── Smoothing (EMA) ──────────────────────────────────
+        // ── Adaptive Smoothing ─────────────────────────────
         if (cfg.smooth_factor > 0.0f) {
-            auto itF = s_smoothFoot.find(raw.pawn);
-            if (itF != s_smoothFoot.end()) {
-                foot.x = itF->second.x + (foot.x - itF->second.x) * alpha;
-                foot.y = itF->second.y + (foot.y - itF->second.y) * alpha;
+            struct RawCache { Vector2 raw_foot, raw_head; };
+            static std::unordered_map<uintptr_t, RawCache> s_raw;
+
+            auto& rc = s_raw[raw.pawn];
+
+            // Save raw (pre-smooth) positions for speed calc
+            Vector2 raw_foot_this = foot;
+            Vector2 raw_head_this = head2d;
+
+            auto sf = s_smoothFoot.find(raw.pawn);
+            if (sf != s_smoothFoot.end()) {
+                float speed = (raw_foot_this - rc.raw_foot).length();
+                float alpha = speed < 1.f ? base_alpha :
+                             base_alpha + (0.25f - base_alpha) * std::clamp(speed / 30.f, 0.f, 1.f);
+                foot.x = sf->second.x + (raw_foot_this.x - sf->second.x) * alpha;
+                foot.y = sf->second.y + (raw_foot_this.y - sf->second.y) * alpha;
             }
             s_smoothFoot[raw.pawn] = foot;
+            rc.raw_foot = raw_foot_this;
 
-            auto itH = s_smoothHead.find(raw.pawn);
-            if (itH != s_smoothHead.end()) {
-                head2d.x = itH->second.x + (head2d.x - itH->second.x) * alpha;
-                head2d.y = itH->second.y + (head2d.y - itH->second.y) * alpha;
+            auto sh = s_smoothHead.find(raw.pawn);
+            if (sh != s_smoothHead.end()) {
+                float h_speed = (raw_head_this - rc.raw_head).length();
+                float h_alpha = h_speed < 1.f ? base_alpha :
+                               base_alpha + (0.25f - base_alpha) * std::clamp(h_speed / 30.f, 0.f, 1.f);
+                head2d.x = sh->second.x + (raw_head_this.x - sh->second.x) * h_alpha;
+                head2d.y = sh->second.y + (raw_head_this.y - sh->second.y) * h_alpha;
             }
             s_smoothHead[raw.pawn] = head2d;
+            rc.raw_head = raw_head_this;
         }
 
         ESPEntity ent;
