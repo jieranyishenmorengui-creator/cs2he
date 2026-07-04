@@ -181,8 +181,20 @@ void run(const ESPConfig& cfg) {
         }
         if (!pawn || pawn == local_pawn) continue;
 
-        // Read origin & health fresh (box tracking, 2 RPM)
-        Vector3 origin = read<Vector3>(pawn + NetVars::m_vOldOrigin);
+        // Read origin — interpolate between server updates (64→144 Hz)
+        Vector3 raw_origin = read<Vector3>(pawn + NetVars::m_vOldOrigin);
+        static std::unordered_map<uintptr_t, Vector3> s_smooth_o;
+        Vector3 origin = raw_origin;
+        auto so = s_smooth_o.find(pawn);
+        if (so != s_smooth_o.end()) {
+            float dist = (raw_origin - so->second).length();
+            if (dist > 0.5f)
+                origin = so->second + (raw_origin - so->second) * 0.25f;  // 大跳→慢跟
+            else if (dist > 0.1f)
+                origin = so->second + (raw_origin - so->second) * 0.5f;   // 小跳→半跟
+        }
+        s_smooth_o[pawn] = origin;
+
         int hp = read<int32_t>(pawn + NetVars::m_iHealth);
         if (hp <= 0 || hp > 200) continue;
         uint8_t life = read<uint8_t>(pawn + NetVars::m_lifeState);
