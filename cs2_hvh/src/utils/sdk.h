@@ -137,7 +137,7 @@ struct NetVars {
     static constexpr uint32_t m_vecVelocity     = 0x430;  // CNetworkVelocityVector
 
     // CSkeletonInstance (extends CGameSceneNode)
-    static constexpr uint32_t m_modelState      = 0x150;  // embedded CModelState struct (cs2-dumper)
+    static constexpr uint32_t m_modelState      = 0x140;  // embedded CModelState struct (build 14169)
 
     // CModelState::m_pBones — pointer to bone Matrix3x4 array (non-schema, dynamic)
     static constexpr uint32_t m_pBones          = 0x80;   // within CModelState
@@ -253,10 +253,10 @@ struct CGameSceneNode {
     bool m_bDormant;                // 0x103
 };
 
-// CSkeletonInstance extends CGameSceneNode
+// CSkeletonInstance extends CGameSceneNode (m_modelState at 0x140, build 14169)
 struct CSkeletonInstance : CGameSceneNode {
-    char pad1[0x190 - 0x104];
-    uintptr_t m_modelState;         // 0x190 → CModelState (embedded)
+    char pad1[0x140 - 0x104];
+    uintptr_t m_modelState;         // 0x140
 };
 
 // C_BasePlayerWeapon
