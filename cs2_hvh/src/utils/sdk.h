@@ -131,8 +131,8 @@ struct NetVars {
     static constexpr uint32_t m_pGameSceneNode  = 0x330;
     static constexpr uint32_t m_iHealth         = 0x34C;
     static constexpr uint32_t m_lifeState       = 0x354;  // uint8
-    static constexpr uint32_t m_iTeamNum        = 0x3EB;  // uint8
-    static constexpr uint32_t m_fFlags          = 0x3F8;
+    static constexpr uint32_t m_iTeamNum        = 0x3E7;  // uint8
+    static constexpr uint32_t m_fFlags          = 0x3F4;
     static constexpr uint32_t m_vecAbsVelocity  = 0x3FC;
     static constexpr uint32_t m_vecVelocity     = 0x430;  // CNetworkVelocityVector
 
@@ -143,25 +143,25 @@ struct NetVars {
     static constexpr uint32_t m_pBones          = 0x80;   // within CModelState
 
     // C_BaseModelEntity (extends C_BaseEntity)
-    static constexpr uint32_t m_vecViewOffset   = 0xE70;
+    static constexpr uint32_t m_vecViewOffset   = 0xE78;
 
     // C_BasePlayerPawn (extends C_BaseModelEntity via C_BaseCombatCharacter)
-    static constexpr uint32_t m_vOldOrigin       = 0x1390; // Vector (non-interpolated)
-    static constexpr uint32_t m_pWeaponServices   = 0x11E0;
-    static constexpr uint32_t m_pMovementServices  = 0x1220;
-    static constexpr uint32_t m_hController        = 0x13A8; // CHandle<CBasePlayerController>
+    static constexpr uint32_t m_vOldOrigin       = 0x13B8; // Vector (non-interpolated)
+    static constexpr uint32_t m_pWeaponServices   = 0x1208;
+    static constexpr uint32_t m_pMovementServices  = 0x1248;
+    static constexpr uint32_t m_hController        = 0x13D0; // CHandle<CBasePlayerController>
 
     // C_CSPlayerPawn (extends C_CSPlayerPawnBase)
-    static constexpr uint32_t m_pAimPunchServices  = 0x1490;
-    static constexpr uint32_t m_angEyeAngles       = 0x3320;  // QAngle ← 最新 dump
-    static constexpr uint32_t m_iIDEntIndex        = 0x33FC;  // CEntityIndex ← 最新 dump
-    static constexpr uint32_t m_entitySpottedState = 0x1C38;  // C_CSPlayerPawn
+    static constexpr uint32_t m_pAimPunchServices  = 0x14B8;
+    static constexpr uint32_t m_angEyeAngles       = 0x3340;  // QAngle
+    static constexpr uint32_t m_iIDEntIndex        = 0x341C;  // CEntityIndex
+    static constexpr uint32_t m_entitySpottedState = 0x1C58;  // C_CSPlayerPawn
     static constexpr uint32_t m_bSpotted          = 0x8;      // EntitySpottedState_t: bool (任何人spotted)
     static constexpr uint32_t m_bSpottedByMask    = 0xC;      // EntitySpottedState_t: uint32 bitmask (bit N = controller slot N spotted)
-    static constexpr uint32_t m_flFlashDuration   = 0x1400;   // C_CSPlayerPawnBase
+    static constexpr uint32_t m_flFlashDuration   = 0x1428;   // C_CSPlayerPawnBase
 
-    // Component: CPlayer_ObserverServices (on C_BasePlayerPawn +0x11F8)
-    static constexpr uint32_t m_pObserverServices = 0x11F8; // CPlayer_ObserverServices*
+    // Component: CPlayer_ObserverServices (on C_BasePlayerPawn +0x1220)
+    static constexpr uint32_t m_pObserverServices = 0x1220; // CPlayer_ObserverServices*
     static constexpr uint32_t m_iObserverMode     = 0x48;   // uint8
     static constexpr uint32_t m_hObserverTarget   = 0x4C;   // CHandle<C_BaseEntity>
 
@@ -215,10 +215,10 @@ struct C_BaseEntity {
     char pad2[0x34C - 0x338];
     int32_t m_iHealth;              // 0x34C
     uint8_t m_lifeState;            // 0x354
-    char pad3[0x3EB - 0x355];
-    uint8_t m_iTeamNum;             // 0x3EB
-    char pad4[0x3F8 - 0x3EC];
-    uint32_t m_fFlags;              // 0x3F8
+    char pad3[0x3E7 - 0x355];
+    uint8_t m_iTeamNum;             // 0x3E7
+    char pad4[0x3F4 - 0x3EC];
+    uint32_t m_fFlags;              // 0x3F4
 };
 
 // C_BaseModelEntity extends C_BaseEntity

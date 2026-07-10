@@ -132,8 +132,8 @@ VisibleSet g_visible_set;
 //  Aimbot
 // ═════════════════════════════════════════════════════════════
 
-static constexpr uintptr_t B_ATTACK  = 0x2065A90;
-static constexpr uintptr_t B_ATTACK2 = 0x2065B20;
+static constexpr uintptr_t B_ATTACK  = 0x2093F80;
+static constexpr uintptr_t B_ATTACK2 = 0x2094010;
 
 static uintptr_t g_last = 0;
 static int      g_last_hp = 0;
