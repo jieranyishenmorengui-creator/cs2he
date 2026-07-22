@@ -7410,27 +7410,12 @@
         },
         "type": "uint32"
       },
-      "_Py___": {
+      "___Gp_": {
         "alignment": 0,
         "members": {},
         "type": "unknown"
       },
-      "______": {
-        "alignment": 0,
-        "members": {},
-        "type": "unknown"
-      },
-      "__y___": {
-        "alignment": 0,
-        "members": {},
-        "type": "unknown"
-      },
-      "_hy___": {
-        "alignment": 0,
-        "members": {},
-        "type": "unknown"
-      },
-      "_uy___": {
+      "_h_Gp_": {
         "alignment": 0,
         "members": {},
         "type": "unknown"
