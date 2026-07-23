@@ -310,6 +310,24 @@ void run(const AimbotConfig& cfg) {
         int oh = read<int32_t>(g_last + NetVars::m_iHealth);
         if (oh <= 0) { g_kcd = true; g_kt = t_now; g_last = 0; return; }
     }
+    // ── Hitchance (散布检测) ─────────────────────────────
+    if (cfg.hitchance) {
+        uintptr_t w_services = read<uintptr_t>(lp + NetVars::m_pWeaponServices);
+        if (w_services) {
+            uint32_t w_handle = read<uint32_t>(w_services + NetVars::m_hActiveWeapon);
+            if (w_handle) {
+                uintptr_t weapon = get_entity_from_handle(w_handle);
+                if (weapon) {
+                    float penalty = read<float>(weapon + 0x17F0); // m_fAccuracyPenalty
+                    float approx_hc = 100.f / (1.f + penalty * 2.5f);
+                    if (approx_hc < cfg.hitchance_min) {
+                        g_last = 0; g_aimbot_has_target = false; g_visible_set.count = 0; return;
+                    }
+                }
+            }
+        }
+    }
+
     g_last = best; g_last_hp = chp;
     if (chp <= 0) return;
 
