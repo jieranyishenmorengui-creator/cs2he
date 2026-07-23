@@ -318,11 +318,7 @@ void run(const AimbotConfig& cfg) {
             if (w_handle) {
                 uintptr_t weapon = get_entity_from_handle(w_handle);
                 if (weapon) {
-                    static int log_cnt = 0;
-                    uint16_t wid = read<uint16_t>(weapon + 0x1180 + 0x50 + 0x1BA);
-                    float penalty = read<float>(weapon + 0x17F0);
-                    if (++log_cnt % 15 == 0)
-                        printf("[HC] wid=%hu penalty=%.3f\n", wid, penalty);
+                    float penalty = read<float>(weapon + 0x17F0); // m_fAccuracyPenalty
                     float approx_hc = 100.f / (1.f + penalty * 2.5f);
                     if (approx_hc < cfg.hitchance_min) {
                         g_last = 0; g_aimbot_has_target = false; g_visible_set.count = 0; return;
