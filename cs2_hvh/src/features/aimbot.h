@@ -38,10 +38,6 @@ struct AimbotConfig {
     bool recoil_control = true;
     float rcs_scale = 0.54f;
 
-    // Hitchance (散布太大不锁)
-    bool hitchance = false;           // 开关
-    float hitchance_min = 50.f;      // 低于此值不瞄准 (%)
-
     // FutaZone 高级瞄准模式
     int aim_mode = 0;
     bool randomize_speed = false;
