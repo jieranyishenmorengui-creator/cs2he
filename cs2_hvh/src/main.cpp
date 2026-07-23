@@ -185,7 +185,17 @@ static void game_thread() {
         }
 
         auto& cfg = config::get();
-        aimbot::run(cfg.aimbot);
+        // 按键时每帧扫, 空闲时每10帧扫一次
+        static int aim_idle = 0;
+        bool aim_active = cfg.aimbot.key_mode == 2 ||
+            overlay::is_key_down(cfg.aimbot.key0) ||
+            (cfg.aimbot.key1 && overlay::is_key_down(cfg.aimbot.key1));
+        if (aim_active) {
+            aim_idle = 0;
+            aimbot::run(cfg.aimbot);
+        } else if (++aim_idle % 10 == 0) {
+            aimbot::run(cfg.aimbot);
+        }
         aimbot::triggerbot(cfg.triggerbot);
 
         // Idle sleep when no game features active (省 CPU)
