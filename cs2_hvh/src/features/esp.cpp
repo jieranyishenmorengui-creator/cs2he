@@ -134,6 +134,13 @@ void run(const ESPConfig& cfg) {
     int sw = overlay::get_width();
     int sh = overlay::get_height();
 
+    // 游戏时间(用于插值)
+    float g_curtime = 0.f;
+    if (g_offsets.dwGlobalVars) {
+        uintptr_t gv = read<uintptr_t>(g_offsets.dwGlobalVars);
+        if (gv) g_curtime = read<float>(gv + 0x0C);
+    }
+
     // ═════════════════════════════════════════════════════════════
     //  Phase 1: positions direct (fresh every frame),
     //           heavy data from entity cache (throttled)
@@ -195,7 +202,21 @@ void run(const ESPConfig& cfg) {
         if (hp <= 0 || hp > 200) continue;
         uint8_t life = read<uint8_t>(pawn + NetVars::m_lifeState);
         if (life != 0) continue;
-        Vector3 origin = read<Vector3>(pawn + NetVars::m_vOldOrigin);
+        Vector3 raw_origin = read<Vector3>(pawn + NetVars::m_vOldOrigin);
+
+        // ── 64→144Hz线性插值 ─────────────────────────────────
+        // 记录两帧之间的位置, 在服务器更新间隙做平滑过渡
+        static std::unordered_map<uintptr_t, Vector3> s_prev_o, s_curr_o;
+        static std::unordered_map<uintptr_t, float> s_switch_t;
+        auto& prev = s_prev_o[pawn];
+        auto& curr = s_curr_o[pawn];
+        if ((raw_origin - curr).length() > 0.1f) {
+            prev = curr;
+            curr = raw_origin;
+            s_switch_t[pawn] = g_curtime;
+        }
+        float t = (g_curtime - s_switch_t[pawn]) / 0.015625f; // 1 tick = 15.6ms
+        Vector3 origin = (t >= 1.f) ? curr : prev + (curr - prev) * t;
 
         // Head bone: read directly every frame
         Vector3 headPos = origin + Vector3(0, 0, 72.0f);
