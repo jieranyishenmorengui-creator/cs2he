@@ -204,29 +204,32 @@ void run(const ESPConfig& cfg) {
         if (life != 0) continue;
         Vector3 raw_origin = read<Vector3>(pawn + NetVars::m_vOldOrigin);
 
-        // ── 64→144Hz线性插值 ─────────────────────────────────
-        // 记录两帧之间的位置, 在服务器更新间隙做平滑过渡
-        static std::unordered_map<uintptr_t, Vector3> s_prev_o, s_curr_o;
-        static std::unordered_map<uintptr_t, float> s_switch_t;
-        auto& prev = s_prev_o[pawn];
-        auto& curr = s_curr_o[pawn];
-        if ((raw_origin - curr).length() > 0.1f) {
-            prev = curr;
-            curr = raw_origin;
-            s_switch_t[pawn] = g_curtime;
-        }
-        float t = (g_curtime - s_switch_t[pawn]) / 0.015625f; // 1 tick = 15.6ms
-        Vector3 origin = (t >= 1.f) ? curr : prev + (curr - prev) * t;
-
-        // Head bone: read directly every frame
-        Vector3 headPos = origin + Vector3(0, 0, 72.0f);
+        // Head bone raw (for interpolation)
+        Vector3 raw_head = raw_origin + Vector3(0, 0, 72.0f);
         if (sn) {
             uintptr_t ba = read<uintptr_t>(sn + NetVars::m_modelState + NetVars::m_pBones);
             if (ba) {
                 Vector3 hb = read<Vector3>(ba + BoneIndex::HEAD * 0x20);
-                if (hb.length() > 1.0f) headPos = hb;
+                if (hb.length() > 1.0f) raw_head = hb;
             }
         }
+
+        // ── 64→144Hz线性插值(origin+head同步) ──────────────
+        struct Interp { Vector3 origin, head; };
+        static std::unordered_map<uintptr_t, Interp> s_prev, s_curr;
+        static std::unordered_map<uintptr_t, float> s_switch_t;
+        auto& cur = s_curr[pawn];
+        if ((raw_origin - cur.origin).length() > 0.1f ||
+            (raw_head - cur.head).length() > 0.1f) {
+            s_prev[pawn] = cur;
+            cur = {raw_origin, raw_head};
+            s_switch_t[pawn] = g_curtime;
+        }
+        float t = (g_curtime - s_switch_t[pawn]) / 0.015625f;
+        auto& prv = s_prev[pawn];
+        bool interp = (t < 1.f) && prv.origin.length() > 0.1f;
+        Vector3 origin  = interp ? prv.origin + (cur.origin - prv.origin) * t : cur.origin;
+        Vector3 headPos = interp ? prv.head   + (cur.head - prv.head) * t   : cur.head;
 
         float dist = local_origin.dist_to(origin);
         int team = read<uint8_t>(pawn + NetVars::m_iTeamNum);
