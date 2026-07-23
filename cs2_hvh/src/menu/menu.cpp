@@ -156,13 +156,6 @@ static void tab_aimbot() {
     }
 
     ImGui::Separator();
-    ImGui::Checkbox("Hitchance (散布>阈值不锁)", &cfg.hitchance);
-    if (cfg.hitchance) {
-        ImGui::Indent();
-        ImGui::SliderFloat("Min Hit Chance %", &cfg.hitchance_min, 10.f, 90.f, "%.0f%%");
-        ImGui::Unindent();
-    }
-
     ImGui::Checkbox("RCS Recoil Control (压枪)", &cfg.recoil_control);
     if (cfg.recoil_control) {
         ImGui::Indent();
