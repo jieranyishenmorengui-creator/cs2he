@@ -181,21 +181,21 @@ void run(const ESPConfig& cfg) {
         }
         if (!pawn || pawn == local_pawn) continue;
 
-        // Read origin & health fresh (box tracking, 2 RPM)
-        Vector3 origin = read<Vector3>(pawn + NetVars::m_vOldOrigin);
-        int hp = read<int32_t>(pawn + NetVars::m_iHealth);
-        if (hp <= 0 || hp > 200) continue;
-        uint8_t life = read<uint8_t>(pawn + NetVars::m_lifeState);
-        if (life != 0) continue;
+        // Dormant先查(省后续RPM)
+        uintptr_t sn = read<uintptr_t>(pawn + NetVars::m_pGameSceneNode);
+        if (!sn || read<uint8_t>(sn + 0x103)) continue;
 
         if (cfg.team_check) {
             uint8_t team = read<uint8_t>(pawn + NetVars::m_iTeamNum);
             if (team == local_team) continue;
         }
 
-        // Dormant from scene node
-        uintptr_t sn = read<uintptr_t>(pawn + NetVars::m_pGameSceneNode);
-        if (sn && read<uint8_t>(sn + 0x103)) continue;
+        // 存活+位置
+        int hp = read<int32_t>(pawn + NetVars::m_iHealth);
+        if (hp <= 0 || hp > 200) continue;
+        uint8_t life = read<uint8_t>(pawn + NetVars::m_lifeState);
+        if (life != 0) continue;
+        Vector3 origin = read<Vector3>(pawn + NetVars::m_vOldOrigin);
 
         // Head bone: read directly every frame
         Vector3 headPos = origin + Vector3(0, 0, 72.0f);
