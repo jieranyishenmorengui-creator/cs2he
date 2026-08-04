@@ -153,9 +153,9 @@ struct NetVars {
 
     // C_CSPlayerPawn (extends C_CSPlayerPawnBase)
     static constexpr uint32_t m_pAimPunchServices  = 0x14B8;
-    static constexpr uint32_t m_angEyeAngles       = 0x3340;  // QAngle
-    static constexpr uint32_t m_iIDEntIndex        = 0x341C;  // CEntityIndex
-    static constexpr uint32_t m_entitySpottedState = 0x1C58;  // C_CSPlayerPawn
+    static constexpr uint32_t m_angEyeAngles       = 0x3350;  // QAngle (build 14174)
+    static constexpr uint32_t m_iIDEntIndex        = 0x342C;  // CEntityIndex (build 14174)
+    static constexpr uint32_t m_entitySpottedState = 0x1C60;  // C_CSPlayerPawn (build 14174)
     static constexpr uint32_t m_bSpotted          = 0x8;      // EntitySpottedState_t: bool (任何人spotted)
     static constexpr uint32_t m_bSpottedByMask    = 0xC;      // EntitySpottedState_t: uint32 bitmask (bit N = controller slot N spotted)
     static constexpr uint32_t m_flFlashDuration   = 0x1428;   // C_CSPlayerPawnBase

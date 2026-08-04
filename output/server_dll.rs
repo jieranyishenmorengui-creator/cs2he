@@ -1,5 +1,5 @@
 // Generated using https://github.com/a2x/cs2-dumper
-// 2026-07-22 08:54:39.146739100 UTC
+// 2026-08-04 05:35:37.518061100 UTC
 
 #![allow(non_upper_case_globals, non_camel_case_types, non_snake_case, unused)]
 
@@ -3042,7 +3042,7 @@ pub mod cs2_dumper {
                 VR_HAND_HAPTIC_PULSE_STRONG = 0x2
             }
             // Alignment: 4
-            // Member count: 147
+            // Member count: 133
             #[repr(u32)]
             pub enum EGCItemMsg {
                 k_EMsgGCBase = 0x3E8,
@@ -3130,20 +3130,6 @@ pub mod cs2_dumper {
                 k_EMsgGCCasketItemAdd = 0x444,
                 k_EMsgGCCasketItemExtract = 0x445,
                 k_EMsgGCCasketItemLoadContents = 0x446,
-                k_EMsgGCTradingBase = 0x5DC,
-                k_EMsgGCTrading_InitiateTradeRequest = 0x5DD,
-                k_EMsgGCTrading_InitiateTradeResponse = 0x5DE,
-                k_EMsgGCTrading_StartSession = 0x5DF,
-                k_EMsgGCTrading_SetItem = 0x5E0,
-                k_EMsgGCTrading_RemoveItem = 0x5E1,
-                k_EMsgGCTrading_UpdateTradeInfo = 0x5E2,
-                k_EMsgGCTrading_SetReadiness = 0x5E3,
-                k_EMsgGCTrading_ReadinessResponse = 0x5E4,
-                k_EMsgGCTrading_SessionClosed = 0x5E5,
-                k_EMsgGCTrading_CancelSession = 0x5E6,
-                k_EMsgGCTrading_TradeChatMsg = 0x5E7,
-                k_EMsgGCTrading_ConfirmOffer = 0x5E8,
-                k_EMsgGCTrading_TradeTypingChatMsg = 0x5E9,
                 k_EMsgGCServerBrowser_FavoriteServer = 0x641,
                 k_EMsgGCServerBrowser_BlacklistServer = 0x642,
                 k_EMsgGCServerRentalsBase = 0x6A4,
@@ -5880,7 +5866,7 @@ pub mod cs2_dumper {
                 pub const m_WaitComplete: usize = 0xE0; // CPulse_ResumePoint
             }
             // Parent: CCSPlayerPawnBase
-            // Field count: 104
+            // Field count: 105
             pub mod CCSPlayerPawn {
                 pub const m_pBulletServices: usize = 0xD38; // CCSPlayer_BulletServices*
                 pub const m_pHostageServices: usize = 0xD40; // CCSPlayer_HostageServices*
@@ -5979,13 +5965,14 @@ pub mod cs2_dumper {
                 pub const m_bGrenadeParametersStashed: usize = 0x1324; // bool
                 pub const m_angStashedShootAngles: usize = 0x1328; // QAngle
                 pub const m_vecStashedGrenadeThrowPosition: usize = 0x1334; // VectorWS
-                pub const m_vecStashedVelocity: usize = 0x1340; // Vector
-                pub const m_bCommittingSuicideOnTeamChange: usize = 0x1358; // bool
-                pub const m_wasNotKilledNaturally: usize = 0x1359; // bool
-                pub const m_fImmuneToGunGameDamageTime: usize = 0x135C; // GameTime_t
-                pub const m_bGunGameImmunity: usize = 0x1360; // bool
-                pub const m_fMolotovDamageTime: usize = 0x1364; // float32
-                pub const m_angEyeAngles: usize = 0x1368; // QAngle
+                pub const m_vecStashedGrenadeThrowPawnCenter: usize = 0x1340; // VectorWS
+                pub const m_vecStashedVelocity: usize = 0x134C; // Vector
+                pub const m_bCommittingSuicideOnTeamChange: usize = 0x1360; // bool
+                pub const m_wasNotKilledNaturally: usize = 0x1361; // bool
+                pub const m_fImmuneToGunGameDamageTime: usize = 0x1364; // GameTime_t
+                pub const m_bGunGameImmunity: usize = 0x1368; // bool
+                pub const m_fMolotovDamageTime: usize = 0x136C; // float32
+                pub const m_angEyeAngles: usize = 0x1370; // QAngle
             }
             // Parent: CBaseEntity
             // Field count: 22
