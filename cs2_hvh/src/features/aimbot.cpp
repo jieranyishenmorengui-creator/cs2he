@@ -142,7 +142,8 @@ static bool     g_kcd = false;
 static int      g_pc = 0;
 
 void run(const AimbotConfig& cfg) {
-    if (!cfg.enabled) { g_last = 0; g_kcd = false; clear_ema(); g_aimbot_has_target = false; return; }
+    if (!cfg.enabled) { g_last = 0; g_kcd = false; clear_ema(); g_aimbot_has_target = false;
+        g_visible_set.count = 0; return; }
 
     bool key_down = false;
     if (cfg.key_mode == 2) key_down = true;
