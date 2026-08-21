@@ -1,23 +1,23 @@
 // Generated using https://github.com/a2x/cs2-dumper
-// 2026-08-11 06:15:48.813811100 UTC
+// 2026-08-21 05:52:24.156551100 UTC
 
 namespace CS2Dumper.Interfaces {
     // Module: animationsystem.dll
     public static class AnimationsystemDll {
-        public const nint AnimationSystemUtils_001 = 0x837ED0;
-        public const nint AnimationSystem_001 = 0x82FDF0;
+        public const nint AnimationSystemUtils_001 = 0x837F10;
+        public const nint AnimationSystem_001 = 0x82FE30;
     }
     // Module: client.dll
     public static class ClientDll {
-        public const nint ClientBugBugServic001_Client = 0x2098810;
-        public const nint ClientToolsInfo_001 = 0x20987E0;
-        public const nint EmptyWorldService001_Client = 0x20744E0;
-        public const nint GameClientExports001 = 0x2095480;
-        public const nint LegacyGameUI001 = 0x20A8D60;
-        public const nint Source2Client002 = 0x23A38D0;
-        public const nint Source2ClientConfig001 = 0x2310C30;
-        public const nint Source2ClientPrediction001 = 0x23A9020;
-        public const nint Source2ClientUI001 = 0x20A7280;
+        public const nint ClientBugBugServic001_Client = 0x2099810;
+        public const nint ClientToolsInfo_001 = 0x20997E0;
+        public const nint EmptyWorldService001_Client = 0x20754F0;
+        public const nint GameClientExports001 = 0x2096480;
+        public const nint LegacyGameUI001 = 0x20A9D60;
+        public const nint Source2Client002 = 0x23A48D0;
+        public const nint Source2ClientConfig001 = 0x2311C40;
+        public const nint Source2ClientPrediction001 = 0x23AA020;
+        public const nint Source2ClientUI001 = 0x20A8280;
     }
     // Module: engine2.dll
     public static class Engine2Dll {
@@ -58,8 +58,8 @@ namespace CS2Dumper.Interfaces {
     }
     // Module: filesystem_stdio.dll
     public static class FilesystemStdioDll {
-        public const nint VAsyncFileSystem2_001 = 0x211600;
-        public const nint VFileSystem017 = 0x2113C0;
+        public const nint VAsyncFileSystem2_001 = 0x213600;
+        public const nint VFileSystem017 = 0x2133C0;
     }
     // Module: host.dll
     public static class HostDll {
@@ -88,7 +88,7 @@ namespace CS2Dumper.Interfaces {
     // Module: matchmaking.dll
     public static class MatchmakingDll {
         public const nint GameTypes001 = 0x1ADF80;
-        public const nint MATCHFRAMEWORK_001 = 0x1B5F00;
+        public const nint MATCHFRAMEWORK_001 = 0x1B6020;
     }
     // Module: materialsystem2.dll
     public static class Materialsystem2Dll {
@@ -127,11 +127,11 @@ namespace CS2Dumper.Interfaces {
     }
     // Module: particles.dll
     public static class ParticlesDll {
-        public const nint ParticleSystemMgr003 = 0x5FEAD0;
+        public const nint ParticleSystemMgr003 = 0x5FEAC0;
     }
     // Module: pulse_system.dll
     public static class PulseSystemDll {
-        public const nint IPulseSystem_001 = 0x219710;
+        public const nint IPulseSystem_001 = 0x219750;
     }
     // Module: rendersystemdx11.dll
     public static class Rendersystemdx11Dll {
@@ -160,8 +160,8 @@ namespace CS2Dumper.Interfaces {
     }
     // Module: server.dll
     public static class ServerDll {
-        public const nint EmptyWorldService001_Server = 0x1C3DFA0;
-        public const nint EntitySubclassUtilsV001 = 0x1BEDB00;
+        public const nint EmptyWorldService001_Server = 0x1C3DFB0;
+        public const nint EntitySubclassUtilsV001 = 0x1BEDB10;
         public const nint NavGameTest001 = 0x1CB10E0;
         public const nint ServerToolsInfo_001 = 0x1C779A8;
         public const nint Source2GameClients001 = 0x1C76B90;
@@ -169,7 +169,7 @@ namespace CS2Dumper.Interfaces {
         public const nint Source2GameEntities001 = 0x1C77150;
         public const nint Source2Server001 = 0x1C76FA0;
         public const nint Source2ServerConfig001 = 0x1F61528;
-        public const nint customnavsystem001 = 0x1BD1F48;
+        public const nint customnavsystem001 = 0x1BD1F58;
     }
     // Module: soundsystem.dll
     public static class SoundsystemDll {
