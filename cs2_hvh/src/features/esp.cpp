@@ -250,7 +250,7 @@ void run(const ESPConfig& cfg) {
                 bool any_vis = false;
                 if (ba) {
                     static const int SB[] = {
-                        BoneIndex::HEAD, BoneIndex::SHOULDER_L, BoneIndex::SHOULDER_R,
+                        BoneIndex::HEAD, BoneIndex::HAND_L, BoneIndex::HAND_R,
                         BoneIndex::FOOT_HEEL_L, BoneIndex::FOOT_HEEL_R
                     };
                     for (int k = 0; k < 5; ++k) {
