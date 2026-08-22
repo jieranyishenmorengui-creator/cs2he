@@ -343,9 +343,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     // High-resolution timer for Sleep() precision
     timeBeginPeriod(1);
 
-    FILE* f = fopen("cs2_hvh_debug.txt", "w");
-    if (f) fclose(f);
-
     debug_log("=== CS2 HvH Starting ===");
     init_console();
 
