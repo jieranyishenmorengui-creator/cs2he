@@ -28,6 +28,7 @@ struct ESPConfig {
     float skeleton_thickness = 1.5f;
     Color skeleton_color = Color(1, 1, 1, 0.6f);
 
+    bool esp_vischeck = false;   // ESP自己射线检测可见性(需地图数据)
     bool show_visible_color = true; // spotted→绿色框
     Color visible_color   = Color(0.0f, 1.0f, 0.3f, 1.0f); // 可见敌人绿色
     Color team_color      = Color(0.2f, 0.8f, 1.0f, 1.0f);

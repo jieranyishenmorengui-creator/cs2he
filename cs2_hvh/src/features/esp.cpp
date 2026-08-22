@@ -243,7 +243,7 @@ void run(const ESPConfig& cfg) {
         // Visible: ESP自己做射线(节流), 否则用m_bSpotted
         bool visible;
         auto* vc = g_pVisCheck.load();
-        if (vc && sn) {
+        if (cfg.esp_vischeck && vc && sn) {
             if (vis_tick) {
                 // 多点射线: 头/胸/骨盆任一可见即绿
                 uintptr_t ba = read<uintptr_t>(sn + NetVars::m_modelState + NetVars::m_pBones);
