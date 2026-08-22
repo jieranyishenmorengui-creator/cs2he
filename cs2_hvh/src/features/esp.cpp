@@ -155,6 +155,12 @@ void run(const ESPConfig& cfg) {
     if (!local_pawn) return;
     uint8_t local_team = read<uint8_t>(local_pawn + NetVars::m_iTeamNum);
     Vector3 local_origin = read<Vector3>(local_pawn + NetVars::m_vOldOrigin);
+    Vector3 local_eye = local_origin + read<Vector3>(local_pawn + NetVars::m_vecViewOffset);
+
+    // ESP自己的vischeck缓存 (节流)
+    static std::unordered_map<uintptr_t, bool> s_esp_vis;
+    static int s_vis_tick = 0;
+    bool vis_tick = (++s_vis_tick % 3 == 0); // 每3帧刷新一次射线
 
     struct RawEntity {
         uintptr_t pawn;
@@ -234,15 +240,30 @@ void run(const ESPConfig& cfg) {
 
         float dist = local_origin.dist_to(origin);
         int team = read<uint8_t>(pawn + NetVars::m_iTeamNum);
-        // Visible: VisCheck加载时只用射线结果(实时), 否则用m_bSpotted
-        bool in_visible_set = false;
-        for (int vi = 0; vi < aimbot::g_visible_set.count; ++vi)
-            if (aimbot::g_visible_set.pawns[vi] == pawn) { in_visible_set = true; break; }
+        // Visible: ESP自己做射线(节流), 否则用m_bSpotted
         bool visible;
-        if (g_pVisCheck.load())
-            visible = in_visible_set;  // 射线实时结果
-        else
+        auto* vc = g_pVisCheck.load();
+        if (vc && sn) {
+            if (vis_tick) {
+                // 多点射线: 头/胸/骨盆任一可见即绿
+                uintptr_t ba = read<uintptr_t>(sn + NetVars::m_modelState + NetVars::m_pBones);
+                bool any_vis = false;
+                if (ba) {
+                    static const int SB[] = { BoneIndex::HEAD, BoneIndex::CHEST, BoneIndex::PELVIS };
+                    for (int k = 0; k < 3; ++k) {
+                        Vector3 pt = read<Vector3>(ba + SB[k] * 0x20);
+                        if (pt.length() > 1.0f && vc->is_visible(local_eye, pt)) { any_vis = true; break; }
+                    }
+                }
+                visible = any_vis;
+                s_esp_vis[pawn] = visible;
+            } else {
+                auto it = s_esp_vis.find(pawn);
+                visible = (it != s_esp_vis.end()) ? it->second : false;
+            }
+        } else {
             visible = read<uint8_t>(pawn + NetVars::m_entitySpottedState + NetVars::m_bSpotted) != 0;
+        }
 
         // Name from controller (batch read)
         std::string entName;
@@ -374,6 +395,7 @@ void run(const ESPConfig& cfg) {
             }
         };
         if (cfg.smooth_factor > 0.0f) { prune(s_smoothFoot); prune(s_smoothHead); }
+        prune(s_esp_vis);
     }
 
     std::sort(entities.begin(), entities.end(),

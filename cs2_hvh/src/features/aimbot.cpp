@@ -145,6 +145,18 @@ void run(const AimbotConfig& cfg) {
     if (!cfg.enabled) { g_last = 0; g_kcd = false; clear_ema(); g_aimbot_has_target = false;
         g_visible_set.count = 0; return; }
 
+    // 按键检查 (不按键不扫, 省CPU)
+    bool key_down = false;
+    if (cfg.key_mode == 2) key_down = true;
+    else if (cfg.key_mode == 0)
+        key_down = overlay::is_key_down(cfg.key0) || (cfg.key1 && overlay::is_key_down(cfg.key1));
+    else if (cfg.key_mode == 1) {
+        static bool t = false;
+        if (overlay::was_key_pressed(cfg.key0) || (cfg.key1 && overlay::was_key_pressed(cfg.key1))) t = !t;
+        key_down = t;
+    }
+    if (!key_down) { g_last = 0; g_kcd = false; clear_ema(); g_aimbot_has_target = false; return; }
+
     // ── 本地玩家 ───────────────────────────────────────────
     uintptr_t ctrl = read<uintptr_t>(g_offsets.dwLocalPlayerController);
     if (!IsRemotePtrValid(ctrl)) return;
@@ -259,18 +271,6 @@ void run(const AimbotConfig& cfg) {
             if (ms > 5000) it = s_spotted_cache.erase(it); else ++it;
         }
     }
-
-    // ── 按键检查: 不按键只更新visible_set, 不瞄准 ──────────
-    bool key_down = false;
-    if (cfg.key_mode == 2) key_down = true;
-    else if (cfg.key_mode == 0)
-        key_down = overlay::is_key_down(cfg.key0) || (cfg.key1 && overlay::is_key_down(cfg.key1));
-    else if (cfg.key_mode == 1) {
-        static bool t = false;
-        if (overlay::was_key_pressed(cfg.key0) || (cfg.key1 && overlay::was_key_pressed(cfg.key1))) t = !t;
-        key_down = t;
-    }
-    if (!key_down) { g_last = 0; g_kcd = false; clear_ema(); g_aimbot_has_target = false; return; }
 
     if (cfg.kill_delay_ms > 0 && g_kcd) {
         auto e = std::chrono::duration_cast<std::chrono::milliseconds>(
