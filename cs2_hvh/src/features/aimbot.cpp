@@ -145,24 +145,6 @@ void run(const AimbotConfig& cfg) {
     if (!cfg.enabled) { g_last = 0; g_kcd = false; clear_ema(); g_aimbot_has_target = false;
         g_visible_set.count = 0; return; }
 
-    bool key_down = false;
-    if (cfg.key_mode == 2) key_down = true;
-    else if (cfg.key_mode == 0)
-        key_down = overlay::is_key_down(cfg.key0) || (cfg.key1 && overlay::is_key_down(cfg.key1));
-    else if (cfg.key_mode == 1) {
-        static bool t = false;
-        if (overlay::was_key_pressed(cfg.key0) || (cfg.key1 && overlay::was_key_pressed(cfg.key1))) t = !t;
-        key_down = t;
-    }
-    if (!key_down) { g_last = 0; g_kcd = false; clear_ema(); g_aimbot_has_target = false; return; }
-
-    if (cfg.kill_delay_ms > 0 && g_kcd) {
-        auto e = std::chrono::duration_cast<std::chrono::milliseconds>(
-            std::chrono::steady_clock::now() - g_kt).count();
-        if (e < (uint64_t)cfg.kill_delay_ms) return;
-        g_kcd = false;
-    }
-
     // ── 本地玩家 ───────────────────────────────────────────
     uintptr_t ctrl = read<uintptr_t>(g_offsets.dwLocalPlayerController);
     if (!IsRemotePtrValid(ctrl)) return;
@@ -173,15 +155,15 @@ void run(const AimbotConfig& cfg) {
     Vector3 eye = read<Vector3>(lp + NetVars::m_vOldOrigin)
                 + read<Vector3>(lp + NetVars::m_vecViewOffset);
 
+    ViewMatrix vm = read<ViewMatrix>(g_offsets.dwViewMatrix);
+    int sw = overlay::get_width(), sh = overlay::get_height();
+
     if (cfg.disable_when_flashed) {
         float f = read<float>(lp + NetVars::m_flFlashDuration);
         if (f > 0.1f && f < 200.f && f > cfg.flash_threshold) return;
     }
 
-    ViewMatrix vm = read<ViewMatrix>(g_offsets.dwViewMatrix);
-    int sw = overlay::get_width(), sh = overlay::get_height();
-
-    // ── 实体扫描 ────────────────────────────────────────────
+    // ── 实体扫描 (aimbot启用即扫, 填visible_set供ESP) ──────
     g_visible_set.count = 0; // reset visible set (preserved for ESP when scan doesn't run)
     uintptr_t elb = read<uintptr_t>(g_offsets.dwEntityList);
     uintptr_t best = 0;
@@ -269,6 +251,25 @@ void run(const AimbotConfig& cfg) {
             int ms = (int)std::chrono::duration_cast<std::chrono::milliseconds>(t_now - it->second).count();
             if (ms > 5000) it = s_spotted_cache.erase(it); else ++it;
         }
+    }
+
+    // ── 按键检查: 不按键只更新visible_set, 不瞄准 ──────────
+    bool key_down = false;
+    if (cfg.key_mode == 2) key_down = true;
+    else if (cfg.key_mode == 0)
+        key_down = overlay::is_key_down(cfg.key0) || (cfg.key1 && overlay::is_key_down(cfg.key1));
+    else if (cfg.key_mode == 1) {
+        static bool t = false;
+        if (overlay::was_key_pressed(cfg.key0) || (cfg.key1 && overlay::was_key_pressed(cfg.key1))) t = !t;
+        key_down = t;
+    }
+    if (!key_down) { g_last = 0; g_kcd = false; clear_ema(); g_aimbot_has_target = false; return; }
+
+    if (cfg.kill_delay_ms > 0 && g_kcd) {
+        auto e = std::chrono::duration_cast<std::chrono::milliseconds>(
+            std::chrono::steady_clock::now() - g_kt).count();
+        if (e < (uint64_t)cfg.kill_delay_ms) return;
+        g_kcd = false;
     }
 
     // ── 目标锁定 ─────────────────────────────────────────────
