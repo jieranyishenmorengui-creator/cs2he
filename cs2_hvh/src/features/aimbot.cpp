@@ -211,10 +211,13 @@ void run(const AimbotConfig& cfg) {
                 if (IsRemotePtrValid(vc_sn)) {
                     uintptr_t vc_ba = read<uintptr_t>(vc_sn + NetVars::m_modelState + NetVars::m_pBones);
                     if (vc_ba) {
-                        // 多点采样: HEAD(7) CHEST(23) PELVIS(1)
-                        static const int SAMPLE_BONES[] = { BoneIndex::HEAD, BoneIndex::CHEST, BoneIndex::PELVIS };
+                        // 边缘骨采样: 头/左右肩/左右脚趾 任一可见即可见
+                        static const int SAMPLE_BONES[] = {
+                            BoneIndex::HEAD, BoneIndex::SHOULDER_L, BoneIndex::SHOULDER_R,
+                            BoneIndex::FOOT_HEEL_L, BoneIndex::FOOT_HEEL_R
+                        };
                         bool any_visible = false;
-                        for (int sb = 0; sb < 3; ++sb) {
+                        for (int sb = 0; sb < 5; ++sb) {
                             Vector3 pt = read<Vector3>(vc_ba + SAMPLE_BONES[sb] * 0x20);
                             if (pt.length() > 1.0f && vc->is_visible(eye, pt)) {
                                 any_visible = true;

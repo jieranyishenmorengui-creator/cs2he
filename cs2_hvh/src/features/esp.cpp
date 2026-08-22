@@ -249,8 +249,11 @@ void run(const ESPConfig& cfg) {
                 uintptr_t ba = read<uintptr_t>(sn + NetVars::m_modelState + NetVars::m_pBones);
                 bool any_vis = false;
                 if (ba) {
-                    static const int SB[] = { BoneIndex::HEAD, BoneIndex::CHEST, BoneIndex::PELVIS };
-                    for (int k = 0; k < 3; ++k) {
+                    static const int SB[] = {
+                        BoneIndex::HEAD, BoneIndex::SHOULDER_L, BoneIndex::SHOULDER_R,
+                        BoneIndex::FOOT_HEEL_L, BoneIndex::FOOT_HEEL_R
+                    };
+                    for (int k = 0; k < 5; ++k) {
                         Vector3 pt = read<Vector3>(ba + SB[k] * 0x20);
                         if (pt.length() > 1.0f && vc->is_visible(local_eye, pt)) { any_vis = true; break; }
                     }
