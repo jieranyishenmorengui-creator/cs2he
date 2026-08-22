@@ -191,19 +191,26 @@ void run(const AimbotConfig& cfg) {
         uintptr_t sn = read<uintptr_t>(p + NetVars::m_pGameSceneNode);
         if (IsRemotePtrValid(sn) && read<uint8_t>(sn + 0x103)) continue;
 
-        // Visible check (VisCheck raycast if .opt loaded, else m_bSpotted fallback)
+        // Visible check — multipoint raycast (头/胸/骨盆任一点可见即可见)
         if (cfg.visible_check) {
             auto* vc = g_pVisCheck;
             if (vc) {
-                Vector3 head_bp;
                 uintptr_t vc_sn = read<uintptr_t>(p + NetVars::m_pGameSceneNode);
                 if (IsRemotePtrValid(vc_sn)) {
                     uintptr_t vc_ba = read<uintptr_t>(vc_sn + NetVars::m_modelState + NetVars::m_pBones);
-                    if (vc_ba)
-                        head_bp = read<Vector3>(vc_ba + BoneIndex::HEAD * 0x20);
-                }
-                if (head_bp.length() > 1.0f) {
-                    if (!vc->is_visible(eye, head_bp)) continue;
+                    if (vc_ba) {
+                        // 多点采样: HEAD(7) CHEST(23) PELVIS(1)
+                        static const int SAMPLE_BONES[] = { BoneIndex::HEAD, BoneIndex::CHEST, BoneIndex::PELVIS };
+                        bool any_visible = false;
+                        for (int sb = 0; sb < 3; ++sb) {
+                            Vector3 pt = read<Vector3>(vc_ba + SAMPLE_BONES[sb] * 0x20);
+                            if (pt.length() > 1.0f && vc->is_visible(eye, pt)) {
+                                any_visible = true;
+                                break;
+                            }
+                        }
+                        if (!any_visible) continue;
+                    }
                 }
             } else {
                 // Fallback: m_bSpotted + timeout cache
