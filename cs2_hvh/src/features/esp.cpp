@@ -1,5 +1,6 @@
 #include "esp.h"
 #include "aimbot.h"
+#include "../core/vischeck.h"
 #include "../core/memory.h"
 #include "../core/offsets.h"
 #include "../core/overlay.h"
@@ -233,12 +234,15 @@ void run(const ESPConfig& cfg) {
 
         float dist = local_origin.dist_to(origin);
         int team = read<uint8_t>(pawn + NetVars::m_iTeamNum);
-        // Visible: prefer aimbot raycast set (real-time), fallback m_bSpotted
+        // Visible: VisCheck加载时只用射线结果(实时), 否则用m_bSpotted
         bool in_visible_set = false;
         for (int vi = 0; vi < aimbot::g_visible_set.count; ++vi)
             if (aimbot::g_visible_set.pawns[vi] == pawn) { in_visible_set = true; break; }
-        bool visible = in_visible_set ||
-            read<uint8_t>(pawn + NetVars::m_entitySpottedState + NetVars::m_bSpotted) != 0;
+        bool visible;
+        if (g_pVisCheck)
+            visible = in_visible_set;  // 射线实时结果
+        else
+            visible = read<uint8_t>(pawn + NetVars::m_entitySpottedState + NetVars::m_bSpotted) != 0;
 
         // Name from controller (batch read)
         std::string entName;
