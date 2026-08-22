@@ -4,6 +4,7 @@
 #include <vector>
 #include <memory>
 #include <fstream>
+#include <atomic>
 
 namespace cs2::vischeck {
 
@@ -57,4 +58,4 @@ private:
 } // namespace cs2::vischeck
 
 // Global pointer (defined in vischeck.cpp, used by aimbot visible check)
-extern cs2::vischeck::VisCheck* g_pVisCheck;
+extern std::atomic<cs2::vischeck::VisCheck*> g_pVisCheck;

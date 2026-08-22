@@ -6,7 +6,7 @@
 #include <iostream>
 
 // Global instance pointer (declared in main.cpp, defined here)
-cs2::vischeck::VisCheck* g_pVisCheck = nullptr;
+std::atomic<cs2::vischeck::VisCheck*> g_pVisCheck{nullptr};
 
 namespace cs2::vischeck {
 

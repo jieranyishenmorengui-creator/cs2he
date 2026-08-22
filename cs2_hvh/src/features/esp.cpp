@@ -239,7 +239,7 @@ void run(const ESPConfig& cfg) {
         for (int vi = 0; vi < aimbot::g_visible_set.count; ++vi)
             if (aimbot::g_visible_set.pawns[vi] == pawn) { in_visible_set = true; break; }
         bool visible;
-        if (g_pVisCheck)
+        if (g_pVisCheck.load())
             visible = in_visible_set;  // 射线实时结果
         else
             visible = read<uint8_t>(pawn + NetVars::m_entitySpottedState + NetVars::m_bSpotted) != 0;

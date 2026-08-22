@@ -193,7 +193,7 @@ void run(const AimbotConfig& cfg) {
 
         // Visible check — multipoint raycast (头/胸/骨盆任一点可见即可见)
         if (cfg.visible_check) {
-            auto* vc = g_pVisCheck;
+            auto* vc = g_pVisCheck.load();
             if (vc) {
                 uintptr_t vc_sn = read<uintptr_t>(p + NetVars::m_pGameSceneNode);
                 if (IsRemotePtrValid(vc_sn)) {

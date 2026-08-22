@@ -27,39 +27,46 @@
 static std::atomic<bool> g_running{true};
 static bool g_test_mode = false;
 static std::atomic<const char*> g_init_status{"Initializing..."};
-static cs2::vischeck::VisCheck g_vischeck;
 static std::string g_current_map;
 // Reset vischeck state (called from menu when user changes map)
-void cs2_vischeck_reset() { g_current_map.clear(); g_pVisCheck = nullptr; }
+void cs2_vischeck_reset() { g_current_map.clear(); g_pVisCheck.store(nullptr); }
 static char g_vis_status[64] = "VisCheck: no map data";
 static constexpr const char* MAP_DIR = "data/";
 
-// Map name → .opt file loader
+// ── 异步地图加载(不阻塞游戏线程/菜单) ────────────────────
+static std::atomic<bool> s_map_loading{false};
+
+static void load_map_async(const std::string& path, const std::string& map_name) {
+    auto* vc = new cs2::vischeck::VisCheck();
+    if (vc->load_map(path)) {
+        auto* old = g_pVisCheck.load();
+        g_pVisCheck.store(vc);
+        delete old; // 旧对象只在地图切换时换, 一次性
+        g_current_map = map_name;
+        snprintf(g_vis_status, sizeof(g_vis_status), "VisCheck: %s", map_name.c_str());
+        printf("[VisCheck] Map '%s' loaded\n", map_name.c_str());
+    } else {
+        delete vc;
+        printf("[VisCheck] Failed to load %s\n", path.c_str());
+    }
+    s_map_loading = false;
+}
+
+// Map name → 触发异步加载
 static void try_load_map(const std::string& map_name) {
-    static bool s_last_fail = false; // only log one "no .opt" per map
-    if (map_name.empty() || map_name == g_current_map) { s_last_fail = false; return; }
+    if (map_name.empty() || map_name == g_current_map || s_map_loading) return;
 
     std::string path = std::string(MAP_DIR) + map_name + ".opt";
     FILE* f = fopen(path.c_str(), "rb");
     if (!f) {
-        if (!s_last_fail) printf("[VisCheck] No .opt for '%s'\n", map_name.c_str());
-        s_last_fail = true;
-        g_current_map.clear();
-        g_pVisCheck = nullptr;
+        printf("[VisCheck] No .opt for '%s'\n", map_name.c_str());
         return;
     }
-    s_last_fail = false;
     fclose(f);
 
-    if (g_vischeck.load_map(path)) {
-        g_current_map = map_name;
-        g_pVisCheck = &g_vischeck;
-        printf("[VisCheck] Map '%s' loaded\n", map_name.c_str());
-        snprintf(g_vis_status, sizeof(g_vis_status), "VisCheck: %s", map_name.c_str());
-    } else {
-        printf("[VisCheck] Failed to load %s\n", path.c_str());
-        snprintf(g_vis_status, sizeof(g_vis_status), "VisCheck: load failed");
-    }
+    s_map_loading = true;
+    snprintf(g_vis_status, sizeof(g_vis_status), "VisCheck: loading %s...", map_name.c_str());
+    std::thread(load_map_async, path, map_name).detach();
 }
 
 static std::string get_map_name() {
@@ -274,7 +281,7 @@ static void render_thread_logic() {
                 ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar);
             ImGui::TextColored(ImVec4(0,1,0,1), "CS2 HvH Active  |  FPS: %d", g_current_fps);
             ImGui::Text("Menu: INSERT  |  Status: %s", g_init_status.load());
-            ImGui::TextColored(g_pVisCheck ? ImVec4(0.3f,1,0.3f,1) : ImVec4(1,0.3f,0,1), "%s", g_vis_status);
+            ImGui::TextColored(g_pVisCheck.load() ? ImVec4(0.3f,1,0.3f,1) : ImVec4(1,0.3f,0,1), "%s", g_vis_status);
             ImGui::End();
         }
 
