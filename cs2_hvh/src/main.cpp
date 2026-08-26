@@ -195,9 +195,14 @@ static void game_thread() {
         aimbot::run(cfg.aimbot);
         aimbot::triggerbot(cfg.triggerbot);
 
-        // Idle sleep: 只在aimbot/trigger全关时降频
-        // (aimbot启用时保持高频扫描, 供vischeck捕捉快速peek)
-        if (!cfg.aimbot.enabled && !cfg.triggerbot.enabled)
+        // Idle sleep: 没按键时降频省CPU
+        // (aimbot按键时才扫描, 不按键不扫→不空转)
+        bool aim_key = cfg.aimbot.enabled && (cfg.aimbot.key_mode == 2 ||
+            overlay::is_key_down(cfg.aimbot.key0) ||
+            (cfg.aimbot.key1 && overlay::is_key_down(cfg.aimbot.key1)));
+        bool trig_key = cfg.triggerbot.enabled &&
+            (!cfg.triggerbot.key || overlay::is_key_down(cfg.triggerbot.key));
+        if (!aim_key && !trig_key)
             Sleep(50);
 
         // Read atomic key events set by render thread
