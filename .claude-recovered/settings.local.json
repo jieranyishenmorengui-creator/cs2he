@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cmake --build . --config Release)",
+      "WebFetch(domain:github.com)",
+      "Bash(python3 -c ' *)",
+      "Bash(taskkill /F /IM cs2_hvh.exe)",
+      "Bash(taskkill //F //IM cs2_hvh.exe)",
+      "Bash(echo \"exit: $?\")",
+      "Bash(cmake --build .)",
+      "Bash(cmake --build . --clean-first)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git push *)",
+      "Bash(git --no-pager log --oneline -20)",
+      "Bash(git --no-pager diff HEAD~1 --stat)",
+      "Bash(git --no-pager diff HEAD~1 -- output/offsets.json)",
+      "Bash(git --no-pager show HEAD~1:output/offsets.cs)",
+      "Bash(git --no-pager diff HEAD~1 -- output/client_dll.cs)",
+      "Bash(git --no-pager diff HEAD~1 -- output/buttons.json)"
+    ]
+  }
+}
