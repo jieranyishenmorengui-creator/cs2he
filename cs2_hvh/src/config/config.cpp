@@ -145,7 +145,7 @@ bool Config::load(const std::string& path) {
 
     // VisCheck
     vis_map = json_get_string(json, "VisMap");
-    printf("[VisCheck] Config vis_map = '%s'\n", vis_map.c_str());
+    // printf("[VisCheck] Config vis_map = '%s'\n", vis_map.c_str());
 
     // ESP
     esp.enabled = json_get_bool(json, "VisualEnable", true);

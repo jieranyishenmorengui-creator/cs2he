@@ -44,10 +44,10 @@ static void load_map_async(const std::string& path, const std::string& map_name)
         delete old; // 旧对象只在地图切换时换, 一次性
         g_current_map = map_name;
         snprintf(g_vis_status, sizeof(g_vis_status), "VisCheck: %s", map_name.c_str());
-        printf("[VisCheck] Map '%s' loaded\n", map_name.c_str());
+    // printf("[VisCheck] Map '%s' loaded\n", map_name.c_str());
     } else {
         delete vc;
-        printf("[VisCheck] Failed to load %s\n", path.c_str());
+    // printf("[VisCheck] Failed to load %s\n", path.c_str());
     }
     s_map_loading = false;
 }
@@ -59,7 +59,7 @@ static void try_load_map(const std::string& map_name) {
     std::string path = std::string(MAP_DIR) + map_name + ".opt";
     FILE* f = fopen(path.c_str(), "rb");
     if (!f) {
-        printf("[VisCheck] No .opt for '%s'\n", map_name.c_str());
+    // printf("[VisCheck] No .opt for '%s'\n", map_name.c_str());
         return;
     }
     fclose(f);
@@ -79,7 +79,7 @@ static std::string get_map_name() {
     auto& cfg = cs2::config::get();
     if (!cfg.vis_map.empty()) {
         s_cached = cfg.vis_map;
-        printf("[VisCheck] Map from config: %s\n", s_cached.c_str());
+    // printf("[VisCheck] Map from config: %s\n", s_cached.c_str());
         return s_cached;
     }
 
@@ -98,7 +98,7 @@ static std::string get_map_name() {
         }
     }
 
-    printf("[VisCheck] Set vis_map in config.json\n");
+    // printf("[VisCheck] Set vis_map in config.json\n");
     return {};
 }
 

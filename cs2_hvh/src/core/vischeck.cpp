@@ -179,8 +179,8 @@ bool VisCheck::load_map(const std::string& opt_path) {
     m_roots.clear();
     for (auto& mesh : m_geo.meshes)
         m_roots.push_back(build_bvh(mesh));
-    printf("[VisCheck] Loaded %s (%zu meshes, %zu BVH roots)\n",
-           opt_path.c_str(), m_geo.meshes.size(), m_roots.size());
+    // printf("[VisCheck] Loaded %s (%zu meshes, %zu BVH roots)\n",
+    // opt_path.c_str(), m_geo.meshes.size(), m_roots.size());
     return true;
 }
 
