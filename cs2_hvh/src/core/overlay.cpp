@@ -287,6 +287,11 @@ static void present_frame() {
     if (!g_ready || !g_swapChain || !g_context) return;
     // ALLOW_TEARING is harmless when the flag wasn't set at creation
     g_swapChain->Present(0, DXGI_PRESENT_ALLOW_TEARING);
+
+    // 锁到 DWM 合成节拍: 我们的框和游戏画面都由 DWM 合成, 不同步的话两者采样的
+    // 相机时刻每帧会随机差 0~1 个游戏帧 —— 转视角时这个随机差值就表现为方框抖动.
+    // 阻塞到下一次合成返回后再进入下一帧(下一帧开头采相机), 相位就固定了.
+    DwmFlush();
 }
 
 // ── Position & resize ───────────────────────────────────────────

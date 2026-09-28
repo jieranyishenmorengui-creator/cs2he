@@ -164,9 +164,11 @@ void run(const ESPConfig& cfg) {
     Vector3 local_eye = local_origin + read<Vector3>(local_pawn + NetVars::m_vecViewOffset);
 
     // ESP自己的vischeck缓存 (节流)
+    // 刷新相位按实体错开(见循环内): 原来是"每3帧全体刷新一次", 会让第3帧突然多
+    // 出 N×5 次骨骼读+射线, 帧耗时周期性尖峰 → 相机采样时刻跟着抖.
     static std::unordered_map<uintptr_t, bool> s_esp_vis;
     static int s_vis_tick = 0;
-    bool vis_tick = (++s_vis_tick % 3 == 0); // 每3帧刷新一次射线
+    ++s_vis_tick;
 
     struct RawEntity {
         uintptr_t pawn;
@@ -253,6 +255,9 @@ void run(const ESPConfig& cfg) {
         bool visible;
         auto* vc = g_pVisCheck.load();
         if (cfg.esp_vischeck && vc && sn) {
+            // 每个实体自己的刷新相位(地址低位), 使每帧只有约 1/3 的敌人做射线,
+            // 总开销不变但帧耗时平滑, 不再有周期性尖峰
+            bool vis_tick = (((s_vis_tick + (int)((pawn >> 4) % 3)) % 3) == 0);
             if (vis_tick) {
                 // 多点射线: 头/胸/骨盆任一可见即绿
                 uintptr_t ba = read<uintptr_t>(sn + NetVars::m_modelState + NetVars::m_pBones);
