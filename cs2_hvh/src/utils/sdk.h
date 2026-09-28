@@ -117,51 +117,52 @@ enum BoneIndex : int {
     MAX_BONES    = 32,
 };
 
-// ============== CS2 NetVars (schema offsets from cs2-dumper 2026-04-28) ==============
+// ============== CS2 NetVars (schema offsets from cs2-dumper 2026-09-28, build 14185) ==============
 // Reference: https://github.com/a2x/cs2-dumper/tree/main/output
 struct NetVars {
     // CBasePlayerController (parent of CCSPlayerController)
-    static constexpr uint32_t m_iszPlayerName   = 0x6F4;  // char[128] (2026-07: +4 from 0x6F0)
+    static constexpr uint32_t m_iszPlayerName   = 0x6FC;  // char[128]
 
     // CCSPlayerController
     static constexpr uint32_t m_hPawn          = 0x6BC;  // CHandle<C_CSPlayerPawn> (controller→pawn)
 
     // C_BaseEntity
-    static constexpr uint32_t m_vecOrigin       = 0x80;
+    static constexpr uint32_t m_vecOrigin       = 0x80;   // NB: as of 14185 C_BaseEntity no longer exposes it (see CGameSceneNode)
     static constexpr uint32_t m_pGameSceneNode  = 0x330;
     static constexpr uint32_t m_iHealth         = 0x34C;
     static constexpr uint32_t m_lifeState       = 0x354;  // uint8
     static constexpr uint32_t m_iTeamNum        = 0x3E7;  // uint8
     static constexpr uint32_t m_fFlags          = 0x3F4;
-    static constexpr uint32_t m_vecAbsVelocity  = 0x3FC;
+    static constexpr uint32_t m_vecAbsVelocity  = 0x3F8;
     static constexpr uint32_t m_vecVelocity     = 0x430;  // CNetworkVelocityVector
 
     // CSkeletonInstance (extends CGameSceneNode)
-    static constexpr uint32_t m_modelState      = 0x140;  // embedded CModelState struct (build 14169)
+    static constexpr uint32_t m_modelState      = 0x140;  // embedded CModelState struct
 
     // CModelState::m_pBones — pointer to bone Matrix3x4 array (non-schema, dynamic)
+    // CModelState layout unchanged 14178→14185, so this stays valid.
     static constexpr uint32_t m_pBones          = 0x80;   // within CModelState
 
     // C_BaseModelEntity (extends C_BaseEntity)
-    static constexpr uint32_t m_vecViewOffset   = 0xE78;
+    static constexpr uint32_t m_vecViewOffset   = 0xF60;
 
     // C_BasePlayerPawn (extends C_BaseModelEntity via C_BaseCombatCharacter)
-    static constexpr uint32_t m_vOldOrigin       = 0x13B8; // Vector (non-interpolated)
-    static constexpr uint32_t m_pWeaponServices   = 0x1208;
-    static constexpr uint32_t m_pMovementServices  = 0x1248;
-    static constexpr uint32_t m_hController        = 0x13D0; // CHandle<CBasePlayerController>
+    static constexpr uint32_t m_vOldOrigin       = 0x14A4; // Vector (non-interpolated)
+    static constexpr uint32_t m_pWeaponServices   = 0x12F0;
+    static constexpr uint32_t m_pMovementServices  = 0x1330;
+    static constexpr uint32_t m_hController        = 0x14BC; // CHandle<CBasePlayerController>
 
     // C_CSPlayerPawn (extends C_CSPlayerPawnBase)
-    static constexpr uint32_t m_pAimPunchServices  = 0x14B8;
-    static constexpr uint32_t m_angEyeAngles       = 0x3350;  // QAngle (build 14174)
-    static constexpr uint32_t m_iIDEntIndex        = 0x342C;  // CEntityIndex (build 14174)
-    static constexpr uint32_t m_entitySpottedState = 0x1C60;  // C_CSPlayerPawn (build 14174)
+    static constexpr uint32_t m_pAimPunchServices  = 0x1598;
+    static constexpr uint32_t m_angEyeAngles       = 0x35F0;  // QAngle
+    static constexpr uint32_t m_iIDEntIndex        = 0x36CC;  // CEntityIndex
+    static constexpr uint32_t m_entitySpottedState = 0x1E88;  // EntitySpottedState_t
     static constexpr uint32_t m_bSpotted          = 0x8;      // EntitySpottedState_t: bool (任何人spotted)
     static constexpr uint32_t m_bSpottedByMask    = 0xC;      // EntitySpottedState_t: uint32 bitmask (bit N = controller slot N spotted)
-    static constexpr uint32_t m_flFlashDuration   = 0x1428;   // C_CSPlayerPawnBase
+    static constexpr uint32_t m_flFlashDuration   = 0x1510;   // C_CSPlayerPawnBase
 
-    // Component: CPlayer_ObserverServices (on C_BasePlayerPawn +0x1220)
-    static constexpr uint32_t m_pObserverServices = 0x1220; // CPlayer_ObserverServices*
+    // Component: CPlayer_ObserverServices (on C_BasePlayerPawn)
+    static constexpr uint32_t m_pObserverServices = 0x1308; // CPlayer_ObserverServices*
     static constexpr uint32_t m_iObserverMode     = 0x48;   // uint8
     static constexpr uint32_t m_hObserverTarget   = 0x4C;   // CHandle<C_BaseEntity>
 
@@ -175,7 +176,12 @@ struct NetVars {
     static constexpr uint32_t m_hActiveWeapon     = 0x60;   // CHandle<C_BasePlayerWeapon>
 
     // Weapon: C_BasePlayerWeapon
-    static constexpr uint32_t m_iClip1            = 0x16D8;
+    static constexpr uint32_t m_iClip1            = 0x1928;
+
+    // Weapon id chain: C_EconEntity → C_AttributeContainer (m_Item) → C_EconItemView (m_iItemDefinitionIndex)
+    static constexpr uint32_t m_AttributeManager     = 0x1290;
+    static constexpr uint32_t m_Item                 = 0x50;
+    static constexpr uint32_t m_iItemDefinitionIndex = 0x1BA;
 };
 
 // ============== Global Vars ==============
@@ -191,6 +197,9 @@ struct GlobalVars {
 };
 
 // ============== Entity Structures (reference layouts) ==============
+// ⚠ LEGACY / unused: no code reads through these structs — everything uses the
+//   NetVars constants above. These pad-based layouts predate the current schema
+//   and are NOT kept in sync (several members are already stale). Use NetVars.
 struct CEntityInstance {
     uintptr_t vtable;
 };

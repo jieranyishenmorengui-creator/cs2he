@@ -100,7 +100,9 @@ static std::string get_weapon_name_cached(uintptr_t pawn, uintptr_t entListBase)
     uintptr_t weapon = read<uintptr_t>(entry + 112 * (idx & 0x1FF));
     if (!weapon) return "";
 
-    uint16_t def = read<uint16_t>(weapon + 0x1180 + 0x50 + 0x1BA);
+    uint16_t def = read<uint16_t>(weapon + NetVars::m_AttributeManager
+                                         + NetVars::m_Item
+                                         + NetVars::m_iItemDefinitionIndex);
     return weapon_id_to_name(def);
 }
 
@@ -268,12 +270,13 @@ void run(const ESPConfig& cfg) {
             visible = read<uint8_t>(pawn + NetVars::m_entitySpottedState + NetVars::m_bSpotted) != 0;
         }
 
-        // Name from controller (batch read)
+        // Name from controller (batch read: one read covering m_hPawn..m_iszPlayerName+32)
         std::string entName;
         {
-            uint8_t cbuf[0x60];
-            if (read(controller + 0x6BC, cbuf, 0x58)) {
-                const char* ns = (const char*)(cbuf + 0x38);
+            constexpr uint32_t kNameDelta = NetVars::m_iszPlayerName - NetVars::m_hPawn;
+            uint8_t cbuf[0x80];
+            if (read(controller + NetVars::m_hPawn, cbuf, sizeof(cbuf))) {
+                const char* ns = (const char*)(cbuf + kNameDelta);
                 size_t nl = strnlen(ns, 32);
                 if (nl > 0) entName.assign(ns, nl);
             }
