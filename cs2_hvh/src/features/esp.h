@@ -19,7 +19,7 @@ struct ESPConfig {
     float max_distance = 200.0f;
     float global_alpha = 1.0f;
     float shadow_alpha = 0.5f;
-    float smooth_factor = 0.09f;  // 0=无平滑, >0=插值强度
+    float smooth_factor = 0.5f;   // 0=关闭平滑(直接用原始位置), 越大越平滑(=滞后越大)
 
     bool show_head_circle = true;
     float head_circle_thickness = 1.5f;

@@ -203,7 +203,7 @@ static void tab_visuals() {
     ImGui::SliderFloat("Text Scale", &cfg.text_scale, 0.5f, 2.0f, "%.1f");
     ImGui::SliderFloat("Max Distance", &cfg.max_distance, 0.0f, 500.0f, "%.0f m");
     ImGui::SliderFloat("Global Alpha", &cfg.global_alpha, 0.0f, 1.0f, "%.2f");
-    ImGui::SliderFloat("Smooth Factor", &cfg.smooth_factor, 0.0f, 0.9f, "%.2f");
+    ImGui::SliderFloat("ESP Smoothing", &cfg.smooth_factor, 0.0f, 0.9f, "%.2f");
 
     ImGui::Checkbox("Head Circle", &cfg.show_head_circle);
     ImGui::SliderFloat("HC Thick", &cfg.head_circle_thickness, 0.5f, 5.0f, "%.1f");

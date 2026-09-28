@@ -12,6 +12,7 @@
 #include <algorithm>
 #include <unordered_map>
 #include <cwchar>
+#include <chrono>
 
 namespace cs2::esp {
 
@@ -106,25 +107,26 @@ static std::string get_weapon_name_cached(uintptr_t pawn, uintptr_t entListBase)
     return weapon_id_to_name(def);
 }
 
-// ── Per-entity raw data (no screen coords yet) ────────────────
-struct RawEntity {
-    uintptr_t pawn;
-    Vector3   origin;
-    Vector3   headPos;
-    int       health;
-    int       team;
-    float     distance;
-        bool      spotted;
-    std::string name;
-    std::string weapon_name;
-
-    // Cached head bone (used if skeleton is off)
-    bool      headFromBone;
-
-    // Skeleton: world-space bone positions (extracted in phase 1)
-    int       boneCount;
-    Vector3   boneWorld[BoneIndex::MAX_BONES];
+// ── Per-player smoothing state (world space, frame-rate independent) ──
+// Replaces the old prev/curr "64→144Hz" interpolator, which keyed origin and
+// head off ONE shared timeline: the head bone changes every frame, so it
+// re-armed the timer each frame and the origin never actually interpolated.
+struct SmoothState {
+    Vector3 origin;
+    Vector3 head;
+    Vector3 bones[BoneIndex::MAX_BONES];
+    bool    boneValid[BoneIndex::MAX_BONES]{};
+    bool    init = false;
 };
+static std::unordered_map<uintptr_t, SmoothState> s_smooth;
+
+// Frame-rate independent EMA alpha (same normalization as aimbot.cpp).
+// smooth_factor <= 0 disables smoothing (alpha 1 → snap straight to raw).
+static float esp_ema_alpha(float smooth_factor, float dt) {
+    if (smooth_factor <= 0.f) return 1.f;
+    float base = std::clamp(1.f - smooth_factor, 0.05f, 1.f);
+    return 1.f - powf(1.f - base, dt * 64.f);   // dt == 1/64s → alpha == base
+}
 
 // ═════════════════════════════════════════════════════════════════════
 //  ESP main entry (TWO-PHASE: collect → W2S)
@@ -137,12 +139,14 @@ void run(const ESPConfig& cfg) {
     int sw = overlay::get_width();
     int sh = overlay::get_height();
 
-    // 游戏时间(用于插值)
-    float g_curtime = 0.f;
-    if (g_offsets.dwGlobalVars) {
-        uintptr_t gv = read<uintptr_t>(g_offsets.dwGlobalVars);
-        if (gv) g_curtime = read<float>(gv + 0x0C);
-    }
+    // 单调时钟帧间隔(用于平滑). 不用游戏 curtime —— 它本身按 1/64s 跳变,
+    // 算出来的插值系数是阶梯值, 产生不了子 tick 平滑.
+    static auto s_last_tick = std::chrono::steady_clock::now();
+    auto  now_tick = std::chrono::steady_clock::now();
+    float dt = std::chrono::duration<float>(now_tick - s_last_tick).count();
+    s_last_tick = now_tick;
+    if (dt <= 0.f || dt > 0.25f) dt = 1.f / 64.f;   // 首帧/卡顿兜底
+    const float ema_a = esp_ema_alpha(cfg.smooth_factor, dt);
 
     // ═════════════════════════════════════════════════════════════
     //  Phase 1: positions direct (fresh every frame),
@@ -223,22 +227,25 @@ void run(const ESPConfig& cfg) {
             }
         }
 
-        // ── 64→144Hz线性插值(origin+head同步) ──────────────
-        struct Interp { Vector3 origin, head; };
-        static std::unordered_map<uintptr_t, Interp> s_prev, s_curr;
-        static std::unordered_map<uintptr_t, float> s_switch_t;
-        auto& cur = s_curr[pawn];
-        if ((raw_origin - cur.origin).length() > 0.1f ||
-            (raw_head - cur.head).length() > 0.1f) {
-            s_prev[pawn] = cur;
-            cur = {raw_origin, raw_head};
-            s_switch_t[pawn] = g_curtime;
+        // ── 世界坐标指数平滑(帧率无关, 单调时钟 dt) ──────────
+        // 服务器按 tick 更新位置(64Hz 阶梯), 这里按渲染帧率收敛;
+        // 方框上下两端共用同一个 alpha, 高度/宽度不会再互相错拍.
+        auto& sm = s_smooth[pawn];
+        if (!sm.init) {
+            sm.origin = raw_origin;
+            sm.head   = raw_head;
+            sm.init   = true;
+        } else if ((raw_origin - sm.origin).length() > 300.f) {
+            // 传送/复活/实体复用 → 直接吸附, 否则方框会"滑过地图"
+            sm.origin = raw_origin;
+            sm.head   = raw_head;
+            std::fill(std::begin(sm.boneValid), std::end(sm.boneValid), false);
+        } else {
+            sm.origin = sm.origin + (raw_origin - sm.origin) * ema_a;
+            sm.head   = sm.head   + (raw_head   - sm.head)   * ema_a;
         }
-        float t = (g_curtime - s_switch_t[pawn]) / 0.015625f;
-        auto& prv = s_prev[pawn];
-        bool interp = (t < 1.f) && prv.origin.length() > 0.1f;
-        Vector3 origin  = interp ? prv.origin + (cur.origin - prv.origin) * t : cur.origin;
-        Vector3 headPos = interp ? prv.head   + (cur.head - prv.head) * t   : cur.head;
+        Vector3 origin  = sm.origin;
+        Vector3 headPos = sm.head;
 
         float dist = local_origin.dist_to(origin);
         int team = read<uint8_t>(pawn + NetVars::m_iTeamNum);
@@ -288,7 +295,7 @@ void run(const ESPConfig& cfg) {
             weaponName = get_weapon_name_cached(pawn, elb);
         }
 
-        // Skeleton bones (direct read when on)
+        // Skeleton bones (direct read when on) — 同样过一遍平滑, 与方框同步
         int boneCount = 0;
         Vector3 boneWorld[30]{};
         if (cfg.show_skeleton && sn) {
@@ -297,10 +304,23 @@ void run(const ESPConfig& cfg) {
                 uint8_t raw[30 * 0x20];
                 if (read(ba, raw, sizeof(raw))) {
                     boneCount = 30;
-                    for (int b = 0; b < 30; ++b)
-                        boneWorld[b] = *(Vector3*)(raw + b * 0x20);
+                    for (int b = 0; b < 30; ++b) {
+                        Vector3 rb = *(Vector3*)(raw + b * 0x20);
+                        // 无效骨骼不参与收敛(否则会被拖向原点), 直接标记为不可用
+                        if (rb.length() < 0.001f) {
+                            sm.boneValid[b] = false;
+                            continue;
+                        }
+                        if (sm.boneValid[b]) sm.bones[b] = sm.bones[b] + (rb - sm.bones[b]) * ema_a;
+                        else                 sm.bones[b] = rb;   // 首次见到 → 直接初始化
+                        sm.boneValid[b] = true;
+                        boneWorld[b] = sm.bones[b];
+                    }
                 }
             }
+        } else {
+            // 骨架关闭时不保留平滑状态, 否则下次打开会从陈旧位置"滑"过来
+            std::fill(std::begin(sm.boneValid), std::end(sm.boneValid), false);
         }
         rawList.push_back(RawEntity{
             pawn, origin, headPos, hp, team, dist, visible,
@@ -316,10 +336,8 @@ void run(const ESPConfig& cfg) {
     // ═════════════════════════════════════════════════════════════
     ViewMatrix vm = read<ViewMatrix>(g_offsets.dwViewMatrix);
 
-    // Smoothing state (persists across frames)
-    static std::unordered_map<uintptr_t, Vector2> s_smoothFoot;
-    static std::unordered_map<uintptr_t, Vector2> s_smoothHead;
-    float alpha = 1.0f - std::clamp(cfg.smooth_factor, 0.0f, 0.95f);
+    // 位置平滑已在 Phase 1 于世界坐标完成(见 s_smooth): 世界坐标平滑与距离/
+    // 透视无关, 比在屏幕坐标做 EMA 更稳, 也不会让方框高度与宽度错拍.
 
     std::vector<ESPEntity> entities;
 
@@ -327,23 +345,6 @@ void run(const ESPConfig& cfg) {
         Vector2 foot, head2d;
         if (!world_to_screen(raw.origin, foot, vm, sw, sh)) continue;
         if (!world_to_screen(raw.headPos, head2d, vm, sw, sh)) continue;
-
-        // ── Smoothing (EMA) ──────────────────────────────────
-        if (cfg.smooth_factor > 0.0f) {
-            auto itF = s_smoothFoot.find(raw.pawn);
-            if (itF != s_smoothFoot.end()) {
-                foot.x = itF->second.x + (foot.x - itF->second.x) * alpha;
-                foot.y = itF->second.y + (foot.y - itF->second.y) * alpha;
-            }
-            s_smoothFoot[raw.pawn] = foot;
-
-            auto itH = s_smoothHead.find(raw.pawn);
-            if (itH != s_smoothHead.end()) {
-                head2d.x = itH->second.x + (head2d.x - itH->second.x) * alpha;
-                head2d.y = itH->second.y + (head2d.y - itH->second.y) * alpha;
-            }
-            s_smoothHead[raw.pawn] = head2d;
-        }
 
         ESPEntity ent;
         ent.pawn          = raw.pawn;
@@ -400,7 +401,7 @@ void run(const ESPConfig& cfg) {
                 else       it = map.erase(it);
             }
         };
-        if (cfg.smooth_factor > 0.0f) { prune(s_smoothFoot); prune(s_smoothHead); }
+        prune(s_smooth);
         prune(s_esp_vis);
     }
 
