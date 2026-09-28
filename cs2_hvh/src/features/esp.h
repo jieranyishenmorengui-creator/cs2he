@@ -20,7 +20,6 @@ struct ESPConfig {
     float global_alpha = 1.0f;
     float shadow_alpha = 0.5f;
     float smooth_factor = 0.5f;   // 0=关闭平滑(直接用原始位置), 越大越平滑(=滞后越大)
-    float view_delay_ms = 0.0f;   // 相机时间补偿(ms): >0 取历史矩阵, <0 外推; 0=不补偿
 
     bool show_head_circle = true;
     float head_circle_thickness = 1.5f;

@@ -341,45 +341,6 @@ void run(const ESPConfig& cfg) {
     // ═════════════════════════════════════════════════════════════
     ViewMatrix vm = read<ViewMatrix>(g_offsets.dwViewMatrix);
 
-    // ── 相机时间补偿 ──────────────────────────────────────────────
-    // 我们读到的是"此刻"的相机, 而屏幕上那帧游戏画面用的是更早的相机(它已经
-    // 画完并排队等合成了). 快速转身时这个时间差直接变成屏幕偏移, 且每帧不同 →
-    // 方框相对模型抖动. 这里保留一段矩阵历史, 用 cfg.view_delay_ms 把相机拨到
-    // 与"正在显示的那一帧"对齐:
-    //   >0 取历史矩阵(补偿"我们超前")   <0 线性外推(补偿"我们滞后")
-    // 默认 0 = 不补偿(保持原行为). 补偿量由滑条现场调, 本身就是测量.
-    {
-        struct MatSample { ViewMatrix m; float t; };
-        static MatSample s_hist[64]{};
-        static int  s_hn = 0, s_head = 0;
-        static float s_clock = 0.f;
-        s_clock += dt;
-
-        s_hist[s_head % 64] = { vm, s_clock };
-        ++s_head; if (s_hn < 64) ++s_hn;
-
-        float delay = cfg.view_delay_ms;
-        if (delay > 0.f && s_hn > 1) {
-            float target = s_clock - delay * 0.001f;
-            for (int i = 0; i < s_hn; ++i) {
-                const auto& s = s_hist[(s_head - 1 - i + 64) % 64]; // 由新到旧
-                if (s.t <= target) { vm = s.m; break; }
-            }
-        } else if (delay < 0.f && s_hn > 1) {
-            const auto& s0 = s_hist[(s_head - 1 + 64) % 64];
-            const auto& s1 = s_hist[(s_head - 2 + 64) % 64];
-            float span = s0.t - s1.t;
-            if (span > 1e-4f) {
-                // 最多外推一个采样间隔, 避免卡顿时飞出去
-                float k = std::min(-delay * 0.001f / span, 1.0f);
-                const float* a = &s0.m.m[0][0];
-                const float* b = &s1.m.m[0][0];
-                float* o = &vm.m[0][0];
-                for (int i = 0; i < 16; ++i) o[i] = a[i] + (a[i] - b[i]) * k;
-            }
-        }
-    }
-
     // 位置平滑已在 Phase 1 于世界坐标完成(见 s_smooth): 世界坐标平滑与距离/
     // 透视无关, 比在屏幕坐标做 EMA 更稳, 也不会让方框高度与宽度错拍.
 
