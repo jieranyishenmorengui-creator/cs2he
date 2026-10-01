@@ -20,31 +20,31 @@ struct SigEntry {
     uintptr_t fallback_rva; // cs2-dumper RVA if pattern scan fails
 };
 
-// Fallback RVAs from cs2-dumper (updated 2026-09-28, build 14185)
+// Fallback RVAs from cs2-dumper (updated 2026-10-02, build 14188)
 // Verified against the live client.dll: patterns that no longer match fall back to these.
 static const SigEntry SIG_TABLE[] = {
     // dwGlobalVars — "48 89 15 ?? ?? ?? ?? 48 89 42"
-    { "dwGlobalVars",             "48 89 15 ?? ?? ?? ?? 48 89 42", 3, 7, &Offsets::dwGlobalVars, 0x222BF88 },
+    { "dwGlobalVars",             "48 89 15 ?? ?? ?? ?? 48 89 42", 3, 7, &Offsets::dwGlobalVars, 0x222BE98 },
     // dwEntityList — "48 89 35 ?? ?? ?? ?? 48 85 f6"
-    { "dwEntityList",             "48 89 35 ?? ?? ?? ?? 48 85 f6", 3, 7, &Offsets::dwEntityList, 0x27151A8 },
+    { "dwEntityList",             "48 89 35 ?? ?? ?? ?? 48 85 f6", 3, 7, &Offsets::dwEntityList, 0x2715828 },
     // dwLocalPlayerController — "48 8b 05 ?? ?? ?? ?? 41 89 be"
-    { "dwLocalPlayerController",  "48 8b 05 ?? ?? ?? ?? 41 89 be", 3, 7, &Offsets::dwLocalPlayerController, 0x2537628 },
+    { "dwLocalPlayerController",  "48 8b 05 ?? ?? ?? ?? 41 89 be", 3, 7, &Offsets::dwLocalPlayerController, 0x2538008 },
     // dwLocalPlayerPawn — "48 8d 05 ?? ?? ?? ?? 48 8b d9 48 85 c0"
-    { "dwLocalPlayerPawn",        "48 8d 05 ?? ?? ?? ?? 48 8b d9 48 85 c0", 3, 7, &Offsets::dwLocalPlayerPawn, 0x25606D8 },
+    { "dwLocalPlayerPawn",        "48 8d 05 ?? ?? ?? ?? 48 8b d9 48 85 c0", 3, 7, &Offsets::dwLocalPlayerPawn, 0x2560698 },
     // dwViewMatrix — "48 8d 0d ?? ?? ?? ?? 48 c1 e0 06"
-    { "dwViewMatrix",             "48 8d 0d ?? ?? ?? ?? 48 c1 e0 06", 3, 7, &Offsets::dwViewMatrix, 0x2565A20 },
+    { "dwViewMatrix",             "48 8d 0d ?? ?? ?? ?? 48 c1 e0 06", 3, 7, &Offsets::dwViewMatrix, 0x2566910 },
     // dwViewAngles — "48 8d 0d ?? ?? ?? ?? 48 8b 03 48 89 45"
-    { "dwViewAngles",             "48 8d 0d ?? ?? ?? ?? 48 8b 03 48 89 45", 3, 7, &Offsets::dwViewAngles, 0x2576238 },
+    { "dwViewAngles",             "48 8d 0d ?? ?? ?? ?? 48 8b 03 48 89 45", 3, 7, &Offsets::dwViewAngles, 0x25767E8 },
     // dwGameEntitySystem — "48 8d 0d ?? ?? ?? ?? 48 c1 e0 06 48 03 c0"
-    { "dwGameEntitySystem",       "48 8d 0d ?? ?? ?? ?? 48 c1 e0 06 48 03 c0", 3, 7, &Offsets::dwGameEntitySystem, 0x27151A8 },
+    { "dwGameEntitySystem",       "48 8d 0d ?? ?? ?? ?? 48 c1 e0 06 48 03 c0", 3, 7, &Offsets::dwGameEntitySystem, 0x2715828 },
     // dwPlantedC4 — "48 8b 15 ?? ?? ?? ?? 41 ff c0"
-    { "dwPlantedC4",              "48 8b 15 ?? ?? ?? ?? 41 ff c0", 3, 7, &Offsets::dwPlantedC4, 0x24C9290 },
+    { "dwPlantedC4",              "48 8b 15 ?? ?? ?? ?? 41 ff c0", 3, 7, &Offsets::dwPlantedC4, 0x24C88D0 },
     // dwCSGOInput — "48 8d 0d ?? ?? ?? ?? 48 8b f8 e8"
-    { "dwCSGOInput",              "48 8d 0d ?? ?? ?? ?? 48 8b f8 e8", 3, 7, &Offsets::dwCSGOInput, 0x2575BB0 },
+    { "dwCSGOInput",              "48 8d 0d ?? ?? ?? ?? 48 8b f8 e8", 3, 7, &Offsets::dwCSGOInput, 0x2576160 },
     // dwBuildNumber — "48 8b 0d ?? ?? ?? ?? 48 8b 01 ff 50"
-    { "dwBuildNumber",            "48 8b 0d ?? ?? ?? ?? 48 8b 01 ff 50", 3, 7, &Offsets::dwBuildNumber, 0x61D1E8 },
+    { "dwBuildNumber",            "48 8b 0d ?? ?? ?? ?? 48 8b 01 ff 50", 3, 7, &Offsets::dwBuildNumber, 0x61CFE8 },
     // dwGameRules — "48 8b 05 ?? ?? ?? ?? 48 85 c0 74 ?? 8b 88"
-    { "dwGameRules",              "48 8b 05 ?? ?? ?? ?? 48 85 c0 74 ?? 8b 88", 3, 7, &Offsets::dwGameRules, 0x255C8D8 },
+    { "dwGameRules",              "48 8b 05 ?? ?? ?? ?? 48 85 c0 74 ?? 8b 88", 3, 7, &Offsets::dwGameRules, 0x255CE50 },
 };
 
 static constexpr int SIG_COUNT = sizeof(SIG_TABLE) / sizeof(SIG_TABLE[0]);
