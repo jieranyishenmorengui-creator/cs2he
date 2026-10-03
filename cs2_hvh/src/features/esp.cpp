@@ -17,6 +17,8 @@ namespace cs2::esp {
 
 using namespace memory;
 
+int g_last_entity_count = 0;
+
 struct ESPEntity {
     uintptr_t pawn;
     Vector3 origin;
@@ -345,6 +347,8 @@ void run(const ESPConfig& cfg) {
         };
         prune(s_esp_vis);
     }
+
+    g_last_entity_count = (int)entities.size();
 
     std::sort(entities.begin(), entities.end(),
         [](auto& a, auto& b) { return a.distance > b.distance; });

@@ -5,7 +5,9 @@
 #include <atomic>
 #include <chrono>
 #include <mmsystem.h>
+#include <psapi.h>
 #pragma comment(lib, "winmm.lib")
+#pragma comment(lib, "psapi.lib")
 
 #include "core/memory.h"
 #include "core/process.h"
@@ -25,6 +27,51 @@
 #include "imgui/imgui.h"
 
 static std::atomic<bool> g_running{true};
+static std::atomic<int>  g_game_iters{0};   // 游戏线程迭代计数(性能日志用)
+
+// ── 性能日志: 每秒一行 → perf.csv ────────────────────────────────
+// 用于定位"跑一会儿变卡": 看是哪一段耗时在涨(esp扫描/提交/工作集/GDI句柄).
+static void perf_sample(double frame_ms, double feat_ms, double begin_ms, double present_ms) {
+    struct Acc {
+        FILE* fp = nullptr;
+        bool  init = false;
+        int   n = 0;
+        double f = 0, fmax = 0, e = 0, b = 0, p = 0;
+        std::chrono::steady_clock::time_point t0{};
+    };
+    static Acc a;
+    if (!a.init) {
+        a.init = true;
+        a.t0 = std::chrono::steady_clock::now();
+        a.fp = fopen("perf.csv", "w");
+        if (a.fp) {
+            fprintf(a.fp, "t,fps,frame_ms,frame_max_ms,feat_ms,begin_ms,present_ms,entities,game_hz,ws_mb,gdi,user\n");
+            fflush(a.fp);
+        }
+    }
+    ++a.n;
+    a.f += frame_ms; a.e += feat_ms; a.b += begin_ms; a.p += present_ms;
+    if (frame_ms > a.fmax) a.fmax = frame_ms;
+
+    auto now = std::chrono::steady_clock::now();
+    double elapsed = std::chrono::duration<double>(now - a.t0).count();
+    if (elapsed < 1.0) return;
+
+    PROCESS_MEMORY_COUNTERS pmc{};
+    double ws_mb = GetProcessMemoryInfo(GetCurrentProcess(), &pmc, sizeof(pmc))
+                 ? pmc.WorkingSetSize / 1048576.0 : 0.0;
+    DWORD gdi  = GetGuiResources(GetCurrentProcess(), GR_GDIOBJECTS);
+    DWORD user = GetGuiResources(GetCurrentProcess(), GR_USEROBJECTS);
+
+    if (a.fp) {
+        fprintf(a.fp, "%.0f,%d,%.2f,%.2f,%.2f,%.2f,%.2f,%d,%d,%.1f,%lu,%lu\n",
+                elapsed, a.n, a.f / a.n, a.fmax, a.e / a.n, a.b / a.n, a.p / a.n,
+                cs2::esp::g_last_entity_count, g_game_iters.exchange(0), ws_mb, gdi, user);
+        fflush(a.fp);
+    }
+    a.n = 0; a.f = a.fmax = a.e = a.b = a.p = 0;
+    a.t0 = now;
+}
 static bool g_test_mode = false;
 static std::atomic<const char*> g_init_status{"Initializing..."};
 static std::string g_current_map;
@@ -175,6 +222,7 @@ static void game_thread() {
 
     // Main game loop
     while (g_running) {
+        ++g_game_iters;
         if (!process::is_process_running()) {
             printf("[!] Game process closed\n");
             g_running = false;
@@ -259,7 +307,9 @@ static void render_thread_logic() {
             cfg.crosshair.enabled = !cfg.crosshair.enabled;
 
         // All ImGui calls in the same thread
+        auto t_fr0 = clock::now();
         overlay::begin_frame();
+        auto t_begin = clock::now();
 
         // FPS counter (updated each frame)
         {
@@ -314,9 +364,17 @@ static void render_thread_logic() {
             }
         }
 
+        auto t_feat = clock::now();
         menu::render();
 
+        auto t_pre = clock::now();
         overlay::end_frame();
+        auto t_end = clock::now();
+
+        perf_sample(std::chrono::duration<double, std::milli>(t_end - t_fr0).count(),
+                    std::chrono::duration<double, std::milli>(t_feat - t_begin).count(),
+                    std::chrono::duration<double, std::milli>(t_begin - t_fr0).count(),
+                    std::chrono::duration<double, std::milli>(t_end - t_pre).count());
 
         // ── Frame limiter (high precision) ────────────────────
         // Sleep has ~15ms granularity by default, so for small waits

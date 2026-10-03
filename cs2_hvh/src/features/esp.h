@@ -38,4 +38,7 @@ struct ESPConfig {
 
 void run(const ESPConfig& cfg);
 
+// 每帧实际画出的实体数(仅供性能日志用)
+extern int g_last_entity_count;
+
 } // namespace cs2::esp

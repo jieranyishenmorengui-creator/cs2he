@@ -60,6 +60,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     dwmapi
     dcomp
     winmm
+    psapi
 )
 
 set_target_properties(${PROJECT_NAME} PROPERTIES
