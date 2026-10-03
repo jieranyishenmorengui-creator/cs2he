@@ -162,8 +162,7 @@ bool Config::load(const std::string& path) {
     esp.max_distance = json_get_float(json, "ESP_MaxDistance", 200.0f);
     esp.global_alpha = json_get_float(json, "GlobalAlpha", 1.0f);
     esp.shadow_alpha = json_get_float(json, "ShadowAlpha", 0.5f);
-    // 新键: 旧 "SmoothFactor" 存的是旧语义(0.09≈无平滑), 换键名让新默认值直接生效
-    esp.smooth_factor = json_get_float(json, "EspSmoothFactor", 0.5f);
+    // (已移除 ESP 位置平滑: 它引入固定延迟, 直接使用原始位置)
     esp.text_scale = json_get_float(json, "ESP_TextScale", 1.0f);
     esp.show_head_circle = json_get_bool(json, "ShowHeadCircle", true);
     esp.head_circle_thickness = json_get_float(json, "HeadCircleThickness", 1.5f);
@@ -309,8 +308,6 @@ bool Config::save(const std::string& path) {
     write_json_color(f, "Col_ESP_AimTarget", esp.aim_target_color);
     fprintf(f, ",\n");
     write_json_color(f, "Col_ESP_Shadow", esp.shadow_color);
-    fprintf(f, ",\n");
-    write_json_float(f, "EspSmoothFactor", esp.smooth_factor);
     fprintf(f, ",\n");
     write_json_float(f, "ESP_TextScale", esp.text_scale);
     fprintf(f, ",\n");

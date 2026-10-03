@@ -12,7 +12,6 @@
 #include <algorithm>
 #include <unordered_map>
 #include <cwchar>
-#include <chrono>
 
 namespace cs2::esp {
 
@@ -107,27 +106,6 @@ static std::string get_weapon_name_cached(uintptr_t pawn, uintptr_t entListBase)
     return weapon_id_to_name(def);
 }
 
-// ── Per-player smoothing state (world space, frame-rate independent) ──
-// Replaces the old prev/curr "64→144Hz" interpolator, which keyed origin and
-// head off ONE shared timeline: the head bone changes every frame, so it
-// re-armed the timer each frame and the origin never actually interpolated.
-struct SmoothState {
-    Vector3 origin;
-    Vector3 head;
-    Vector3 bones[BoneIndex::MAX_BONES];
-    bool    boneValid[BoneIndex::MAX_BONES]{};
-    bool    init = false;
-};
-static std::unordered_map<uintptr_t, SmoothState> s_smooth;
-
-// Frame-rate independent EMA alpha (same normalization as aimbot.cpp).
-// smooth_factor <= 0 disables smoothing (alpha 1 → snap straight to raw).
-static float esp_ema_alpha(float smooth_factor, float dt) {
-    if (smooth_factor <= 0.f) return 1.f;
-    float base = std::clamp(1.f - smooth_factor, 0.05f, 1.f);
-    return 1.f - powf(1.f - base, dt * 64.f);   // dt == 1/64s → alpha == base
-}
-
 // ═════════════════════════════════════════════════════════════════════
 //  ESP main entry (TWO-PHASE: collect → W2S)
 // ═════════════════════════════════════════════════════════════════════
@@ -138,15 +116,6 @@ void run(const ESPConfig& cfg) {
 
     int sw = overlay::get_width();
     int sh = overlay::get_height();
-
-    // 单调时钟帧间隔(用于平滑). 不用游戏 curtime —— 它本身按 1/64s 跳变,
-    // 算出来的插值系数是阶梯值, 产生不了子 tick 平滑.
-    static auto s_last_tick = std::chrono::steady_clock::now();
-    auto  now_tick = std::chrono::steady_clock::now();
-    float dt = std::chrono::duration<float>(now_tick - s_last_tick).count();
-    s_last_tick = now_tick;
-    if (dt <= 0.f || dt > 0.25f) dt = 1.f / 64.f;   // 首帧/卡顿兜底
-    const float ema_a = esp_ema_alpha(cfg.smooth_factor, dt);
 
     // ═════════════════════════════════════════════════════════════
     //  Phase 1: positions direct (fresh every frame),
@@ -229,25 +198,9 @@ void run(const ESPConfig& cfg) {
             }
         }
 
-        // ── 世界坐标指数平滑(帧率无关, 单调时钟 dt) ──────────
-        // 服务器按 tick 更新位置(64Hz 阶梯), 这里按渲染帧率收敛;
-        // 方框上下两端共用同一个 alpha, 高度/宽度不会再互相错拍.
-        auto& sm = s_smooth[pawn];
-        if (!sm.init) {
-            sm.origin = raw_origin;
-            sm.head   = raw_head;
-            sm.init   = true;
-        } else if ((raw_origin - sm.origin).length() > 300.f) {
-            // 传送/复活/实体复用 → 直接吸附, 否则方框会"滑过地图"
-            sm.origin = raw_origin;
-            sm.head   = raw_head;
-            std::fill(std::begin(sm.boneValid), std::end(sm.boneValid), false);
-        } else {
-            sm.origin = sm.origin + (raw_origin - sm.origin) * ema_a;
-            sm.head   = sm.head   + (raw_head   - sm.head)   * ema_a;
-        }
-        Vector3 origin  = sm.origin;
-        Vector3 headPos = sm.head;
+        // 直接用原始位置(不平滑, 无额外延迟)
+        Vector3 origin  = raw_origin;
+        Vector3 headPos = raw_head;
 
         float dist = local_origin.dist_to(origin);
         int team = read<uint8_t>(pawn + NetVars::m_iTeamNum);
@@ -300,7 +253,7 @@ void run(const ESPConfig& cfg) {
             weaponName = get_weapon_name_cached(pawn, elb);
         }
 
-        // Skeleton bones (direct read when on) — 同样过一遍平滑, 与方框同步
+        // Skeleton bones (direct read when on)
         int boneCount = 0;
         Vector3 boneWorld[30]{};
         if (cfg.show_skeleton && sn) {
@@ -309,23 +262,10 @@ void run(const ESPConfig& cfg) {
                 uint8_t raw[30 * 0x20];
                 if (read(ba, raw, sizeof(raw))) {
                     boneCount = 30;
-                    for (int b = 0; b < 30; ++b) {
-                        Vector3 rb = *(Vector3*)(raw + b * 0x20);
-                        // 无效骨骼不参与收敛(否则会被拖向原点), 直接标记为不可用
-                        if (rb.length() < 0.001f) {
-                            sm.boneValid[b] = false;
-                            continue;
-                        }
-                        if (sm.boneValid[b]) sm.bones[b] = sm.bones[b] + (rb - sm.bones[b]) * ema_a;
-                        else                 sm.bones[b] = rb;   // 首次见到 → 直接初始化
-                        sm.boneValid[b] = true;
-                        boneWorld[b] = sm.bones[b];
-                    }
+                    for (int b = 0; b < 30; ++b)
+                        boneWorld[b] = *(Vector3*)(raw + b * 0x20);
                 }
             }
-        } else {
-            // 骨架关闭时不保留平滑状态, 否则下次打开会从陈旧位置"滑"过来
-            std::fill(std::begin(sm.boneValid), std::end(sm.boneValid), false);
         }
         rawList.push_back(RawEntity{
             pawn, origin, headPos, hp, team, dist, visible,
@@ -340,9 +280,6 @@ void run(const ESPConfig& cfg) {
     //  PHASE 2: Read ViewMatrix NOW (freshest possible), then W2S
     // ═════════════════════════════════════════════════════════════
     ViewMatrix vm = read<ViewMatrix>(g_offsets.dwViewMatrix);
-
-    // 位置平滑已在 Phase 1 于世界坐标完成(见 s_smooth): 世界坐标平滑与距离/
-    // 透视无关, 比在屏幕坐标做 EMA 更稳, 也不会让方框高度与宽度错拍.
 
     std::vector<ESPEntity> entities;
 
@@ -406,7 +343,6 @@ void run(const ESPConfig& cfg) {
                 else       it = map.erase(it);
             }
         };
-        prune(s_smooth);
         prune(s_esp_vis);
     }
 
