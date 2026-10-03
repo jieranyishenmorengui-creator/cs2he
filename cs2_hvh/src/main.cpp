@@ -31,12 +31,18 @@ static std::atomic<int>  g_game_iters{0};   // 游戏线程迭代计数(性能�
 
 // ── 性能日志: 每秒一行 → perf.csv ────────────────────────────────
 // 用于定位"跑一会儿变卡": 看是哪一段耗时在涨(esp扫描/提交/工作集/GDI句柄).
-static void perf_sample(double frame_ms, double feat_ms, double begin_ms, double present_ms) {
+static void perf_sample(double frame_ms, double feat_ms, double begin_ms, double present_ms,
+                        double interval_ms) {
     struct Acc {
         FILE* fp = nullptr;
         bool  init = false;
         int   n = 0;
-        double f = 0, fmax = 0, e = 0, b = 0, p = 0;
+        double t_total = 0;
+        double f = 0, fmax = 0;
+        double e = 0, emax = 0;
+        double b = 0, bmax = 0;
+        double p = 0, pmax = 0;
+        double i = 0, imax = 0;
         std::chrono::steady_clock::time_point t0{};
     };
     static Acc a;
@@ -45,17 +51,23 @@ static void perf_sample(double frame_ms, double feat_ms, double begin_ms, double
         a.t0 = std::chrono::steady_clock::now();
         a.fp = fopen("perf.csv", "w");
         if (a.fp) {
-            fprintf(a.fp, "t,fps,frame_ms,frame_max_ms,feat_ms,begin_ms,present_ms,entities,game_hz,ws_mb,gdi,user\n");
-            fflush(a.fp);
+            fprintf(a.fp, "t,fps,frame_ms,frame_max_ms,feat_ms,feat_max_ms,"
+                          "begin_ms,begin_max_ms,present_ms,present_max_ms,"
+                          "interval_ms,interval_max_ms,entities,game_hz,ws_mb,gdi,user\n");
         }
     }
     ++a.n;
-    a.f += frame_ms; a.e += feat_ms; a.b += begin_ms; a.p += present_ms;
+    a.f += frame_ms; a.e += feat_ms; a.b += begin_ms; a.p += present_ms; a.i += interval_ms;
     if (frame_ms > a.fmax) a.fmax = frame_ms;
+    if (feat_ms   > a.emax) a.emax = feat_ms;
+    if (begin_ms  > a.bmax) a.bmax = begin_ms;
+    if (present_ms> a.pmax) a.pmax = present_ms;
+    if (interval_ms > a.imax) a.imax = interval_ms;
 
     auto now = std::chrono::steady_clock::now();
     double elapsed = std::chrono::duration<double>(now - a.t0).count();
     if (elapsed < 1.0) return;
+    a.t_total += elapsed;
 
     PROCESS_MEMORY_COUNTERS pmc{};
     double ws_mb = GetProcessMemoryInfo(GetCurrentProcess(), &pmc, sizeof(pmc))
@@ -64,12 +76,13 @@ static void perf_sample(double frame_ms, double feat_ms, double begin_ms, double
     DWORD user = GetGuiResources(GetCurrentProcess(), GR_USEROBJECTS);
 
     if (a.fp) {
-        fprintf(a.fp, "%.0f,%d,%.2f,%.2f,%.2f,%.2f,%.2f,%d,%d,%.1f,%lu,%lu\n",
-                elapsed, a.n, a.f / a.n, a.fmax, a.e / a.n, a.b / a.n, a.p / a.n,
+        fprintf(a.fp, "%.0f,%d,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%d,%d,%.1f,%lu,%lu\n",
+                a.t_total, a.n, a.f / a.n, a.fmax, a.e / a.n, a.emax,
+                a.b / a.n, a.bmax, a.p / a.n, a.pmax, a.i / a.n, a.imax,
                 cs2::esp::g_last_entity_count, g_game_iters.exchange(0), ws_mb, gdi, user);
-        fflush(a.fp);
+        fflush(a.fp);   // 每秒一行, 落盘开销可忽略(已从计时窗口外调用)
     }
-    a.n = 0; a.f = a.fmax = a.e = a.b = a.p = 0;
+    a.n = 0; a.f = a.fmax = a.e = a.emax = a.b = a.bmax = a.p = a.pmax = a.i = a.imax = 0;
     a.t0 = now;
 }
 static bool g_test_mode = false;
@@ -308,6 +321,9 @@ static void render_thread_logic() {
 
         // All ImGui calls in the same thread
         auto t_fr0 = clock::now();
+        static auto s_prev_fr0 = t_fr0;
+        double interval_ms = std::chrono::duration<double, std::milli>(t_fr0 - s_prev_fr0).count();
+        s_prev_fr0 = t_fr0;
         overlay::begin_frame();
         auto t_begin = clock::now();
 
@@ -374,7 +390,8 @@ static void render_thread_logic() {
         perf_sample(std::chrono::duration<double, std::milli>(t_end - t_fr0).count(),
                     std::chrono::duration<double, std::milli>(t_feat - t_begin).count(),
                     std::chrono::duration<double, std::milli>(t_begin - t_fr0).count(),
-                    std::chrono::duration<double, std::milli>(t_end - t_pre).count());
+                    std::chrono::duration<double, std::milli>(t_end - t_pre).count(),
+                    interval_ms);
 
         // ── Frame limiter (high precision) ────────────────────
         // Sleep has ~15ms granularity by default, so for small waits

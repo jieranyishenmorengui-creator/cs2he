@@ -156,21 +156,35 @@ void run(const ESPConfig& cfg) {
     };
     std::vector<RawEntity> rawList;
 
-    for (int i = 1; i < 64; ++i) {
-        uintptr_t ch = read<uintptr_t>(elb + 8 * (i >> 9) + 0x10);
-        if (!ch) continue;
-        uintptr_t controller = read<uintptr_t>(ch + 112 * (i & 0x1FF));
+    // ── 实体列表: 一次批量读进本地缓冲 ────────────────────────────
+    // 索引 0..63 的 chunk 恒为 [elb+0x10], 条目按 112 字节步长连续排列.
+    // 原实现每帧对同一地址重复读 64 次 + 对连续数组再单独读 64 次(≈128 次 RPM,
+    // 每次 20~30µs → 约 4ms/帧, 是帧耗时的主体). 这里压成 2 次读.
+    constexpr int ENT_STRIDE = 112;
+    constexpr int ENT_N      = 64;
+    static std::vector<uint8_t> s_entBuf;
+    s_entBuf.resize(size_t(ENT_STRIDE) * ENT_N);
+    uintptr_t chunkBase = read<uintptr_t>(elb + 0x10);
+    bool haveEnts = chunkBase && read(chunkBase, s_entBuf.data(), s_entBuf.size());
+    auto ent_at = [&](int idx) -> uintptr_t {
+        if (!haveEnts || idx < 0 || idx >= ENT_N) return 0;
+        return *reinterpret_cast<uintptr_t*>(s_entBuf.data() + size_t(idx) * ENT_STRIDE);
+    };
+
+    for (int i = 1; i < ENT_N; ++i) {
+        uintptr_t controller = ent_at(i);
         if (!controller || controller == local_ctrl) continue;
 
         // Quick existence check: pawn handle
         uint32_t ph = read<uint32_t>(controller + NetVars::m_hPawn);
         if (!ph) continue;
 
-        uintptr_t pawn = 0;
-        {
-            uint32_t pIdx = ph & 0x7FFF;
+        // 玩家 pawn 索引很小, 通常也在同一个 chunk 里 → 直接查本地缓冲
+        uint32_t pIdx = ph & 0x7FFF;
+        uintptr_t pawn = (pIdx < ENT_N) ? ent_at((int)pIdx) : 0;
+        if (!pawn) {
             uintptr_t pChunk = read<uintptr_t>(elb + 8 * (pIdx >> 9) + 0x10);
-            if (pChunk) pawn = read<uintptr_t>(pChunk + 112 * (pIdx & 0x1FF));
+            if (pChunk) pawn = read<uintptr_t>(pChunk + ENT_STRIDE * (pIdx & 0x1FF));
         }
         if (!pawn || pawn == local_pawn) continue;
 
